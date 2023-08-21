@@ -1,0 +1,93 @@
+.popular-courses-tabing {
+  .nav-tabs {
+    position: sticky;
+    top: 64px;
+    min-width: 305px;
+    padding: 6px 0px;
+    border: 1px solid var(--card-border);
+    li {
+      width: 100% !important;
+      display: block !important;
+      position: relative;
+      .nav-link {
+        border-radius: 0px;
+        padding: 12px 10px;
+        transition: all 0.2s;
+        width: 100%;
+        position: relative;
+        border-left: 2px solid transparent;
+        color: var(--base-color-1) !important;
+      }
+      .active {
+        outline: unset !important;
+        border-left: 2px solid var(--base-link-color);
+        background-color: var(--label-color-white) !important;
+        color: var(--base-link-color) !important;
+        .tab-button {
+          svg {
+            color: var(--base-link-color) !important;
+          }
+          span {
+            color: var(--base-link-color) !important;
+          }
+        }
+      }
+    }
+  }
+  .tab-content {
+    padding: 0px 0px 0px 20px;
+    width: 100%;
+    .about-us-tabing-content {
+      ul {
+        li {
+          color: var(--label-color-4);
+        }
+      }
+    }
+  }
+}
+@media (max-width: 1400px) {
+  .popular-courses-tabing {
+    .nav-tabs {
+      min-width: 266px;
+    }
+  }
+}
+@media (max-width: 1024px) {
+  .popular-courses-tabing {
+    display: block !important;
+    .nav-tabs {
+      display: flex !important;
+      position: unset;
+      white-space: nowrap;
+      overflow-x: auto;
+      li {
+        .nav-link {
+          border-left: none;
+          border-bottom: 2px solid transparent !important;
+          font-size: 13px !important;
+          padding: 10px 15px !important;
+          .tab-button {
+            text-align: center;
+            span {
+              font-size: 13px !important;
+            }
+          }
+          svg {
+            display: none;
+          }
+          &:focus-visible {
+            outline: none;
+          }
+        }
+        .active {
+          border-left: none;
+          border-bottom: 2px solid var(--base-link-color) !important;
+        }
+      }
+    }
+    .tab-content {
+      padding: 0px;
+    }
+  }
+}

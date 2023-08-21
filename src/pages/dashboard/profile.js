@@ -1,10 +1,15 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 
-const Dashboard = dynamic(import('@/components/Dashboard/Dashboard'));
+const MyProfile = dynamic(import('@/MyProfile/MyProfile'));
+
 
 function DefaultPage() {
-  return <Dashboard />;
+  return (
+    <>
+      <MyProfile />
+    </>
+  );
 }
 DefaultPage.layout = 'DashboardLayout';
 export default DefaultPage;

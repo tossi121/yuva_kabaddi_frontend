@@ -1,0 +1,106 @@
+.user-select {
+  position: relative;
+}
+.user-select {
+  .user-radio {
+    display: none;
+  }
+  .user-radio + .user-details-box {
+    cursor: pointer;
+    border: 1px solid #ebebec;
+    border-radius: 6px;
+  }
+  .user-radio:checked + .user-details-box {
+    border: 1px solid var(--base-link-color) !important;
+    border-radius: 6px !important;
+    background: var(--base-link-color);
+    color: var(--label-color-white);
+  }
+}
+.time-heading {
+  span {
+    min-width: 240px;
+  }
+}
+.select-time {
+  .start-time,
+  .end-time {
+    width: 42.5%;
+  }
+}
+.select-user-name {
+  text-transform: capitalize;
+}
+
+.select-time-box {
+  width: 510px;
+}
+
+.plus-btn {
+  top: 10px;
+  right: 0%;
+  width: 28px;
+  height: 28px;
+}
+.minus-btn {
+  width: 28px;
+  height: 28px;
+  background: var(--label-red);
+  color: var(--label-color-white);
+  border: 1px solid var(--label-red);
+  &:hover,
+  &:focus,
+  &:active {
+    background: var(--label-red) !important;
+    color: var(--label-color-white) !important;
+    border: 1px solid var(--label-red) !important;
+  }
+}
+
+//  view time slots start
+.view-time-slots {
+  span {
+    border-color: var(--label-red) !important;
+  }
+}
+.view-slots-date {
+  background: var(--label-color-white);
+  min-width: 100px;
+}
+
+// view time slots end
+
+.advance-filter-group {
+  .form-chek-input-box {
+    .form-check-input {
+      width: 20px;
+      height: 20px;
+      border-color: var(--card-border);
+      border-radius: 6px;
+      &:focus {
+        box-shadow: none;
+        border-color: var(--card-border);
+      }
+      &:checked {
+        background-color: var(--base-link-color);
+        border-color: var(--base-link-color);
+      }
+    }
+  }
+}
+@media (max-width: 591px) {
+  .time-heading {
+    span {
+      min-width: 50%;
+    }
+  }
+  .select-time-box {
+    width: unset;
+  }
+  .start-time {
+    width: 39%;
+  }
+  .end-time {
+    width: 38%;
+  }
+}

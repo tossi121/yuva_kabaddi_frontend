@@ -1,0 +1,49 @@
+.dashboard-breadcrumb-wrapper {
+  .dashboard-breadcrumb {
+    .breadcrumb {
+      width: max-content;
+    }
+    .breadcrumb-heading {
+      font-size: 28px;
+      line-height: 32px;
+      color: var(--base-color-1);
+      font-weight: 600;
+    }
+    .breadcrumb-item {
+      position: relative;
+      padding: 0px 13px;
+    }
+    .breadcrumb-item + .breadcrumb-item::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -1px;
+      background: url('/images/team-roster/arrow-right.svg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      float: unset;
+      width: 10px;
+      height: 10px;
+      transform: translateY(-50%);
+    }
+  }
+}
+.add-filter-btn {
+  width: 40px;
+  height: 40px;
+}
+@media (max-width: 574px) {
+  .dashboard-breadcrumb-wrapper {
+    .dashboard-breadcrumb {
+      .breadcrumb-heading {
+        font-size: 28px;
+        line-height: 32px;
+        color: var(--base-color-1);
+        font-weight: 600;
+      }
+      .breadcrumb {
+        width: max-content;
+      }
+    }
+  }
+}

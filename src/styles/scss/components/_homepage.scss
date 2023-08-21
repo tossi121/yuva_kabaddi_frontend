@@ -1,0 +1,105 @@
+// banner Section start
+.jobs-banner-section {
+  padding: 80px 0px;
+}
+.form-select-catgory {
+  .filter-box-dropdown {
+    &:after {
+      border: unset;
+      width: 15px;
+      height: 15px;
+      background: url(/images/dashboard-icons/arrow-down.svg);
+      background-size: cover;
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      transform: translateY(-50%);
+    }
+  }
+  .banner-filter-menu {
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  .dropdown-menu {
+    .dropdown-item {
+      padding: 15px 10px !important;
+      white-space: break-spaces;
+      &:hover,
+      &:focus {
+        color: var(--base-color-1);
+        background: var(--base-color-4);
+      }
+    }
+  }
+  .tag-list {
+    width: 90%;
+
+    // display: flex;
+    // flex-wrap: wrap;
+    .btn-selected-tag {
+      background: var(--base-color-6);
+      transition: all 0.3s;
+      padding: 7px 10px;
+      font-size: 12px;
+      color: var(--base-color-3);
+      font-weight: 500;
+      line-height: 24px;
+      margin-right: 12px;
+      border-radius: 6px;
+      svg {
+        transform: translateY(-50%);
+        right: 4px;
+      }
+    }
+  }
+
+  .selected-items {
+    background: var(--base-color-6);
+    transition: all 0.3s;
+    padding: 3px 13px;
+  }
+}
+
+.job-related-slider {
+  .slick-dots {
+    bottom: -40px;
+    li {
+      width: 15px;
+      height: 15px;
+    }
+    li.slick-active button:before {
+      opacity: 1;
+      color: var(--label-color-white);
+      font-size: 13px;
+    }
+    li button:before {
+      opacity: 0.75;
+      color: var(--label-color-white);
+      font-size: 11px;
+    }
+  }
+}
+//end banner section
+
+.dropdown-menu.show {
+  z-index: 96;
+}
+
+// news letter section end
+// error-page 404page
+.error-page {
+  .main-text {
+    font-size: 142px;
+    font-weight: 800;
+    line-height: 142px;
+  }
+}
+@media (max-width: 991px) {
+  .error-page {
+    .main-text {
+      font-size: 102px;
+      font-weight: 700;
+      line-height: 102px;
+    }
+  }
+}
