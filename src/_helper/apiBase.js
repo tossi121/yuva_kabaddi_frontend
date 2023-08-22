@@ -1,87 +1,73 @@
 import Axios from 'axios';
 import Cookies from 'js-cookie';
 
-// Api Headers
-function setHeader() {
-  const _headers = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+const API_BASE_URL = process.env.BASE_API_URL;
+
+function generateHeaders(contentType = 'application/json') {
+  const headers = {
+    'Content-Type': contentType,
   };
-  if (Cookies.get('token')) {
-    _headers['headers']['Authorization'] = `Bearer ${Cookies.get('token')}`;
+
+  const token = Cookies.get('token');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
-  return _headers;
-}
-function mutipartHeader() {
-  const _headers = {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  };
-  if (Cookies.get('token')) {
-    _headers['headers']['Authorization'] = `Bearer ${Cookies.get('token')}`;
-  }
-  return _headers;
+
+  return { headers };
 }
 
-// API fetch Base
-export async function fetcher(method, url, params) {
+async function makeRequest(method, url, params, contentType = 'application/json') {
   try {
-    let response;
+    const headers = generateHeaders(contentType);
 
-    if (method == 'GET') {
-      const updateHeader = setHeader();
-      updateHeader['params'] = params;
-      response = await Axios.get(`${process.env.BASE_API_URL}${url}`, updateHeader);
+    if (method === 'GET') {
+      const response = await Axios.get(`${API_BASE_URL}${url}`, { ...headers, params });
+      return handleResponse(response.data);
     } else {
-      response = await Axios.post(`${process.env.BASE_API_URL}${url}`, params, setHeader());
+      const response = await Axios.post(`${API_BASE_URL}${url}`, params, headers);
+      return handleResponse(response.data);
     }
-
-    if (response.data.status == 1) {
-      return successResponse(response.data);
-    } else {
-      return errorResponse(response.data);
-    }
-  } catch (err) {
-    return errorResponse({ resultMessage: err });
+  } catch (error) {
+    return errorResponse({ resultMessage: error.message });
   }
 }
 
-export async function filesFetch(method, url, params) {
-  try {
-    let response;
-    if (method == 'GET') {
-      const updateHeader = mutipartHeader();
-      updateHeader['params'] = params;
-      response = await Axios.get(`${process.env.BASE_API_URL}${url}`, updateHeader);
-    } else {
-      const formData = new FormData();
-      Object.keys(params).forEach((key) => formData.append(key, params[key]));
-      response = await Axios.post(`${process.env.BASE_API_URL}${url}`, formData, mutipartHeader());
-    }
-    if (response.data.status == 1) {
-      return successResponse(response.data);
-    } else {
-      return errorResponse(response.data);
-    }
-  } catch (err) {
-    return errorResponse({ resultMessage: err });
-  }
+async function fetcher(method, url, params) {
+  return makeRequest(method, url, params);
 }
+
+async function filesFetch(method, url, params) {
+  const formData = new FormData();
+  Object.keys(params).forEach((key) => formData.append(key, params[key]));
+
+  return makeRequest(method, url, formData, 'multipart/form-data');
+}
+
+// function handleResponse(response) {
+//   if (response.status === 1) {
+//     return successResponse(response);
+//   } else {
+//     return errorResponse(response);
+//   }
+// }
 
 function successResponse(response) {
+  const { result, message } = response;
   return {
     status: true,
-    data: response?.result,
-    message: response?.message,
+    data: result,
+    message,
   };
 }
 
+console.log(errorResponse(), '----');
 function errorResponse(response) {
+  console.log(response)
   return {
     status: false,
     data: null,
-    message: response.resultMessage.response.data.message,
+    message: response?.resultMessage || 'An error occurred.',
   };
 }
+
+export { fetcher, filesFetch };
