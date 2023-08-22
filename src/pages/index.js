@@ -1,10 +1,18 @@
-import React from 'react';
-import dynamic from 'next/dynamic';
+import { useAuth } from '@/_context/authContext';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
-const Dashboard = dynamic(import('@/components/Dashboard/Dashboard'));
+export default function Home() {
+  const router = useRouter();
+  const { isContextLoaded, isLoggedIn } = useAuth();
 
-function DefaultPage() {
-  return <Dashboard />;
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push('/dashboard');
+    } else {
+      router.push('/login');
+    }
+  }, [isContextLoaded, isLoggedIn, router]);
+
+  return <></>;
 }
-DefaultPage.layout = 'DashboardLayout';
-export default DefaultPage;

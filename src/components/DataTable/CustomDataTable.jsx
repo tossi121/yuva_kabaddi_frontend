@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { Button, Form } from 'react-bootstrap';
-import { faFile, faTrashCan } from '@fortawesome/free-regular-svg-icons';
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { useRouter } from 'next/router';
 
 const CustomPagination = dynamic(import('./CustomPagination'));
@@ -126,7 +126,6 @@ export default function CustomDataTable(props) {
     }
     return { keyA, keyB };
   }
-
 
   function handleSorting(keyName) {
     const sorted = [...filterData];
@@ -271,7 +270,9 @@ export default function CustomDataTable(props) {
                   {(col.field == 'Select_All' && (
                     <td>
                       {(row.is_default == 1 && (
-                        <span></span> // <Form.Check
+                        <span></span>
+
+                        // <Form.Check
                         //   className="cursor-pointer shadow-none tabel-select-box pt-0 "
                         //   id={row.id}
                         //   value={row.id}

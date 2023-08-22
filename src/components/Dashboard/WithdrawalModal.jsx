@@ -1,17 +1,22 @@
 import { validWithdrawalAmount } from '@/_helper/regex';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Form, Modal, Spinner } from 'react-bootstrap';
 
 function WithdrawalModal(props) {
-  const { setShow, show } = props;
-
+  const { setShow, show, totalAmount } = props;
   const [formValues, setFormValues] = useState({
-    totalAmount: '15,725.00',
+    totalAmount: totalAmount,
     withdrawalAmount: '',
   });
-
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      totalAmount: totalAmount,
+    }));
+  }, [totalAmount]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -82,7 +87,7 @@ function WithdrawalModal(props) {
           </div>
           <div className="mb-2">
             <Form.Group className="position-relative">
-              <Form.Label className="fs-16 fw-400 base-color-1">Enter Amount to Withdraw</Form.Label>
+              <Form.Label className="fs-16 fw-400 base-color-1">Enter Amount to Withdrawal</Form.Label>
               <Form.Control
                 type="number"
                 placeholder="Enter Amount to Withdraw"
@@ -105,7 +110,7 @@ function WithdrawalModal(props) {
               disabled={loading}
             >
               Withdrawal
-              {loading && <Spinner animation="border" variant="white" className="ms-1 spinner" />}
+              {loading && <Spinner animation="border" variant="white" size="sm" className="ms-1 spinner" />}
             </Button>
           </div>
         </Form>

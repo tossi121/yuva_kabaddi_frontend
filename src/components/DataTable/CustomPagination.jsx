@@ -23,11 +23,11 @@ const CustomPagination = (props) => {
     // });
   }, [pageSize]);
 
-  useEffect(() => {
-    if (totalCount != pageSize) {
-      setCurrentPage(1);
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   if (totalCount != pageSize) {
+  //     setCurrentPage(1);
+  //   }
+  // }, [data]);
   const paginationRange = usePagination({ currentPage, totalCount, siblingCount, pageSize });
 
   const currentTableData = useMemo(() => {
