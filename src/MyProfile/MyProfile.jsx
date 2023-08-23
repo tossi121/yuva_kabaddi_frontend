@@ -70,9 +70,6 @@ function MyProfile() {
     }
   });
 
-  // for get State List functionality End
-
-  // for get City List functionality start
   async function getCityList() {
     const params = {
       state_id: selectStateId,
@@ -95,8 +92,6 @@ function MyProfile() {
       return item;
     }
   });
-
-  // for get City List functionality End
 
   function getImagePreviewURL(image) {
     if (typeof image === 'string') return image;

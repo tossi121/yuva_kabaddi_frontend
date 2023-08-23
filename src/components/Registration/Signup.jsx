@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Container, Dropdown, Form, Row, Spinner } from 'react-bootstrap';
 
 import { maxLengthCheck, validEmail, validMobile, validName } from '@/_helper/regex';
 import VerifyOtp from './VerifyOtp';
 import Link from 'next/link';
+import { getSignup } from '@/_services/services_api';
+import { Toaster, toast } from 'react-hot-toast';
 
 function Signup() {
   const initialFormValues = {
@@ -18,6 +20,27 @@ function Signup() {
   const [loading, setLoading] = useState(false);
   const [mobileNumber, setMobileNumber] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
+
+  useEffect(() => {
+    handleSignpup();
+  }, []);
+
+  async function handleSignpup() {
+    const params = {
+      contactno: '5714573708',
+      email: 'tosif.geekologix@gmail.com',
+      name: 'Tossi',
+      user_role: 'PLAYER',
+      otp: '2468',
+    };
+    const res = await getSignup(params);
+    if (res?.status) {
+      toast.success(res?.message);
+    } else {
+      toast.error(res?.message);
+    }
+    console.log(res, 'Results');
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -82,6 +105,7 @@ function Signup() {
 
   return (
     <>
+      <Toaster position="top-right" reverseOrder={false} />
       {(mobileNumber && <VerifyOtp {...{ mobileNumber }} />) || (
         <>
           <section className="login-page min-vh-100 d-flex align-items-center justify-content-center">
