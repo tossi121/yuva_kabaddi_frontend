@@ -228,7 +228,7 @@ function MyProfile() {
                     <Col lg={6}>
                       <div className="mb-4">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Enter Email</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color-1">Enter Email Address</Form.Label>
                           <Form.Control
                             type="email"
                             placeholder="Enter Your Email Address"

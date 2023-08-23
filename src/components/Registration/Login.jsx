@@ -75,7 +75,7 @@ function Login() {
                             <h6 className="fs-14 fw-500 base-color-2">Login in to your account</h6>
                           </div>
                           <Form onSubmit={handleSubmit} autoComplete="off">
-                            <div className="mb-2">
+                            <div className="mb-3">
                               <Form.Group className="position-relative">
                                 <Form.Label className="fs-16 fw-400 base-color-1">Enter Mobile Number</Form.Label>
                                 <Form.Control

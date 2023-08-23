@@ -190,7 +190,7 @@ function Dashboard() {
         <Container fluid>
           <Row className="my-4 align-items-stretch h-100">
             <Col lg={12}>
-              <div className="d-flex justify-content-between align-items-center mb-4">
+              <div className="mb-4">
                 <DashboardBreadcrumb data={'Home'} />
               </div>
 

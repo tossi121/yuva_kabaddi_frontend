@@ -43,32 +43,7 @@ function Sidebar(props) {
         </span>
         <ul className="navbar-nav px-3 py-3 vh-100">
           <SidebarLink href="/dashboard" label="Dashboard" iconSrc="/images/dashboard-icons/Dashboard.svg" />
-          {/* <SidebarLink href="/dashboard/users" label="Users" iconSrc="/images/dashboard-icons/profiles.svg" />
-          <SidebarLink
-            href="/dashboard/facilities"
-            label="Facilities"
-            iconSrc="/images/dashboard-icons/facilities.svg"
-          /> */}
-          {/* <SidebarLink
-            href="/dashboard/view-slots"
-            label="Time Slots"
-            iconSrc="/images/dashboard-icons/time-lapse.svg"
-          />
-          <SidebarLink
-            href="/dashboard/book-facilities"
-            label="Book Facilities"
-            iconSrc="/images/dashboard-icons/book-facilities.svg"
-          />
-          <SidebarLink href="/dashboard/tournament" label="Tournament" iconSrc="/images/dashboard-icons/trophy.png" />
-          <li className="menu-divider nav-item">
-            <div className="menu-seperator"></div>
-            {toggle || toggleResponsive ? (
-              <span className="fs-16 fw-500 base-color-2 ps-3 text-uppercase">My Profile</span>
-            ) : (
-              ''
-            )}
-          </li>
-          <SidebarLink href="/dashboard/profile" label="My Profile" iconSrc="/images/dashboard-icons/profiles.svg" /> */}
+          <SidebarLink href="/dashboard/profile" label="My Profile" iconSrc="/images/dashboard-icons/profiles.svg" />
         </ul>
       </div>
     </section>
