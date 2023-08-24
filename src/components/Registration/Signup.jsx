@@ -20,11 +20,7 @@ function Signup() {
   const [mobileNumber, setMobileNumber] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
 
-  useEffect(() => {
-    handleSignpup();
-  }, []);
-
-  async function handleSignpup() {
+  async function handleSignup() {
     const params = {
       contactno: '5714573708',
       email: 'tosif.geekologix@gmail.com',
@@ -33,12 +29,11 @@ function Signup() {
       otp: '2468',
     };
     const res = await getSignup(params);
-    if (res?.status) {
-      toast.success(res?.message);
-    } else {
-      toast.error(res?.message);
-    }
-    console.log(res, 'Results');
+    // if (res?.status) {
+    //   toast.success(res?.message);
+    // } else {
+    //   toast.error(res?.message);
+    // }
   }
 
   const handleChange = (e) => {
@@ -104,20 +99,20 @@ function Signup() {
 
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
+      {/* <Toaster position="top-right" reverseOrder={false} /> */}
       {(mobileNumber && <VerifyOtp {...{ mobileNumber }} />) || (
         <>
           <section className="login-page min-vh-100 d-flex align-items-center justify-content-center">
             <Container>
               <Row className="justify-content-center">
-                <Col xl={6}>
+                <Col xl={6} md={8}>
                   <Card>
                     <Card.Body className="p-4">
                       <div className="text-center">
                         <h2 className="base-color fw-700">Welcome!</h2>
                         <h6 className="fs-14 fw-500 base-color-2">Create your account</h6>
                       </div>
-                      <Form onSubmit={handleSubmit} autoComplete="off">
+                      <Form autoComplete="off" onSubmit={handleSubmit}>
                         <div className="mb-3">
                           <Form.Group className="position-relative" controlId="formBasicEmail">
                             <Form.Label className="fs-16 fw-400 base-color-1">Select Role</Form.Label>
@@ -217,8 +212,8 @@ function Signup() {
                             Signup
                             {loading && <Spinner animation="border" variant="white" className="ms-1 spinner" />}
                           </Button>
-                          <span className="purple-light-color me-2">Already have an account?</span>
-                          <Link href={'/login'} className="purple-color">
+                          <span className="base-color-2 me-2">Already have an account?</span>
+                          <Link href={'/login'} className="base-link-color">
                             Login Here
                           </Link>
                         </div>

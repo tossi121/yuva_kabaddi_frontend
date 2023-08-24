@@ -105,8 +105,8 @@ function Login() {
                                 Login
                                 {loading && <Spinner animation="border" variant="white" className="ms-1 spinner" />}
                               </Button>
-                              <span className="purple-light-color me-2">Don&apos; have an account?</span>
-                              <Link href={'/signup'} className="purple-color">
+                              <span className="base-color-2 me-2">Don&apos; have an account?</span>
+                              <Link href={'/signup'} className="base-link-color">
                                 Signup Here
                               </Link>
                             </div>

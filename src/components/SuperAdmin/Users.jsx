@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faCommentAlt, faEdit, faFilter, faPlus, faSearch, faTimes, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCheck,
+  faCommentAlt,
+  faEdit,
+  faFilter,
+  faPlus,
+  faSearch,
+  faTimes,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons';
 import { Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
 import Link from 'next/link';
 import CustomDataTable from '../DataTable/CustomDataTable';
 import { maxLengthCheck } from '@/_helper/regex';
 import dynamic from 'next/dynamic';
 import CommentModal from './CommentlModal';
+import DeleteModal from './DeleteModal';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/Breadcrumb/DashboardBreadcrumbar'));
 
@@ -18,6 +28,8 @@ function Users() {
   const [userEmail, setUserEmail] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState(null);
   const [show, setShow] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
   const columns = [
     { heading: 'Name', field: 'name' },
     { heading: 'Email Address', field: 'email' },
@@ -204,25 +216,22 @@ function Users() {
     const handleClick = () => {
       setShow(true);
     };
-
+    const handleDelete = (id) => {
+      setDeleteId(id);
+      setShowModal(true);
+    };
     return (
       <div className="d-flex justify-content-center">
         <Link href={`users/${id}`}>
-          <Button className="common-btn py-1 px-2 text-white me-3" title="Edit User">
+          <Button variant="success" className="py-1 px-2 me-3" title="Edit User">
             <FontAwesomeIcon icon={faEdit} width={15} height={15} />
           </Button>
         </Link>
-          <Button className="common-btn py-1 px-2 text-white me-3" title="Delete User">
-            <FontAwesomeIcon icon={faTrash} width={15} height={15} />
-          </Button>
-        <Button variant="success" className="py-1 px-2 text-white me-3" title="Approved">
-          <FontAwesomeIcon icon={faCheck} width={15} height={15} />
+        <Button variant="danger" className="py-1 px-2 me-3" title="Delete User" onClick={handleDelete}>
+          <FontAwesomeIcon icon={faTrash} width={15} height={15} />
         </Button>
-        <Button variant="danger" className="common-bt py-1 px-2 text-white me-3" title="Rejected">
-          <FontAwesomeIcon icon={faTimes} width={15} height={15} />
-        </Button>
-        <Button className="common-btn py-1 px-2 text-white me-3" title="Add Comment" onClick={handleClick}>
-          <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} />
+        <Button className="common-btn fs-14" onClick={handleClick}>
+          Review
         </Button>
       </div>
     );
@@ -254,13 +263,23 @@ function Users() {
 
   return (
     <>
-      <CommentModal show={show} setShow={setShow} />
+      {show && (
+        <CommentModal
+          {...{
+            show,
+            setShow,
+          }}
+        />
+      )}
+      {showModal && (
+        <DeleteModal showModal={showModal} setShowModal={setShowModal} handleDelete={deleteId} text="User" />
+      )}
       <section className="dashboard-section">
         <Container fluid>
           <Row className="my-4 align-items-stretch h-100">
             <Col lg={12}>
               <div className="d-flex justify-content-between align-items-center mb-4">
-                <DashboardBreadcrumb data={'Home'} />
+                <DashboardBreadcrumb breadcrumbTitle="Users" data={'Dashboard'} />
                 <div className="d-sm-flex justify-content-between align-items-center ">
                   <div className="add-filter d-flex mt-sm-0 mt-2">
                     <Button
@@ -282,7 +301,7 @@ function Users() {
                 className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">View Users Filter</h4>
+                  <h4 className="common-heading mb-0"> Users Filter</h4>
                 </div>
                 <Card.Body className="box-padding">
                   <Form onSubmit={handleSubmit}>
@@ -381,7 +400,7 @@ function Users() {
 
               <Card className="bg-white common-card-box">
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">View Users</h4>
+                  <h4 className="common-heading mb-0">Users</h4>
                 </div>
                 <Card.Body className="box-padding">
                   <CustomDataTable

@@ -7,12 +7,15 @@ export default function Home() {
   const { isContextLoaded, isLoggedIn } = useAuth();
 
   useEffect(() => {
-    if (isLoggedIn) {
-      router.push('/dashboard');
-    } else {
-      router.push('/login');
-    }
-  }, [isContextLoaded, isLoggedIn, router]);
+    router.push('/dashboard');
+  }, [router]);
+  // useEffect(() => {
+  //   if (isLoggedIn) {
+  //     router.push('/dashboard');
+  //   } else {
+  //     router.push('/login');
+  //   }
+  // }, [isContextLoaded, isLoggedIn, router]);
 
   return <></>;
 }

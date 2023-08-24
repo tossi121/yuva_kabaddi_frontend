@@ -31,7 +31,6 @@ function AccountConfirmation() {
     { heading: 'Action', field: 'Action' },
   ];
 
-  console.log(columns);
   // Sample data for demonstration purposes
 
   const data = [
@@ -117,17 +116,9 @@ function AccountConfirmation() {
     };
 
     return (
-      <div className="d-flex justify-content-center">
-        <Button variant="success" className="py-1 px-2  text-white" title="Approved">
-          <FontAwesomeIcon icon={faCheck} width={15} height={15} />
+        <Button className="common-btn fs-14 mx-auto" onClick={handleClick}>
+          Review
         </Button>
-        <Button variant="danger" className="common-bt py-1 px-2  text-white mx-3" title="Rejected">
-          <FontAwesomeIcon icon={faTimes} width={15} height={15} />
-        </Button>
-        <Button className="common-btn py-1 px-2  text-white" title="Add Comment" onClick={handleClick}>
-          <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} />
-        </Button>
-      </div>
     );
   }
 
@@ -163,7 +154,7 @@ function AccountConfirmation() {
           <Row className="my-4 align-items-stretch h-100">
             <Col lg={12}>
               <div className="d-flex justify-content-between align-items-center mb-4">
-                <DashboardBreadcrumb data={'Home'} />
+                <DashboardBreadcrumb breadcrumbTitle="Account Confirmation" data={'Dashboard'} />
                 <div className="d-sm-flex justify-content-between align-items-center ">
                   <div className="add-filter d-flex mt-sm-0 mt-2">
                     <Button
@@ -185,7 +176,7 @@ function AccountConfirmation() {
                 className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">Users Account Confirmation Filter</h4>
+                  <h4 className="common-heading mb-0">Account Confirmation Filter</h4>
                 </div>
                 <Card.Body className="box-padding">
                   <Form onSubmit={handleSubmit}>
@@ -266,7 +257,7 @@ function AccountConfirmation() {
 
               <Card className="bg-white common-card-box">
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">Users Account Confirmation</h4>
+                  <h4 className="common-heading mb-0">Account Confirmation</h4>
                 </div>
                 <Card.Body className="box-padding">
                   <CustomDataTable

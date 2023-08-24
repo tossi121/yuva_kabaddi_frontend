@@ -206,17 +206,9 @@ function Withdrawal() {
     };
 
     return (
-      <div className="d-flex justify-content-center">
-        <Button variant="success" className="py-1 px-2  text-white" title="Approved">
-          <FontAwesomeIcon icon={faCheck} width={15} height={15} />
-        </Button>
-        <Button variant="danger" className="common-bt py-1 px-2  text-white mx-3" title="Rejected">
-          <FontAwesomeIcon icon={faTimes} width={15} height={15} />
-        </Button>
-        <Button className="common-btn py-1 px-2  text-white" title="Add Comment" onClick={handleClick}>
-          <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} />
-        </Button>
-      </div>
+      <Button className="common-btn fs-14 mx-auto" onClick={handleClick}>
+        Review
+      </Button>
     );
   }
 
@@ -252,7 +244,7 @@ function Withdrawal() {
           <Row className="my-4 align-items-stretch h-100">
             <Col lg={12}>
               <div className="d-flex justify-content-between align-items-center mb-4">
-                <DashboardBreadcrumb data={'Home'} />
+                <DashboardBreadcrumb breadcrumbTitle="Withdrawal " data={'Dashboard'} />
                 <div className="d-sm-flex justify-content-between align-items-center ">
                   <div className="add-filter d-flex mt-sm-0 mt-2">
                     <Button
@@ -274,7 +266,7 @@ function Withdrawal() {
                 className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">Users Withdrawal Filter</h4>
+                  <h4 className="common-heading mb-0">Withdrawal Filter</h4>
                 </div>
                 <Card.Body className="box-padding">
                   <Form onSubmit={handleSubmit}>
@@ -355,7 +347,7 @@ function Withdrawal() {
 
               <Card className="bg-white common-card-box">
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">Users Withdrawal Amount</h4>
+                  <h4 className="common-heading mb-0">Withdrawal Amount</h4>
                 </div>
                 <Card.Body className="box-padding">
                   <CustomDataTable

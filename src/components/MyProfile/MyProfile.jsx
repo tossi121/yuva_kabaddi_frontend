@@ -155,7 +155,7 @@ function MyProfile() {
     <section className="dashboard-section">
       <Container fluid>
         <div className="d-flex justify-content-between align-items-center">
-          <DashboardBreadcrumb BreadcrumbTitle="My Profile" data={'Dashboard'} />
+          <DashboardBreadcrumb breadcrumbTitle="My Profile" data={'Dashboard'} />
         </div>
         <Row className="py-4 align-items-stretch h-100">
           <Col lg={12}>
