@@ -1,10 +1,6 @@
-import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter, faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
-import { Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
-import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import { Button, Card, Col, Container, Row } from 'react-bootstrap';
 import CustomDataTable from '../DataTable/CustomDataTable';
-import { maxLengthCheck } from '@/_helper/regex';
 import dynamic from 'next/dynamic';
 import WithdrawalModal from './WithdrawalModal';
 
@@ -16,9 +12,9 @@ function Dashboard() {
   const [roleName, setRoleName] = useState('Select Role');
   const [searchRole, setSearchRole] = useState('');
   const [userEmail, setUserEmail] = useState(null);
-  const [phoneNumber, setPhoneNumber] = useState(null);
   const [totalAmount, setTotalAmount] = useState('');
   const [show, setShow] = useState(false);
+  const [withdrawalId, setWithdrawalId] = useState(null);
   const columns = [
     { heading: 'Pricing Category', field: 'pricing_category' },
     { heading: 'Match Number', field: 'match_number' },
@@ -137,19 +133,25 @@ function Dashboard() {
     },
   };
 
-  function renderWithdrawalModal(rowId) {
+  function renderWithdrawalModal(rowId, rowStatus) {
     const handleClick = () => {
       setShow(true);
-      const selectedRow = data.find((row) => row.id === rowId);
-      if (selectedRow) {
-        setTotalAmount(selectedRow.amount);
-      }
+      setTotalAmount(data.find((row) => row.id === rowId)?.amount);
+      setWithdrawalId(rowId);
     };
 
     return (
-      <Button className="common-btn fs-12 mx-auto text-center" onClick={handleClick}>
-        Withdrawal
-      </Button>
+      <>
+        {rowStatus === 'Approved' ? (
+          <Button className="common-btn fs-14 mx-auto" onClick={() => handleReject(rowId)}>
+            Reject
+          </Button>
+        ) : (
+          <Button className="common-btn fs-14 mx-auto" onClick={handleClick}>
+            Withdrawal
+          </Button>
+        )}
+      </>
     );
   }
 
@@ -169,20 +171,14 @@ function Dashboard() {
     e.preventDefault();
     // Perform form submission logic here
   };
-
-  // Handle reset form
-  const handleReset = () => {
-    // Reset form fields
-    setUserEmail('');
-    setPhoneNumber('');
-  };
-
   return (
     <>
       <WithdrawalModal
         {...{
           totalAmount,
           show,
+          withdrawalId,
+          data,
           setShow,
         }}
       />
@@ -190,8 +186,8 @@ function Dashboard() {
         <Container fluid>
           <Row className="my-4 align-items-stretch h-100">
             <Col lg={12}>
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <DashboardBreadcrumb data={'Home'} />
+              <div className="mb-4">
+                <DashboardBreadcrumb data={'Dashboard'} />
               </div>
 
               <Card className="bg-white rounded-4 card-border mb-4">

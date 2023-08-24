@@ -26,7 +26,7 @@ function DashboardBreadcrumb(props) {
                 </Link>
               </li>
               <li className="breadcrumb-item">
-                <a className="text-decoration-none base-color-2 fs-14 fw-400">{props.BreadcrumbTitle}</a>
+                <a className="text-decoration-none base-color-2 fs-14 fw-400">{props.breadcrumbTitle}</a>
               </li>
             </ol>
           )) || (

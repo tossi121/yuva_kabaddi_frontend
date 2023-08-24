@@ -75,7 +75,7 @@ function Login() {
                             <h6 className="fs-14 fw-500 base-color-2">Login in to your account</h6>
                           </div>
                           <Form onSubmit={handleSubmit} autoComplete="off">
-                            <div className="mb-2">
+                            <div className="mb-3">
                               <Form.Group className="position-relative">
                                 <Form.Label className="fs-16 fw-400 base-color-1">Enter Mobile Number</Form.Label>
                                 <Form.Control
@@ -105,8 +105,8 @@ function Login() {
                                 Login
                                 {loading && <Spinner animation="border" variant="white" className="ms-1 spinner" />}
                               </Button>
-                              <span className="purple-light-color me-2">Don&apos; have an account?</span>
-                              <Link href={'/signup'} className="purple-color">
+                              <span className="base-color-2 me-2">Don&apos; have an account?</span>
+                              <Link href={'/signup'} className="base-link-color">
                                 Signup Here
                               </Link>
                             </div>

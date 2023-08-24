@@ -1,4 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
 import '@/styles/scss/_app.scss';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';

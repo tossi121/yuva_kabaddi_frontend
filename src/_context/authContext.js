@@ -10,13 +10,14 @@ export const AuthProvider = ({ children }) => {
 
   const router = useRouter();
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      getUserData();
-    } else {
-      router.push('/login');
-    }
-  }, [isContextLoaded, isLoggedIn]);
+  // useEffect(() => {
+  //   if (isLoggedIn) {
+  //     router.push('/dashboard');
+  //     getUserData();
+  //   } else {
+  //     router.push('/login');
+  //   }
+  // }, [isContextLoaded, isLoggedIn]);
 
   function getUserData() {
     const token = Cookies.get('token');

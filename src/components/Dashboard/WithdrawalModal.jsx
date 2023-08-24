@@ -57,6 +57,8 @@ function WithdrawalModal(props) {
       setTimeout(() => {
         setLoading(false);
         setShow(false);
+        setFormValues((prevValues) => ({ ...prevValues, withdrawalAmount: '' }));
+        setFormErrors({});
       }, 1500);
     } else {
       setFormErrors(errors);

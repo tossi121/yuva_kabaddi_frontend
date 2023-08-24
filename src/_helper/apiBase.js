@@ -43,13 +43,13 @@ async function filesFetch(method, url, params) {
   return makeRequest(method, url, formData, 'multipart/form-data');
 }
 
-// function handleResponse(response) {
-//   if (response.status === 1) {
-//     return successResponse(response);
-//   } else {
-//     return errorResponse(response);
-//   }
-// }
+function handleResponse(response) {
+  if (response.status === 1) {
+    return successResponse(response);
+  } else {
+    return errorResponse(response);
+  }
+}
 
 function successResponse(response) {
   const { result, message } = response;
@@ -60,13 +60,12 @@ function successResponse(response) {
   };
 }
 
-console.log(errorResponse(), '----');
 function errorResponse(response) {
   console.log(response)
   return {
     status: false,
     data: null,
-    message: response?.resultMessage || 'An error occurred.',
+    message: response || 'An error occurred.',
   };
 }
 

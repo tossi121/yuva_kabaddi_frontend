@@ -1,13 +1,12 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 
-const MyProfile = dynamic(import('@/components/MyProfile/MyProfile'));
-
+const AccountConfirmation = dynamic(import('@/components/SuperAdmin/AccountConfirmation'));
 
 function DefaultPage() {
   return (
     <>
-      <MyProfile />
+      <AccountConfirmation />
     </>
   );
 }

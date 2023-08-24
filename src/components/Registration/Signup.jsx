@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Container, Dropdown, Form, Row, Spinner } from 'react-bootstrap';
-
 import { maxLengthCheck, validEmail, validMobile, validName } from '@/_helper/regex';
 import VerifyOtp from './VerifyOtp';
 import Link from 'next/link';
@@ -21,11 +20,7 @@ function Signup() {
   const [mobileNumber, setMobileNumber] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
 
-  useEffect(() => {
-    handleSignpup();
-  }, []);
-
-  async function handleSignpup() {
+  async function handleSignup() {
     const params = {
       contactno: '5714573708',
       email: 'tosif.geekologix@gmail.com',
@@ -34,12 +29,11 @@ function Signup() {
       otp: '2468',
     };
     const res = await getSignup(params);
-    if (res?.status) {
-      toast.success(res?.message);
-    } else {
-      toast.error(res?.message);
-    }
-    console.log(res, 'Results');
+    // if (res?.status) {
+    //   toast.success(res?.message);
+    // } else {
+    //   toast.error(res?.message);
+    // }
   }
 
   const handleChange = (e) => {
@@ -105,23 +99,23 @@ function Signup() {
 
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
+      {/* <Toaster position="top-right" reverseOrder={false} /> */}
       {(mobileNumber && <VerifyOtp {...{ mobileNumber }} />) || (
         <>
           <section className="login-page min-vh-100 d-flex align-items-center justify-content-center">
             <Container>
               <Row className="justify-content-center">
-                <Col xl={6}>
+                <Col xl={6} md={8}>
                   <Card>
                     <Card.Body className="p-4">
                       <div className="text-center">
                         <h2 className="base-color fw-700">Welcome!</h2>
                         <h6 className="fs-14 fw-500 base-color-2">Create your account</h6>
                       </div>
-                      <Form onSubmit={handleSubmit} autoComplete="off">
-                        <div className="mb-4">
+                      <Form autoComplete="off" onSubmit={handleSubmit}>
+                        <div className="mb-3">
                           <Form.Group className="position-relative" controlId="formBasicEmail">
-                            <Form.Label className="fs-16 fw-400 base-color-1">Select User</Form.Label>
+                            <Form.Label className="fs-16 fw-400 base-color-1">Select Role</Form.Label>
                             <div className="form-select-catgory">
                               <Dropdown className="form-control px-0 py-0 card-border">
                                 <Dropdown.Toggle
@@ -132,17 +126,25 @@ function Signup() {
                                   <span className="text-truncate pe-3">{selectedRole || 'Select Role'}</span>
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu className="w-100 card-border banner-filter-menu">
+                                  <div className="px-2 mb-2">
+                                    <input
+                                      type="search"
+                                      placeholder="Search Role"
+                                      onChange={(e) => setSearchRole(e.target.value)}
+                                      className="form-control shadow-none card-border fs-14 select-search-box"
+                                    />
+                                  </div>
                                   <Dropdown.Item
-                                    className={`py-2 fs-14 base-color ${selectedRole === 'Players' ? 'active' : ''}`}
-                                    onClick={() => handleRoleSelect('Players')}
+                                    className={`py-2 fs-14 base-color ${selectedRole === 'Player' ? 'active' : ''}`}
+                                    onClick={() => handleRoleSelect('Player')}
                                   >
-                                    Players
+                                    Player
                                   </Dropdown.Item>
                                   <Dropdown.Item
-                                    className={`py-2 fs-14 base-color ${selectedRole === 'Coaches' ? 'active' : ''}`}
-                                    onClick={() => handleRoleSelect('Coaches')}
+                                    className={`py-2 fs-14 base-color ${selectedRole === 'Coach' ? 'active' : ''}`}
+                                    onClick={() => handleRoleSelect('Coach')}
                                   >
-                                    Coaches
+                                    Coach
                                   </Dropdown.Item>
                                 </Dropdown.Menu>
                               </Dropdown>
@@ -151,7 +153,7 @@ function Signup() {
                           </Form.Group>
                         </div>
 
-                        <div className="mb-2">
+                        <div className="mb-3">
                           <Form.Group className="position-relative">
                             <Form.Label className="fs-16 fw-400 base-color-1">Enter Full Name</Form.Label>
                             <Form.Control
@@ -166,9 +168,9 @@ function Signup() {
                           </Form.Group>
                         </div>
 
-                        <div className="mb-2">
+                        <div className="mb-3">
                           <Form.Group className="position-relative">
-                            <Form.Label className="fs-16 fw-400 base-color-1">Enter Email</Form.Label>
+                            <Form.Label className="fs-16 fw-400 base-color-1">Enter Email Address</Form.Label>
                             <Form.Control
                               type="email"
                               placeholder="Enter Your Email Address"
@@ -180,7 +182,7 @@ function Signup() {
                             {formErrors.email && <p className="text-danger fs-14 error-message">{formErrors.email}</p>}
                           </Form.Group>
                         </div>
-                        <div className="mb-2">
+                        <div className="mb-3">
                           <Form.Group className="position-relative">
                             <Form.Label className="fs-16 fw-400 base-color-1">Enter Mobile Number</Form.Label>
                             <Form.Control
@@ -210,8 +212,8 @@ function Signup() {
                             Signup
                             {loading && <Spinner animation="border" variant="white" className="ms-1 spinner" />}
                           </Button>
-                          <span className="purple-light-color me-2">Already have an account?</span>
-                          <Link href={'/login'} className="purple-color">
+                          <span className="base-color-2 me-2">Already have an account?</span>
+                          <Link href={'/login'} className="base-link-color">
                             Login Here
                           </Link>
                         </div>
