@@ -9,13 +9,14 @@ export default function Home() {
   useEffect(() => {
     router.push('/dashboard');
   }, [router]);
-  // useEffect(() => {
-  //   if (isLoggedIn) {
-  //     router.push('/dashboard');
-  //   } else {
-  //     router.push('/login');
-  //   }
-  // }, [isContextLoaded, isLoggedIn, router]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push('/dashboard');
+    } else {
+      router.push('/login');
+    }
+  }, [isContextLoaded, isLoggedIn, router]);
 
   return <></>;
 }

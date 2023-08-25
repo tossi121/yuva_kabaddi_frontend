@@ -4,15 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 import OtpInput from 'react18-input-otp';
 
-function VerifyOtp({ mobileNumber }) {
+function VerifyOtp(props) {
+  const { oneTimePassword, handleSubmit, formValues, setOneTimePassword } = props;
   const router = useRouter();
-  const [oneTimePassword, setOneTimePassword] = useState(null);
   const [seconds, setSeconds] = useState(10);
-
-  function handleSubmit(event) {
-    event.preventDefault();
-    router.push('/dashboard');
-  }
 
   useEffect(() => {
     if (seconds > 0) {
@@ -26,6 +21,8 @@ function VerifyOtp({ mobileNumber }) {
 
   function handleResendOTP() {
     setSeconds(30);
+    setOneTimePassword(null);
+    setSeconds(30);
   }
 
   return (
@@ -34,13 +31,13 @@ function VerifyOtp({ mobileNumber }) {
         <Container>
           <Row className="justify-content-center">
             <Col xxl={4} lg={6} md={7}>
-              <Form className="login-form bg-white shadow p-5 rounded-2" onSubmit={handleSubmit}>
+              <Form className="login-form bg-white shadow p-5 rounded-2">
                 <div className="circle-container d-flex justify-content-center align-items-center m-auto rounded-circle">
                   <Image width={70} height={70} src={'/images/mobiles.png'} alt="otp-icon" />
                 </div>
                 <div className="text-center">
                   <p className="mb-0 base-color-2 mt-2">We have sent you an OTP on</p>
-                  <p className="base-link-color">{mobileNumber}</p>
+                  <p className="base-link-color">{formValues.mobile}</p>
                 </div>
                 <div className="otp-inputs">
                   <OtpInput
@@ -58,14 +55,18 @@ function VerifyOtp({ mobileNumber }) {
                       Resend OTP
                     </span>
                   )) || (
-                    <span className="base-color-2 cursor-pointer me-2">
+                    <span className="base-color-2 user-select-none me-2">
                       Resend OTP in {''}
                       {seconds.toString().padStart(2, '0')} sec
                     </span>
                   )}
                 </div>
                 <div className="text-center">
-                  <Button className="common-btn w-100 mb-3" disabled={oneTimePassword?.length !== 4} type="submit">
+                  <Button
+                    className="common-btn w-100 mb-3"
+                    onClick={handleSubmit}
+                    disabled={oneTimePassword?.length !== 4}
+                  >
                     Verify
                   </Button>
                 </div>

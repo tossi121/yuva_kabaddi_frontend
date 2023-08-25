@@ -170,7 +170,7 @@ const CommentModal = (props) => {
               <div className="text-center">
                 <Button
                   variant="white"
-                  type="submit"
+                  
                   className="my-3 mt-4 w-50 mx-auto fw-400 fs-18 text-white common-btn shadow-none py-2"
                   disabled={loading}
                 >

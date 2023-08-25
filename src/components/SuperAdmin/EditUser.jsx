@@ -185,7 +185,7 @@ function EditUser() {
                         </Form.Group>
                       </div>
 
-                      <Button className="common-btn py-2 px-3 mt-4 fs-14 d-flex align-items-center" type="submit">
+                      <Button className="common-btn py-2 px-3 mt-4 fs-14 d-flex align-items-center" >
                         <Image
                           src="/images/team-roster/apply.svg"
                           alt="Post New Job"

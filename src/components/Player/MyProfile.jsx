@@ -570,7 +570,7 @@ function MyProfile() {
                     </Col>
                   </Row>
 
-                  <Button className="common-btn py-2 px-3 mt-3 fs-14" type="submit" onClick={handleSubmit}>
+                  <Button className="common-btn py-2 px-3 mt-3 fs-14"  onClick={handleSubmit}>
                     <Image
                       src="/images/team-roster/apply.svg"
                       alt="Save Change"
