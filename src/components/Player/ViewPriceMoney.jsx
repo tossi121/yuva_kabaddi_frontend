@@ -7,6 +7,7 @@ import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { useRouter } from 'next/router';
 
 const WithdrawalModal = dynamic(import('./WithdrawalModal'));
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
@@ -223,7 +224,26 @@ function ViewPriceMoney() {
   const [filteredData, setFilteredData] = useState(dataWithdrawal);
   const [tableFilter, setTableFilter] = useState(data);
   const tableRef = useRef(null);
+  const router = useRouter();
+  const { label } = router.query;
 
+  useEffect(() => {
+    if (label) {
+      setShowTableData(true);
+      setShowTable(false);
+    }
+    if (label === 'Paid Earnings') {
+      setFilteredData(dataWithdrawal.filter((item) => item.status === 'Paid'));
+    } else if (label === 'Pending Earnings') {
+      setFilteredData(dataWithdrawal.filter((item) => item.status === 'Pending'));
+    } else if (label === 'Rejected Earnings') {
+      setFilteredData(dataWithdrawal.filter((item) => item.status === 'Reject'));
+    } else {
+      setFilteredData(dataWithdrawal);
+    }
+  }, [label, showTable, showTableData]);
+
+  console.log(filteredData);
   const [selectedFilters, setSelectedFilters] = useState({
     paid: true,
     pending: true,
@@ -342,10 +362,13 @@ function ViewPriceMoney() {
     setShowTable(true);
     handleReset();
   }
+
   function handleToggle() {
     setShowTableData(true);
     setShowTable(false);
-    handleReset();
+    if (!label) {
+      handleReset();
+    }
   }
 
   const handleSubmit = (e) => {
@@ -424,8 +447,7 @@ function ViewPriceMoney() {
                     </div>
                     <div>
                       <Button className="common-btn" onClick={() => setShow(true)}>
-                        {' '}
-                        Withdraw Amount{' '}
+                        Withdraw Amount
                       </Button>
                     </div>
                   </div>

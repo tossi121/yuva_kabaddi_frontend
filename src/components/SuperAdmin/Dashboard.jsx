@@ -263,6 +263,7 @@ function Dashboard() {
       backgroundColor: colors[index % colors.length],
     })),
   };
+
   const doughnutData = {
     labels: ['Approved', 'Pending', 'Rejected', 'Total'],
     datasets: [
@@ -347,7 +348,7 @@ function Dashboard() {
               className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
             >
               <div className="card-head card-head-padding border-bottom">
-                <h4 className="common-heading mb-0">View Price Money Filter</h4>
+                <h4 className="common-heading mb-0">Withdrawal Requests Filter</h4>
               </div>
 
               <Card.Body className="box-padding">
