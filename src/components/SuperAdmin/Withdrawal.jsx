@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
@@ -8,6 +8,7 @@ import CommentModal from './CommentlModal';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
+import { useRouter } from 'next/router';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
@@ -18,7 +19,7 @@ function Withdrawal() {
       status: 'Approved',
       amount: 250.0,
       name: 'John Doe',
-      withdrawal_date: '2023-04-18',
+      date: '2023-04-18',
       email: 'john.doe@example.com',
       userType: 'Player',
     },
@@ -27,7 +28,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 150.0,
       name: 'Jane Smith',
-      withdrawal_date: '2023-03-17',
+      date: '2023-03-17',
       email: 'jane.smith@example.com',
       userType: 'Player',
     },
@@ -36,7 +37,7 @@ function Withdrawal() {
       status: 'Approved',
       amount: 350.0,
       name: 'Michael Johnson',
-      withdrawal_date: '2023-02-16',
+      date: '2023-02-16',
       email: 'michael.johnson@example.com',
       userType: 'Coach',
     },
@@ -45,7 +46,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 200.0,
       name: 'Emily Brown',
-      withdrawal_date: '2023-08-10',
+      date: '2023-08-10',
       email: 'emily.brown@example.com',
       userType: 'Coach',
     },
@@ -54,7 +55,7 @@ function Withdrawal() {
       status: 'Reject',
       amount: 180.0,
       name: 'David Lee',
-      withdrawal_date: '2023-08-10',
+      date: '2023-08-10',
       email: 'david.lee@example.com',
       userType: 'Player',
     },
@@ -63,7 +64,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 300.0,
       name: 'Sarah Johnson',
-      withdrawal_date: '2023-12-21',
+      date: '2023-12-21',
       email: 'sarah.johnson@example.com',
       userType: 'Player',
     },
@@ -72,7 +73,7 @@ function Withdrawal() {
       status: 'Reject',
       amount: 400.0,
       name: 'Robert Smith',
-      withdrawal_date: '2023-12-30',
+      date: '2023-12-30',
       email: 'robert.smith@example.com',
       userType: 'Coach',
     },
@@ -81,7 +82,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 220.0,
       name: 'Michelle White',
-      withdrawal_date: '2023-08-10',
+      date: '2023-08-10',
       email: 'michelle.white@example.com',
       userType: 'Coach',
     },
@@ -90,7 +91,7 @@ function Withdrawal() {
       status: 'Reject',
       amount: 270.0,
       name: 'Daniel Johnson',
-      withdrawal_date: '2023-08-10',
+      date: '2023-08-10',
       email: 'daniel.johnson@example.com',
       userType: 'Player',
     },
@@ -99,7 +100,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 130.0,
       name: 'Olivia Davis',
-      withdrawal_date: '2023-08-17',
+      date: '2023-08-17',
       email: 'olivia.davis@example.com',
       userType: 'Player',
     },
@@ -108,7 +109,7 @@ function Withdrawal() {
       status: 'Approved',
       amount: 320.0,
       name: 'William Brown',
-      withdrawal_date: '2023-0-16',
+      date: '2023-0-16',
       email: 'william.brown@example.com',
       userType: 'Coach',
     },
@@ -117,7 +118,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 190.0,
       name: 'Emma Johnson',
-      withdrawal_date: '2023-09-10',
+      date: '2023-09-10',
       email: 'emma.johnson@example.com',
       userType: 'Coach',
     },
@@ -126,7 +127,7 @@ function Withdrawal() {
       status: 'Reject',
       amount: 210.0,
       name: 'James Wilson',
-      withdrawal_date: '2023-08-11',
+      date: '2023-08-11',
       email: 'james.wilson@example.com',
       userType: 'Player',
     },
@@ -135,7 +136,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 280.0,
       name: 'Sophia Martin',
-      withdrawal_date: '2023-08-10',
+      date: '2023-08-10',
       email: 'sophia.martin@example.com',
       userType: 'Player',
     },
@@ -144,7 +145,7 @@ function Withdrawal() {
       status: 'Approved',
       amount: 370.0,
       name: 'Christopher Adams',
-      withdrawal_date: '2023-08-02',
+      date: '2023-08-02',
       email: 'christopher.adams@example.com',
       userType: 'Coach',
     },
@@ -153,7 +154,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 240.0,
       name: 'Ava Wilson',
-      withdrawal_date: '2023-08-09',
+      date: '2023-08-09',
       email: 'ava.wilson@example.com',
       userType: 'Coach',
     },
@@ -162,7 +163,7 @@ function Withdrawal() {
       status: 'Approved',
       amount: 290.0,
       name: 'Matthew Turner',
-      withdrawal_date: '2023-08-10',
+      date: '2023-08-10',
       email: 'matthew.turner@example.com',
       userType: 'Player',
     },
@@ -171,7 +172,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 170.0,
       name: 'Isabella Moore',
-      withdrawal_date: '2023-08-17',
+      date: '2023-08-17',
       email: 'isabella.moore@example.com',
       userType: 'Player',
     },
@@ -180,7 +181,7 @@ function Withdrawal() {
       status: 'Approved',
       amount: 420.0,
       name: 'Andrew Parker',
-      withdrawal_date: '2023-04-11',
+      date: '2023-04-11',
       email: 'andrew.parker@example.com',
       userType: 'Coach',
     },
@@ -189,7 +190,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 180.0,
       name: 'Mia Turner',
-      withdrawal_date: '2023-06-10',
+      date: '2023-06-10',
       email: 'mia.turner@example.com',
       userType: 'Coach',
     },
@@ -214,11 +215,27 @@ function Withdrawal() {
     pending: true,
     reject: true,
   });
+
+  const router = useRouter();
+  const { label } = router.query;
+
+  useEffect(() => {
+    if (label === 'Approved Requests') {
+      setFilteredData(data.filter((item) => item.status === 'Approved'));
+    } else if (label === 'Pending Requests') {
+      setFilteredData(data.filter((item) => item.status === 'Pending'));
+    } else if (label === 'Rejected Requests') {
+      setFilteredData(data.filter((item) => item.status === 'Reject'));
+    } else {
+      setFilteredData(data);
+    }
+  }, [label]);
+
   const columns = [
     { heading: 'Name', field: 'name' },
     { heading: 'Email Address', field: 'email' },
     { heading: 'Amount', field: 'amount' },
-    { heading: 'Withdrawal Date', field: 'withdrawal_date' },
+    { heading: 'Date', field: 'date' },
     { heading: 'User Type', field: 'userType' },
     { heading: 'Status', field: 'status' },
     { heading: 'Action', field: 'Action' },
@@ -229,13 +246,13 @@ function Withdrawal() {
       render: {
         Action: (value, row) => renderWithdrawalModal(row.id),
         status: renderSatus,
-        withdrawal_date: renderWithdraDate,
+        date: renderWithdraDate,
       },
     },
   };
 
   function renderWithdraDate(value, row) {
-    return <span>{moment(row.withdrawal_date).format('DD-MMMM-YYYY')} </span>;
+    return <span>{moment(row.date).format('DD-MMMM-YYYY')} </span>;
   }
 
   function renderWithdrawalModal(id) {
@@ -263,7 +280,7 @@ function Withdrawal() {
     e.preventDefault();
 
     const filteredData = data.filter((item) => {
-      const isWithinDateRange = !startDate || moment(item.withdrawal_date).isBetween(startDate, endDate, null, '[]');
+      const isWithinDateRange = !startDate || moment(item.date).isBetween(startDate, endDate, null, '[]');
 
       const isMatchingRole = !selectedRole || item.userType.toLowerCase() === selectedRole.toLowerCase();
       const isMatchingEmail = !formValues.email || item.email.toLowerCase().includes(formValues.email.toLowerCase());
@@ -433,7 +450,7 @@ function Withdrawal() {
                               dropdownMode="select"
                               selected={endDate}
                               onChange={(date) => setEndDate(date)}
-                              placeholderText="Select Start Date"
+                              placeholderText="Select End Date"
                               showTimeSelect={false}
                               dateFormat="dd-MMM-yyyy"
                               className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"

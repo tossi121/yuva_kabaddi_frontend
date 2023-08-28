@@ -167,7 +167,7 @@ function MyProfile() {
           <Col lg={12}>
             <Card className="card-border rounded-4 mb-4">
               <div className="card-head card-head-padding border-bottom">
-                <h4 className="common-heading mb-0">Update your profile</h4>
+                <h4 className="common-heading mb-0">My profile</h4>
               </div>
               <Card.Body className="box-padding">
                 <Form>

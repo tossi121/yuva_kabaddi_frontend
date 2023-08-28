@@ -10,6 +10,7 @@ const sidebarLinks = [
   { href: '/dashboard', label: 'Dashboard', iconSrc: faUsersGear },
   { href: '/dashboard/view-price-money', label: 'View Price Money', iconSrc: faMoneyBillAlt },
   { href: '/dashboard/profile', label: 'My Profile', iconSrc: faUserEdit },
+  { href: '/super-admin/dashboard', label: 'Dashboard', iconSrc: faUsersGear },
   { href: '/super-admin/users', label: 'Users Approval', iconSrc: faUsersGear },
   { href: '/super-admin/withdrawal-approval', label: 'Withdrawal Approval', iconSrc: faBank },
   { href: '/super-admin/account-approval', label: 'Account Approval', iconSrc: faUserCheck },

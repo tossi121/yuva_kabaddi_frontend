@@ -215,7 +215,6 @@ function ViewPriceMoney() {
 
   const [totalAmount, setTotalAmount] = useState('');
   const [show, setShow] = useState(false);
-  const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [expanded, setExpanded] = useState(false);
@@ -464,7 +463,7 @@ function ViewPriceMoney() {
                 className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">View Price Money Filter</h4>
+                  <h4 className="common-heading mb-0">Withdrawal Requests Filter</h4>
                 </div>
 
                 <Card.Body className="box-padding">
@@ -499,7 +498,7 @@ function ViewPriceMoney() {
                               dropdownMode="select"
                               selected={endDate}
                               onChange={(date) => setEndDate(date)}
-                              placeholderText="Select Start Date"
+                              placeholderText="Select End Date"
                               showTimeSelect={false}
                               dateFormat="dd-MMM-yyyy"
                               className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
