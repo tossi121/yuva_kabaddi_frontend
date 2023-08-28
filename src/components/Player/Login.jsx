@@ -77,7 +77,7 @@ function Login() {
                           <Form onSubmit={handleSubmit} autoComplete="off">
                             <div className="mb-3">
                               <Form.Group className="position-relative">
-                                <Form.Label className="fs-16 fw-400 base-color-1">Enter Mobile Number</Form.Label>
+                                <Form.Label className="fs-16 fw-400 base-color">Enter Mobile Number</Form.Label>
                                 <Form.Control
                                   type="text"
                                   placeholder="Enter Your Mobile Number"

@@ -1,10 +1,14 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 
-const Dashboard = dynamic(import('@/components/Player/Dashboard'));
+const ViewPriceMoney = dynamic(import('@/components/Player/ViewPriceMoney'));
 
 function DefaultPage() {
-  return <Dashboard />;
+  return (
+    <>
+      <ViewPriceMoney />
+    </>
+  );
 }
 DefaultPage.layout = 'DashboardLayout';
 export default DefaultPage;

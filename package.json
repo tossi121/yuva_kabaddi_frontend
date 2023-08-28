@@ -22,6 +22,7 @@
     "react": "18.2.0",
     "react-bootstrap": "^2.8.0",
     "react-content-loader": "^6.2.1",
+    "react-datepicker": "^4.16.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "^2.4.1",
     "react18-input-otp": "^1.1.4",

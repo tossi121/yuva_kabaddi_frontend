@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBank, faCoins, faUser, faUserCheck, faUserEdit, faUsersGear } from '@fortawesome/free-solid-svg-icons';
+import { faBank, faUserCheck, faUserEdit, faUsersGear } from '@fortawesome/free-solid-svg-icons';
+import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 
 function SidebarLink({ href, label, iconSrc }) {
   const router = useRouter();
@@ -46,10 +47,11 @@ function Sidebar(props) {
         </span>
         <ul className="navbar-nav px-3 py-3 vh-100">
           <SidebarLink href="/dashboard" label="Dashboard" iconSrc={faUsersGear} />
+          <SidebarLink href="/dashboard/view-price-money" label="View Price Money" iconSrc={faMoneyBillAlt} />
           <SidebarLink href="/dashboard/profile" label="My Profile" iconSrc={faUserEdit} />
-          <SidebarLink href="/super-admin/users" label="Users" iconSrc={faUsersGear} />
-          <SidebarLink href="/super-admin/withdrawal" label="Withdrawal" iconSrc={faBank} />
-          <SidebarLink href="/super-admin/account-confirmation" label="Account Confirmation" iconSrc={faUserCheck} />
+          <SidebarLink href="/super-admin/users" label="Users Approval" iconSrc={faUsersGear} />
+          <SidebarLink href="/super-admin/withdrawal-approval" label="Withdrawal Approval" iconSrc={faBank} />
+          <SidebarLink href="/super-admin/account-approval" label="Account Approval" iconSrc={faUserCheck} />
         </ul>
       </div>
     </section>

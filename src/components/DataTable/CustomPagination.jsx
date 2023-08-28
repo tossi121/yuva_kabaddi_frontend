@@ -7,7 +7,7 @@ const CustomPagination = (props) => {
   const { siblingCount = 1, pageSize, setCurrentData, data, setNumFirst, setNumData, setLoading } = props;
   const [currentPage, setCurrentPage] = useState(1);
   // const [activePage, setActivePage] = useState(null);
-  const totalCount = data.length;
+  const totalCount = data?.length;
 
   function onPageChange(page) {
     setCurrentPage(page);
@@ -65,7 +65,7 @@ const CustomPagination = (props) => {
     setNumFirst(numberOfFirstData);
   }, [currentTableData, numberOfFirstData, numberOfData, pageSize]);
 
-  if (currentPage === 0 || paginationRange.length < 2) {
+  if (currentPage === 0 || paginationRange?.length < 2) {
     return null;
   }
 
@@ -77,7 +77,7 @@ const CustomPagination = (props) => {
     onPageChange(currentPage - 1);
   };
 
-  const lastPage = paginationRange[paginationRange.length - 1];
+  const lastPage = paginationRange[paginationRange?.length - 1];
   return (
     <>
       <div className="d-flex align-items-baseline">

@@ -8,6 +8,7 @@ function WithdrawalModal(props) {
     totalAmount: totalAmount,
     withdrawalAmount: '',
   });
+
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -71,25 +72,31 @@ function WithdrawalModal(props) {
     setFormErrors({});
   };
 
+  const total = parseFloat(formValues.totalAmount);
+  const formattedAmount = total.toFixed(2).toLocaleString('en-IN');
+
   return (
     <Modal show={show} onHide={handleCloseModal} centered>
+      <Modal.Header closeButton>
+        <h4 className='base-color mb-0'>Withdrawal Amount </h4>
+      </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit} autoComplete="off">
           <div className="mb-2">
             <Form.Group className="position-relative">
-              <Form.Label className="fs-16 fw-400 base-color-1">Amount Available</Form.Label>
+              <Form.Label className="fs-16 fw-400 base-color">Amount Available</Form.Label>
               <Form.Control
                 type="text"
                 name="totalAmount"
                 className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                value={formValues.totalAmount}
+                value={formattedAmount}
                 readOnly
               />
             </Form.Group>
           </div>
           <div className="mb-2">
             <Form.Group className="position-relative">
-              <Form.Label className="fs-16 fw-400 base-color-1">Enter Amount to Withdrawal</Form.Label>
+              <Form.Label className="fs-16 fw-400 base-color">Enter Amount to Withdrawal</Form.Label>
               <Form.Control
                 type="number"
                 placeholder="Enter Amount to Withdraw"

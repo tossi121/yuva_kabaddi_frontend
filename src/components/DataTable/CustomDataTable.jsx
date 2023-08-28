@@ -26,6 +26,7 @@ export default function CustomDataTable(props) {
     columns,
     options,
     handleDelete,
+    button,
     hadelUpdateStatus,
     showStatusBtn,
     showDeleteFilter,
@@ -77,7 +78,7 @@ export default function CustomDataTable(props) {
       setSortingBy(columns[0]['field']);
       handleSorting(columns[0]['field']);
     }
-  }, [entity, selectNull]);
+  }, [entity, rows, selectNull]);
 
   // useEffect(() => {
   //   if (paginationLimit) {
@@ -361,7 +362,7 @@ export default function CustomDataTable(props) {
 
   return (
     <div className="position-relative custom-datatable">
-      {rows.length >= 1 && entity && (
+      {rows?.length >= 1 && entity && (
         <div className="d-md-flex align-items-center justify-content-between mb-1">
           {entity?.search && (
             <div className="search-input-box position-relative mb-2">
@@ -503,7 +504,7 @@ export default function CustomDataTable(props) {
         {entity?.pagination && (
           <div className="col-md-7 col-12">
             <div className="w-max-content m-auto me-sm-0 d-flex align-items-center justify-content-md-end mt-md-0 mt-3">
-              {rows.length >= 1 && <>{entity?.lengthChange && selectBox()}</>}
+              {rows?.length >= 1 && <>{entity?.lengthChange && selectBox()}</>}
               <CustomPagination
                 className="pagination-bar p-0 d-flex align-items-center"
                 data={filterData}

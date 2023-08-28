@@ -61,7 +61,6 @@ function successResponse(response) {
 }
 
 function errorResponse(response) {
-  console.log(response)
   return {
     status: false,
     data: null,

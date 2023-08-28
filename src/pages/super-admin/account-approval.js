@@ -1,12 +1,12 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 
-const AccountConfirmation = dynamic(import('@/components/SuperAdmin/AccountConfirmation'));
+const AccountApproval = dynamic(import('@/components/SuperAdmin/AccountApproval'));
 
 function DefaultPage() {
   return (
     <>
-      <AccountConfirmation />
+      <AccountApproval />
     </>
   );
 }

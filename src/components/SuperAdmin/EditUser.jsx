@@ -4,7 +4,7 @@ import { maxLengthCheck, validEmail, validMobile, validName } from '@/_helper/re
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 
-const DashboardBreadcrumb = dynamic(import('../Layouts/Breadcrumb/DashboardBreadcrumbar'));
+const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function EditUser() {
   const initialFormValues = {
@@ -87,7 +87,7 @@ function EditUser() {
         <div className="d-flex justify-content-between align-items-center">
         <DashboardBreadcrumb breadcrumbTitle="Edit User" data={'Dashboard'} />
         </div>
-        <Row className="py-4 align-items-stretch h-100">
+        <Row className="py-4 ">
           <Col lg={12}>
             <Card className="bg-white common-card-box">
               <div className="card-head card-head-padding border-bottom">
@@ -98,8 +98,8 @@ function EditUser() {
                   <Col md={7}>
                     <Form onSubmit={handleSubmit} autoComplete="off">
                       <div className="mb-3">
-                        <Form.Group className="position-relative" controlId="formBasicEmail">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Select Role</Form.Label>
+                        <Form.Group className="position-relative">
+                          <Form.Label className="fs-16 fw-400 base-color">Select Role</Form.Label>
                           <div className="form-select-catgory">
                             <Dropdown className="form-control px-0 py-0 card-border">
                               <Dropdown.Toggle
@@ -109,13 +109,13 @@ function EditUser() {
                               >
                                 <span className="text-truncate pe-3">{selectedRole || 'Select Role'}</span>
                               </Dropdown.Toggle>
-                              <Dropdown.Menu className="w-100 card-border banner-filter-menu">
+                              <Dropdown.Menu className="w-100 card-border ">
                                 <div className="px-2 mb-2">
                                   <input
                                     type="search"
                                     placeholder="Search Role"
                                     onChange={(e) => setSearchRole(e.target.value)}
-                                    className="form-control shadow-none card-border fs-14 select-search-box"
+                                    className="form-control shadow-none card-border fs-14 hight-50"
                                   />
                                 </div>
                                 <Dropdown.Item
@@ -139,7 +139,7 @@ function EditUser() {
 
                       <div className="mb-3">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Enter Full Name</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Enter Full Name</Form.Label>
                           <Form.Control
                             type="text"
                             placeholder="Enter Your Full Name"
@@ -154,7 +154,7 @@ function EditUser() {
 
                       <div className="mb-3">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Enter Email Address</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
                           <Form.Control
                             type="email"
                             placeholder="Enter Your Email Address"
@@ -168,7 +168,7 @@ function EditUser() {
                       </div>
                       <div className="mb-3">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Enter Mobile Number</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Enter Mobile Number</Form.Label>
                           <Form.Control
                             type="text"
                             placeholder="Enter Your Mobile Number"

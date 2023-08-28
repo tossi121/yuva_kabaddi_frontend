@@ -3,7 +3,7 @@ import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import { AuthProvider } from '@/_context/authContext';
 
-const DashboardLayout = dynamic(import('@/components/Layouts/DashboardLayout'));
+const DashboardLayout = dynamic(import('@/components/Layouts'));
 
 const layouts = {
   DashboardLayout: DashboardLayout,

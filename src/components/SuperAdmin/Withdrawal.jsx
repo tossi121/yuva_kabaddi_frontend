@@ -1,40 +1,24 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faCommentAlt, faFilter, faPlus, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
-import Link from 'next/link';
+import { faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
 import CustomDataTable from '../DataTable/CustomDataTable';
-import { maxLengthCheck } from '@/_helper/regex';
 import dynamic from 'next/dynamic';
 import CommentModal from './CommentlModal';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import moment from 'moment';
 
-const DashboardBreadcrumb = dynamic(import('../Layouts/Breadcrumb/DashboardBreadcrumbar'));
+const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function Withdrawal() {
-  const [expanded, setExpanded] = useState(false);
-  const [userSelect, setUserSelect] = useState([]);
-  const [roleName, setRoleName] = useState('Select Role');
-  const [searchRole, setSearchRole] = useState('');
-  const [userEmail, setUserEmail] = useState(null);
-  const [phoneNumber, setPhoneNumber] = useState(null);
-  const [show, setShow] = useState(false);
-  const columns = [
-    { heading: 'Name', field: 'name' },
-    { heading: 'Email Address', field: 'email' },
-    { heading: 'Amount', field: 'amount' },
-    { heading: 'User Type', field: 'userType' },
-    { heading: 'Status', field: 'status' },
-    { heading: 'Action', field: 'Action' },
-  ];
-
-  // Sample data for demonstration purposes
-
   const data = [
     {
       receiptNo: 'RCPT001',
       status: 'Approved',
       amount: 250.0,
       name: 'John Doe',
+      withdrawal_date: '2023-04-18',
       email: 'john.doe@example.com',
       userType: 'Player',
     },
@@ -43,6 +27,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 150.0,
       name: 'Jane Smith',
+      withdrawal_date: '2023-03-17',
       email: 'jane.smith@example.com',
       userType: 'Player',
     },
@@ -51,6 +36,7 @@ function Withdrawal() {
       status: 'Approved',
       amount: 350.0,
       name: 'Michael Johnson',
+      withdrawal_date: '2023-02-16',
       email: 'michael.johnson@example.com',
       userType: 'Coach',
     },
@@ -59,14 +45,16 @@ function Withdrawal() {
       status: 'Pending',
       amount: 200.0,
       name: 'Emily Brown',
+      withdrawal_date: '2023-08-10',
       email: 'emily.brown@example.com',
       userType: 'Coach',
     },
     {
       receiptNo: 'RCPT005',
-      status: 'Approved',
+      status: 'Reject',
       amount: 180.0,
       name: 'David Lee',
+      withdrawal_date: '2023-08-10',
       email: 'david.lee@example.com',
       userType: 'Player',
     },
@@ -75,14 +63,16 @@ function Withdrawal() {
       status: 'Pending',
       amount: 300.0,
       name: 'Sarah Johnson',
+      withdrawal_date: '2023-12-21',
       email: 'sarah.johnson@example.com',
       userType: 'Player',
     },
     {
       receiptNo: 'RCPT007',
-      status: 'Approved',
+      status: 'Reject',
       amount: 400.0,
       name: 'Robert Smith',
+      withdrawal_date: '2023-12-30',
       email: 'robert.smith@example.com',
       userType: 'Coach',
     },
@@ -91,14 +81,16 @@ function Withdrawal() {
       status: 'Pending',
       amount: 220.0,
       name: 'Michelle White',
+      withdrawal_date: '2023-08-10',
       email: 'michelle.white@example.com',
       userType: 'Coach',
     },
     {
       receiptNo: 'RCPT009',
-      status: 'Approved',
+      status: 'Reject',
       amount: 270.0,
       name: 'Daniel Johnson',
+      withdrawal_date: '2023-08-10',
       email: 'daniel.johnson@example.com',
       userType: 'Player',
     },
@@ -107,6 +99,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 130.0,
       name: 'Olivia Davis',
+      withdrawal_date: '2023-08-17',
       email: 'olivia.davis@example.com',
       userType: 'Player',
     },
@@ -115,6 +108,7 @@ function Withdrawal() {
       status: 'Approved',
       amount: 320.0,
       name: 'William Brown',
+      withdrawal_date: '2023-0-16',
       email: 'william.brown@example.com',
       userType: 'Coach',
     },
@@ -123,14 +117,16 @@ function Withdrawal() {
       status: 'Pending',
       amount: 190.0,
       name: 'Emma Johnson',
+      withdrawal_date: '2023-09-10',
       email: 'emma.johnson@example.com',
       userType: 'Coach',
     },
     {
       receiptNo: 'RCPT013',
-      status: 'Approved',
+      status: 'Reject',
       amount: 210.0,
       name: 'James Wilson',
+      withdrawal_date: '2023-08-11',
       email: 'james.wilson@example.com',
       userType: 'Player',
     },
@@ -139,6 +135,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 280.0,
       name: 'Sophia Martin',
+      withdrawal_date: '2023-08-10',
       email: 'sophia.martin@example.com',
       userType: 'Player',
     },
@@ -147,6 +144,7 @@ function Withdrawal() {
       status: 'Approved',
       amount: 370.0,
       name: 'Christopher Adams',
+      withdrawal_date: '2023-08-02',
       email: 'christopher.adams@example.com',
       userType: 'Coach',
     },
@@ -155,6 +153,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 240.0,
       name: 'Ava Wilson',
+      withdrawal_date: '2023-08-09',
       email: 'ava.wilson@example.com',
       userType: 'Coach',
     },
@@ -163,6 +162,7 @@ function Withdrawal() {
       status: 'Approved',
       amount: 290.0,
       name: 'Matthew Turner',
+      withdrawal_date: '2023-08-10',
       email: 'matthew.turner@example.com',
       userType: 'Player',
     },
@@ -171,6 +171,7 @@ function Withdrawal() {
       status: 'Pending',
       amount: 170.0,
       name: 'Isabella Moore',
+      withdrawal_date: '2023-08-17',
       email: 'isabella.moore@example.com',
       userType: 'Player',
     },
@@ -179,6 +180,7 @@ function Withdrawal() {
       status: 'Approved',
       amount: 420.0,
       name: 'Andrew Parker',
+      withdrawal_date: '2023-04-11',
       email: 'andrew.parker@example.com',
       userType: 'Coach',
     },
@@ -187,18 +189,54 @@ function Withdrawal() {
       status: 'Pending',
       amount: 180.0,
       name: 'Mia Turner',
+      withdrawal_date: '2023-06-10',
       email: 'mia.turner@example.com',
       userType: 'Coach',
     },
+  ];
+
+  const initialFormValues = {
+    mobile: '',
+    role: '',
+  };
+
+  const [formValues, setFormValues] = useState(initialFormValues);
+  const [formErrors, setFormErrors] = useState({});
+  const [expanded, setExpanded] = useState(false);
+  const [searchRole, setSearchRole] = useState('');
+  const [show, setShow] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [filteredData, setFilteredData] = useState(data);
+  const [selectedRole, setSelectedRole] = useState('');
+  const [selectedFilters, setSelectedFilters] = useState({
+    approved: true,
+    pending: true,
+    reject: true,
+  });
+  const columns = [
+    { heading: 'Name', field: 'name' },
+    { heading: 'Email Address', field: 'email' },
+    { heading: 'Amount', field: 'amount' },
+    { heading: 'Withdrawal Date', field: 'withdrawal_date' },
+    { heading: 'User Type', field: 'userType' },
+    { heading: 'Status', field: 'status' },
+    { heading: 'Action', field: 'Action' },
   ];
 
   const tableOptions = {
     columns: {
       render: {
         Action: (value, row) => renderWithdrawalModal(row.id),
+        status: renderSatus,
+        withdrawal_date: renderWithdraDate,
       },
     },
   };
+
+  function renderWithdraDate(value, row) {
+    return <span>{moment(row.withdrawal_date).format('DD-MMMM-YYYY')} </span>;
+  }
 
   function renderWithdrawalModal(id) {
     const handleClick = () => {
@@ -211,40 +249,83 @@ function Withdrawal() {
       </Button>
     );
   }
-
+  const handleRoleSelect = (selectedRole) => {
+    setSelectedRole(selectedRole);
+    setFormValues((prevData) => ({ ...prevData, role: selectedRole }));
+    setFormErrors((prevErrors) => ({ ...prevErrors, role: '' }));
+  };
   // Toggle the filter box
   const toggleFilterBox = () => {
     setExpanded(!expanded);
   };
 
-  // Handle role selection
-  const handleSelectRole = (id, name) => {
-    setRoleId(id);
-    setRoleName(name);
-  };
-
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Perform form submission logic here
+
+    const filteredData = data.filter((item) => {
+      const isWithinDateRange = !startDate || moment(item.withdrawal_date).isBetween(startDate, endDate, null, '[]');
+
+      const isMatchingRole = !selectedRole || item.userType.toLowerCase() === selectedRole.toLowerCase();
+      const isMatchingEmail = !formValues.email || item.email.toLowerCase().includes(formValues.email.toLowerCase());
+
+      const isStatusMatching =
+        (selectedFilters.approved && item.status === 'Approved') ||
+        (selectedFilters.pending && item.status === 'Pending') ||
+        (selectedFilters.reject && item.status === 'Reject');
+
+      return isWithinDateRange && isMatchingRole && isMatchingEmail && isStatusMatching;
+    });
+
+    setFilteredData(filteredData);
   };
 
   // Handle reset form
   const handleReset = () => {
-    // Reset form fields
-    setUserEmail('');
-    setPhoneNumber('');
+    setFormValues(initialFormValues);
+    setFormErrors({});
+    setSelectedRole('');
+    setSearchRole('');
+    setSelectedFilters({
+      approved: true,
+      pending: true,
+      reject: true,
+    });
+    setStartDate(null);
+    setEndDate(null);
+    setFilteredData(data);
   };
+
+  const handleFilterChange = (filterName) => {
+    setSelectedFilters((prevFilters) => ({
+      ...prevFilters,
+      [filterName]: !prevFilters[filterName],
+    }));
+  };
+
+  function renderSatus(value, row) {
+    const statusColors = {
+      Approved: 'success',
+      Reject: 'danger',
+      Pending: 'warning',
+    };
+    return (
+      <>
+        <Badge pill bg={statusColors[row.status]} className="fs-12">
+          {row.status}
+        </Badge>
+      </>
+    );
+  }
 
   return (
     <>
-      <CommentModal show={show} setShow={setShow} />
+      {show && <CommentModal show={show} setShow={setShow} modalText={'Withdrawal Approval'} />}
       <section className="dashboard-section">
         <Container fluid>
-          <Row className="my-4 align-items-stretch h-100">
+          <Row className="my-4 ">
             <Col lg={12}>
               <div className="d-flex justify-content-between align-items-center mb-4">
-                <DashboardBreadcrumb breadcrumbTitle="Withdrawal " data={'Dashboard'} />
+                <DashboardBreadcrumb breadcrumbTitle="Withdrawal Approval" data={'Dashboard'} />
                 <div className="d-sm-flex justify-content-between align-items-center ">
                   <div className="add-filter d-flex mt-sm-0 mt-2">
                     <Button
@@ -253,11 +334,6 @@ function Withdrawal() {
                     >
                       <FontAwesomeIcon icon={faFilter} className="fs-18" />
                     </Button>
-                    <Link href={'/super-admin/add-user'}>
-                      <Button className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center">
-                        <FontAwesomeIcon icon={faPlus} className="fs-18" />
-                      </Button>
-                    </Link>
                   </div>
                 </div>
               </div>
@@ -266,15 +342,15 @@ function Withdrawal() {
                 className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">Withdrawal Filter</h4>
+                  <h4 className="common-heading mb-0">Withdrawal Approval Filter</h4>
                 </div>
                 <Card.Body className="box-padding">
                   <Form onSubmit={handleSubmit}>
                     <Row>
-                      <Col xl={3} lg={4} md={6}>
+                      <Col>
                         <div className="mb-4">
-                          <Form.Group className="position-relative" controlId="formBasicEmail">
-                            <Form.Label className="fs-14 fw-500 base-color-2">Select User</Form.Label>
+                          <Form.Group className="position-relative">
+                            <Form.Label className="fs-16 fw-400 base-color">Select Role</Form.Label>
                             <div className="form-select-catgory">
                               <Dropdown className="form-control px-0 py-0 card-border">
                                 <Dropdown.Toggle
@@ -282,52 +358,135 @@ function Withdrawal() {
                                   className="w-100 hight-50 text-start filter-box-dropdown base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
                                   id="dropdown-basic"
                                 >
-                                  <span className="text-truncate pe-3">{roleName}</span>
+                                  <span className="text-truncate pe-3">{selectedRole || 'Select Role'}</span>
                                 </Dropdown.Toggle>
-                                <Dropdown.Menu className="w-100 card-border banner-filter-menu">
+                                <Dropdown.Menu className="w-100 card-border ">
                                   <div className="px-2 mb-2">
                                     <input
                                       type="search"
                                       placeholder="Search Role"
                                       onChange={(e) => setSearchRole(e.target.value)}
-                                      className="form-control shadow-none card-border fs-14 select-search-box"
+                                      className="form-control shadow-none card-border fs-14 hight-50"
                                     />
                                   </div>
-                                  {/* {getRoleList &&
-                                  roleSearchItem.map((items, key) => {
-                                    return (
+
+                                  {['Player', 'Coach']
+                                    .filter((role) => role.toLowerCase().includes(searchRole.toLowerCase()))
+                                    .map((role) => (
                                       <Dropdown.Item
-                                        key={key}
-                                        className="py-2 fs-14 base-color"
-                                        value={items.id}
-                                        onClick={() => handleSelectRole(items.id, items.name)}
+                                        key={role}
+                                        className={`py-2 fs-14 base-color ${selectedRole === role ? 'active' : ''}`}
+                                        onClick={() => handleRoleSelect(role)}
                                       >
-                                        <span>{items.name}</span>
+                                        {role}
                                       </Dropdown.Item>
-                                    );
-                                  })} */}
+                                    ))}
                                 </Dropdown.Menu>
                               </Dropdown>
                             </div>
+                            {formErrors.role && <p className="text-danger fs-14 error-message">{formErrors.role}</p>}
                           </Form.Group>
                         </div>
                       </Col>
-                      <Col xl={3} lg={4} md={6}>
-                        <div className="mb-2">
-                          <Form.Group className="position-relative" controlId="formBasicEmail">
-                            <Form.Label className="fs-14 fw-500 base-color-2">Enter Email Address</Form.Label>
+                      {/* <Col>
+                        <div className="mb-4">
+                          <Form.Group className="position-relative">
+                            <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
                             <Form.Control
                               type="text"
                               placeholder="Enter Your Email Address"
                               name="email"
                               className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                              value={userEmail || ''}
-                              onChange={(e) => setUserEmail(e.target.value)}
+                              value={formValues.email}
+                              onChange={handleChange}
+                            />
+                            {formErrors.email && <p className="text-danger fs-14 error-message">{formErrors.email}</p>}
+                          </Form.Group>
+                        </div>
+                      </Col> */}
+                      <Col>
+                        <Form.Label className="fs-16 fw-400 base-color-1">Select Start Date</Form.Label>
+                        <div className="mb-2 d-flex flex-column">
+                          <ReactDatePicker
+                            peekNextMonth
+                            showMonthDropdown
+                            showYearDropdown
+                            dropdownMode="select"
+                            selected={startDate}
+                            onChange={(date) => setStartDate(date)}
+                            placeholderText="Select Start Date"
+                            showTimeSelect={false}
+                            minDate={startDate}
+                            dateFormat="dd-MMM-yyyy"
+                            className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
+                          />
+                        </div>
+                      </Col>
+                      <Col>
+                        <div className="mb-2">
+                          <Form.Group className="d-flex flex-column">
+                            <Form.Label className="fs-16 fw-400 base-color-1">Select End Date</Form.Label>
+                            <ReactDatePicker
+                              peekNextMonth
+                              showMonthDropdown
+                              showYearDropdown
+                              dropdownMode="select"
+                              selected={endDate}
+                              onChange={(date) => setEndDate(date)}
+                              placeholderText="Select Start Date"
+                              showTimeSelect={false}
+                              dateFormat="dd-MMM-yyyy"
+                              className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                             />
                           </Form.Group>
                         </div>
                       </Col>
-                      <Col xl={3} lg={4} md={6}>
+                      <Col>
+                        <div className="mb-4">
+                          <Form.Group>
+                            <Form.Label className="fs-14 fw-500 base-color-2"> Filter Status</Form.Label>
+                            <div className="mt-2">
+                              <Form.Label className="cursor-pointer user-select-none base-color-2" htmlFor="approved">
+                                <input
+                                  type="checkbox"
+                                  name="approved"
+                                  id="approved"
+                                  className="me-2"
+                                  checked={selectedFilters.approved}
+                                  onChange={() => handleFilterChange('approved')}
+                                />
+                                Approved
+                              </Form.Label>
+                              <Form.Label
+                                className="cursor-pointer user-select-none base-color-2 mx-3"
+                                htmlFor="pending"
+                              >
+                                <input
+                                  type="checkbox"
+                                  name="pending"
+                                  id="pending"
+                                  className="me-2"
+                                  checked={selectedFilters.pending}
+                                  onChange={() => handleFilterChange('pending')}
+                                />
+                                Pending
+                              </Form.Label>
+                              <Form.Label className="cursor-pointer user-select-none base-color-2" htmlFor="reject">
+                                <input
+                                  type="checkbox"
+                                  name="reject"
+                                  id="reject"
+                                  className="me-2"
+                                  checked={selectedFilters.reject}
+                                  onChange={() => handleFilterChange('reject')}
+                                />
+                                Reject
+                              </Form.Label>
+                            </div>
+                          </Form.Group>
+                        </div>
+                      </Col>
+                      <Col>
                         <div className="d-flex align-items-center  filters-dropdown-btn">
                           <Button className="common-btn px-3 text-nowrap" type="Submit">
                             <span className="me-2">
@@ -347,21 +506,10 @@ function Withdrawal() {
 
               <Card className="bg-white common-card-box">
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">Withdrawal Amount</h4>
+                  <h4 className="common-heading mb-0">Withdrawal Approval</h4>
                 </div>
                 <Card.Body className="box-padding">
-                  <CustomDataTable
-                    handleCheckKey={setUserSelect}
-                    handleSingleSelect={userSelect}
-                    rows={data}
-                    columns={columns}
-                    options={tableOptions}
-                    // hadelUpdateStatus={hadelUpdateUserStatus}
-                    // handleDelete={handleDeleteUser}
-                    // showStatusBtn={showDataTableFilter}
-                    // showDeleteFilter={isShowCancelFilter}
-                    selectNull={userSelect}
-                  />
+                  <CustomDataTable rows={filteredData} columns={columns} options={tableOptions} />
                 </Card.Body>
               </Card>
             </Col>
