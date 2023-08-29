@@ -26,28 +26,10 @@
       .dropdown-item {
         &:hover,
         &:focus {
-          color: var(--base-color-1);
+          color: var(--base-color);
           background: var(--base-color-4);
         }
       }
-    }
-  }
-  .notification-wraper {
-    .Profile-box-dropdown {
-      &:after {
-        border: unset;
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        background: var(--label-red);
-        top: 20%;
-        right: 10px;
-        transform: translateY(-50%);
-      }
-    }
-    .dropdown-menu {
-      top: 25px !important;
-      transform: translate(4px, 20px) !important;
     }
   }
 
@@ -184,18 +166,18 @@
     ul li button {
       padding: 6px 30px;
       border-radius: 7px;
-      border: 1px solid var(--base-color-1);
+      border: 1px solid var(--base-color);
 
       &:hover {
-        border-color: var(--base-color-1) !important;
-        background-color: var(--base-color-1) !important;
+        border-color: var(--base-color) !important;
+        background-color: var(--base-color) !important;
         color: var(--label-color-white) !important;
       }
     }
 
     .category-btn-active {
-      border-color: var(--base-color-1) !important;
-      background-color: var(--base-color-1) !important;
+      border-color: var(--base-color) !important;
+      background-color: var(--base-color) !important;
       color: var(--label-color-white) !important;
     }
   }
@@ -213,8 +195,8 @@
 
       &:hover {
         background-color: transparent !important;
-        border-color: var(--base-color-1) !important;
-        color: var(--base-color-1) !important;
+        border-color: var(--base-color) !important;
+        color: var(--base-color) !important;
       }
     }
   }

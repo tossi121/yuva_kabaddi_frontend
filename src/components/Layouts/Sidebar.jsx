@@ -3,7 +3,18 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBank, faCoins, faUser, faUserCheck, faUserEdit, faUsersGear } from '@fortawesome/free-solid-svg-icons';
+import { faBank, faUserCheck, faUserEdit, faUsersGear } from '@fortawesome/free-solid-svg-icons';
+import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
+
+const sidebarLinks = [
+  { href: '/dashboard', label: 'Dashboard', iconSrc: faUsersGear },
+  { href: '/dashboard/view-price-money', label: 'View Price Money', iconSrc: faMoneyBillAlt },
+  { href: '/dashboard/profile', label: 'My Profile', iconSrc: faUserEdit },
+  { href: '/super-admin/dashboard', label: 'Dashboard', iconSrc: faUsersGear },
+  { href: '/super-admin/users', label: 'Users Approval', iconSrc: faUsersGear },
+  { href: '/super-admin/withdrawal-approval', label: 'Withdrawal Approval', iconSrc: faBank },
+  { href: '/super-admin/account-approval', label: 'Account Approval', iconSrc: faUserCheck },
+];
 
 function SidebarLink({ href, label, iconSrc }) {
   const router = useRouter();
@@ -12,22 +23,19 @@ function SidebarLink({ href, label, iconSrc }) {
   return (
     <li className="nav-item position-relative">
       <Link href={href}>
-        <div className={`nav-link fs-16 fw-500 base-color-2 d-flex ${isActive}`}>
+        <div className={`nav-link fs-16 fw-500 base-color-2 ${isActive}`}>
           <FontAwesomeIcon icon={iconSrc} width={21} height={21} className="me-3" />
-          {/* <Image src={iconSrc} width={20} height={20} className="sidebar-icons me-4" alt="sidebar-img" /> */}
-          <span className="text-nowrap">{label}</span>
+          {label && <span className="text-nowrap">{label}</span>}
         </div>
       </Link>
     </li>
   );
 }
 
-function Sidebar(props) {
-  const { toggle, ToggleFun, toggleResponsive } = props;
-
+function Sidebar({ toggle, ToggleFun, toggleResponsive }) {
   return (
     <section
-      className={`sidebar-section bg-white position-fixed  ${toggle || 'sidebar-sm'} ${
+      className={`sidebar-section bg-white position-fixed ${!toggle ? 'sidebar-sm' : ''} ${
         toggleResponsive ? 'hide-sidebar' : 'full-width'
       }`}
     >
@@ -45,11 +53,9 @@ function Sidebar(props) {
           />
         </span>
         <ul className="navbar-nav px-3 py-3 vh-100">
-          <SidebarLink href="/dashboard" label="Dashboard" iconSrc={faUsersGear} />
-          <SidebarLink href="/dashboard/profile" label="My Profile" iconSrc={faUserEdit} />
-          <SidebarLink href="/super-admin/users" label="Users" iconSrc={faUsersGear} />
-          <SidebarLink href="/super-admin/withdrawal" label="Withdrawal" iconSrc={faBank} />
-          <SidebarLink href="/super-admin/account-confirmation" label="Account Confirmation" iconSrc={faUserCheck} />
+          {sidebarLinks.map(({ href, label, iconSrc }) => (
+            <SidebarLink key={href} href={href} label={toggle ? label : ''} iconSrc={iconSrc} />
+          ))}
         </ul>
       </div>
     </section>

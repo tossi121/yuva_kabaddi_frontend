@@ -34,10 +34,6 @@
 .team-logo {
   max-width: 80px;
 }
-// .dashbaord-team-img {
-//   overflow: hidden;
-//   padding: 6px;
-// }
 
 .team-count {
   h3 {
@@ -112,6 +108,11 @@
 
 .success-done-img {
   max-width: 80px;
+}
+
+.pan-card-upload {
+  border: 2px dashed var(--base-color-2) ;
+  height: 250px;
 }
 
 @media (max-width: 1200px) {

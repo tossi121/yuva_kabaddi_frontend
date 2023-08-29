@@ -1,13 +1,13 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import '_base.scss';
 @import '_variables.scss';
-@import 'components/_button.scss';
 
 // dashboard
 @import 'components/dashboard/_dashboardlayout.scss';
 @import 'components/dashboard/_book-facilities.scss';
-@import 'components/dashboard/_dropdown.scss';
 @import 'components/dashboard/_auth.scss';
+@import 'components/dashboard/_dashboard-home.scss';
 @import 'components/dashboard/_my_profile.scss';
+@import 'components/dashboard/_filter.scss';
 @import 'components/dashboard/_breadcrumb.scss';
 @import 'components/dashboard/_custom-datatable.scss';

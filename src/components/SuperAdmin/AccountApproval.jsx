@@ -1,211 +1,119 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faFilter, faPlus, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
-import Link from 'next/link';
 import CustomDataTable from '../DataTable/CustomDataTable';
-import { maxLengthCheck } from '@/_helper/regex';
 import dynamic from 'next/dynamic';
 import CommentModal from './CommentlModal';
-import DeleteModal from './DeleteModal';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
-function Users() {
-  const columns = [
-    { heading: 'Name', field: 'name' },
-    { heading: 'Email Address', field: 'email' },
-    { heading: 'Mobile Number', field: 'mobile_number' },
-    { heading: 'User Type', field: 'user_type' },
-    { heading: 'Status', field: 'status' },
-    { heading: 'Action', field: 'Action' },
-  ];
-
+function AccountApproval() {
   const data = [
     {
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com',
-      mobile_number: '1234567890',
-      status: 'Reject',
-      user_type: 'Player',
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      mobile_number: '9876543210',
-      status: 'Approved',
-      user_type: 'Player',
-    },
-    {
-      id: 3,
-      name: 'Coach Johnson',
-      email: 'coach@example.com',
-      mobile_number: '5551234567',
-      status: 'Approved',
       user_type: 'Coach',
-    },
-    {
-      id: 4,
-      name: 'Coach Ramirez',
-      email: 'ramirez@example.com',
-      mobile_number: '4445678901',
-      status: 'Approved',
-      user_type: 'Coach',
-    },
-    {
-      id: 5,
-      name: 'Michael Jordan',
-      email: 'mj@example.com',
-      mobile_number: '1112223333',
-      status: 'Reject',
-      user_type: 'Player',
-    },
-    {
-      id: 6,
-      name: 'Serena Williams',
-      email: 'serena@example.com',
-      mobile_number: '5555555555',
-      status: 'Approved',
-      user_type: 'Player',
-    },
-    {
-      id: 7,
-      name: 'Coach Smith',
-      email: 'smith@example.com',
-      mobile_number: '6667778888',
-      status: 'Reject',
-      user_type: 'Coach',
-    },
-    {
-      id: 8,
-      name: 'LeBron James',
-      email: 'lebron@example.com',
-      mobile_number: '7778889999',
-      status: 'Reject',
-      user_type: 'Player',
-    },
-    {
-      id: 9,
-      name: 'Coach Brown',
-      email: 'brown@example.com',
-      mobile_number: '5554443333',
+      name: 'John Smith',
       status: 'Pending',
-      user_type: 'Coach',
+      email: 'john.smith@example.com',
+      pan_card_no: 'ABCD1234E',
+      ifsc_code: 'EFGH5678901',
+      bank_name: 'National Bank',
+      branch_name: 'Downtown Branch',
+      account_number: '98765432101234',
     },
+
     {
-      id: 10,
-      name: 'Maria Sharapova',
-      email: 'maria@example.com',
-      mobile_number: '8889990000',
-      status: 'Pending',
       user_type: 'Player',
+      name: 'Alice Johnson',
+      status: 'Pending',
+      email: 'alice.johnson@example.com',
+      pan_card_no: 'WXYZ5678F',
+      ifsc_code: 'UVWX1234567',
+      bank_name: 'Local Credit Union',
+      branch_name: 'Northside Branch',
+      account_number: '56789012345678',
     },
+
     {
-      id: 11,
-      name: 'Chris Paul',
-      email: 'chris@example.com',
-      mobile_number: '3332221111',
+      user_type: 'Coach',
+      name: 'David Lee',
+      status: 'Pending',
+      email: 'david.lee@example.com',
+      pan_card_no: 'LMNO5678G',
+      ifsc_code: 'PQRS1234567',
+      bank_name: 'Global Trust Bank',
+      branch_name: 'West End Branch',
+      account_number: '11223344556677',
+    },
+
+    {
+      user_type: 'Player',
+      status: 'Approved',
+      name: 'John Smith',
+      email: 'john.smith@example.com',
+      pan_card_no: 'ABCD1234E',
+      ifsc_code: 'EFGH5678901',
+      bank_name: 'National Bank',
+      branch_name: 'Downtown Branch',
+      account_number: '98765432101234',
+    },
+
+    {
+      user_type: 'Coach',
       status: 'Reject',
+      name: 'Alice Johnson',
+      email: 'alice.johnson@example.com',
+      pan_card_no: 'WXYZ5678F',
+      ifsc_code: 'UVWX1234567',
+      bank_name: 'Local Credit Union',
+      branch_name: 'Northside Branch',
+      account_number: '56789012345678',
+    },
+
+    {
       user_type: 'Player',
-    },
-    {
-      id: 12,
-      name: 'Coach White',
-      email: 'white@example.com',
-      mobile_number: '4445556666',
-      status: 'Approved',
-      user_type: 'Coach',
-    },
-    {
-      id: 13,
-      name: 'Lionel Messi',
-      email: 'messi@example.com',
-      mobile_number: '7776665555',
-      status: 'Approved',
-      user_type: 'Player',
-    },
-    {
-      id: 14,
-      name: 'Simone Biles',
-      email: 'simone@example.com',
-      mobile_number: '2223334444',
+      name: 'David Lee',
+      email: 'david.lee@example.com',
       status: 'Reject',
-      user_type: 'Player',
-    },
-    {
-      id: 15,
-      name: 'Coach Anderson',
-      email: 'anderson@example.com',
-      mobile_number: '5556667777',
-      status: 'Pending',
-      user_type: 'Coach',
-    },
-    {
-      id: 16,
-      name: 'Kobe Bryant',
-      email: 'kobe@example.com',
-      mobile_number: '1119998888',
-      status: 'Pending',
-      user_type: 'Player',
-    },
-    {
-      id: 17,
-      name: 'Coach Martinez',
-      email: 'martinez@example.com',
-      mobile_number: '3335557777',
-      status: 'Pending',
-      user_type: 'Coach',
-    },
-    {
-      id: 18,
-      name: 'Venus Williams',
-      email: 'venus@example.com',
-      mobile_number: '7778881111',
-      status: 'Approved',
-      user_type: 'Player',
-    },
-    {
-      id: 19,
-      name: 'Kevin Durant',
-      email: 'kd@example.com',
-      mobile_number: '4443335555',
-      status: 'Approved',
-      user_type: 'Player',
-    },
-    {
-      id: 20,
-      name: 'Coach Taylor',
-      email: 'taylor@example.com',
-      mobile_number: '6667779999',
-      status: 'Pending',
-      user_type: 'Coach',
+      pan_card_no: 'LMNO5678G',
+      ifsc_code: 'PQRS1234567',
+      bank_name: 'Global Trust Bank',
+      branch_name: 'West End Branch',
+      account_number: '11223344556677',
     },
   ];
-
   const initialFormValues = {
-    email: '',
     mobile: '',
     role: '',
+    email: '',
   };
 
   const [formValues, setFormValues] = useState(initialFormValues);
   const [formErrors, setFormErrors] = useState({});
   const [expanded, setExpanded] = useState(false);
-  const [userSelect, setUserSelect] = useState([]);
-  const [roleName, setRoleName] = useState('Select Role');
   const [searchRole, setSearchRole] = useState('');
   const [show, setShow] = useState(false);
-  const [selectedRole, setSelectedRole] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
   const [filteredData, setFilteredData] = useState(data);
+  const [selectedRole, setSelectedRole] = useState('');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
     reject: true,
   });
+  const columns = [
+    { heading: 'Name', field: 'name' },
+    { heading: 'Email Address', field: 'email' },
+    { heading: 'User Type', field: 'user_type' },
+    { heading: 'PAN Card No.', field: 'pan_card_no' },
+    { heading: 'Bank Name', field: 'bank_name' },
+    { heading: 'IFSC Code', field: 'ifsc_code' },
+    { heading: 'Account Number', field: 'account_number' },
+    { heading: 'Branch Name', field: 'branch_name' },
+    { heading: 'Status', field: 'status' },
+    { heading: 'Action', field: 'Action' },
+  ];
 
   const tableOptions = {
     columns: {
@@ -220,27 +128,66 @@ function Users() {
     const handleClick = () => {
       setShow(true);
     };
-    const handleDelete = (id) => {
-      setDeleteId(id);
-      setShowModal(true);
-    };
 
     return (
-      <div className="d-flex justify-content-center">
-        <Link href={`users/${id}`}>
-          <Button variant="success" className="py-1 px-2 me-3" title="Edit User">
-            <FontAwesomeIcon icon={faEdit} width={15} height={15} />
-          </Button>
-        </Link>
-        <Button variant="danger" className="py-1 px-2 me-3" title="Delete User" onClick={handleDelete}>
-          <FontAwesomeIcon icon={faTrash} width={15} height={15} />
-        </Button>
-        <Button className="common-btn fs-14" onClick={handleClick}>
-          Review
-        </Button>
-      </div>
+      <Button className="common-btn fs-14 mx-auto" onClick={handleClick}>
+        Review
+      </Button>
     );
   }
+
+  const handleRoleSelect = (selectedRole) => {
+    setSelectedRole(selectedRole);
+    setFormValues((prevData) => ({ ...prevData, role: selectedRole }));
+    setFormErrors((prevErrors) => ({ ...prevErrors, role: '' }));
+  };
+  // Toggle the filter box
+  const toggleFilterBox = () => {
+    setExpanded(!expanded);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const filteredData = data.filter((item) => {
+      const isWithinDateRange = !startDate || moment(item.withdrawal_date).isBetween(startDate, endDate, null, '[]');
+
+      const isMatchingRole = !selectedRole || item.user_type.toLowerCase() === selectedRole.toLowerCase();
+      const isMatchingEmail = !formValues.email || item.email.toLowerCase().includes(formValues.email.toLowerCase());
+
+      const isStatusMatching =
+        (selectedFilters.approved && item.status === 'Approved') ||
+        (selectedFilters.pending && item.status === 'Pending') ||
+        (selectedFilters.reject && item.status === 'Reject');
+
+      return isWithinDateRange && isMatchingRole && isMatchingEmail && isStatusMatching;
+    });
+
+    setFilteredData(filteredData);
+  };
+
+  // Handle reset form
+  const handleReset = () => {
+    setFormValues(initialFormValues);
+    setFormErrors({});
+    setSelectedRole('');
+    setSearchRole('');
+    setSelectedFilters({
+      approved: true,
+      pending: true,
+      reject: true,
+    });
+    setStartDate(null);
+    setEndDate(null);
+    setFilteredData(data);
+  };
+
+  const handleFilterChange = (filterName) => {
+    setSelectedFilters((prevFilters) => ({
+      ...prevFilters,
+      [filterName]: !prevFilters[filterName],
+    }));
+  };
 
   function renderSatus(value, row) {
     const statusColors = {
@@ -257,62 +204,6 @@ function Users() {
     );
   }
 
-  // Toggle the filter box
-  const toggleFilterBox = () => {
-    setExpanded(!expanded);
-  };
-
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Filter the data based on the selected criteria
-    const filteredData = data.filter((user) => {
-      // Role Filtering
-      if (selectedRole && user.user_type.toLowerCase() !== selectedRole.toLowerCase()) {
-        return false;
-      }
-
-      // Email Filtering
-      if (formValues.email && !user.email.toLowerCase().includes(formValues.email.toLowerCase())) {
-        return false;
-      }
-
-      // Mobile Filtering
-      if (formValues.mobile && !user.mobile_number.includes(formValues.mobile)) {
-        return false;
-      }
-
-      // Status Filtering (checkboxes)
-      if (
-        (selectedFilters.approved && user.status === 'Approved') ||
-        (selectedFilters.pending && user.status === 'Pending') ||
-        (selectedFilters.reject && user.status === 'Reject')
-      ) {
-        return true;
-      }
-
-      return false;
-    });
-
-    setFilteredData(filteredData);
-  };
-
-  const handleReset = () => {
-    setFormValues(initialFormValues);
-    setFormErrors({});
-    setRoleName('Select Role');
-    setSelectedRole('');
-    setSearchRole('');
-    setSelectedFilters({
-      approved: true,
-      pending: true,
-      reject: true,
-    });
-
-    setFilteredData(data);
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'role') {
@@ -323,38 +214,15 @@ function Users() {
     }
   };
 
-  const handleKeyPress = (e) => {
-    const key = e.key;
-    if (key === 'e' || key === '+' || key === '-') {
-      e.preventDefault();
-    }
-  };
-
-  const handleRoleSelect = (selectedRole) => {
-    setSelectedRole(selectedRole);
-    setSearchRole('');
-    setFormValues((prevData) => ({ ...prevData, role: selectedRole }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, role: '' }));
-  };
-
-  const handleFilterChange = (filterName) => {
-    setSelectedFilters((prevFilters) => ({
-      ...prevFilters,
-      [filterName]: !prevFilters[filterName],
-    }));
-  };
   return (
     <>
-      {show && <CommentModal show={show} setShow={setShow} modalText={'User Approval'} />}
-      {showModal && (
-        <DeleteModal showModal={showModal} setShowModal={setShowModal} handleDelete={deleteId} text="User" />
-      )}
+      <CommentModal show={show} setShow={setShow} modalText="Account Approval" />
       <section className="dashboard-section">
         <Container fluid>
           <Row className="my-4 ">
             <Col lg={12}>
               <div className="d-flex justify-content-between align-items-center mb-4">
-                <DashboardBreadcrumb breadcrumbTitle="Users Approval" data={'Dashboard'} />
+                <DashboardBreadcrumb breadcrumbTitle="Account Approval" data={'Dashboard'} />
                 <div className="d-sm-flex justify-content-between align-items-center ">
                   <div className="add-filter d-flex mt-sm-0 mt-2">
                     <Button
@@ -363,11 +231,6 @@ function Users() {
                     >
                       <FontAwesomeIcon icon={faFilter} className="fs-18" />
                     </Button>
-                    <Link href={'/super-admin/users/add-user'}>
-                      <Button className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center">
-                        <FontAwesomeIcon icon={faPlus} className="fs-18" />
-                      </Button>
-                    </Link>
                   </div>
                 </div>
               </div>
@@ -376,12 +239,12 @@ function Users() {
                 className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0"> Users Approval Filter</h4>
+                  <h4 className="common-heading mb-0">Account Approval Filter</h4>
                 </div>
                 <Card.Body className="box-padding">
                   <Form onSubmit={handleSubmit}>
                     <Row>
-                      <Col>
+                      <Col xl={3} lg={4} md={6}>
                         <div className="mb-4">
                           <Form.Group className="position-relative">
                             <Form.Label className="fs-16 fw-400 base-color">Select Role</Form.Label>
@@ -422,7 +285,7 @@ function Users() {
                           </Form.Group>
                         </div>
                       </Col>
-                      <Col>
+                      <Col xl={3} lg={4} md={6}>
                         <div className="mb-4">
                           <Form.Group className="position-relative">
                             <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
@@ -438,33 +301,10 @@ function Users() {
                           </Form.Group>
                         </div>
                       </Col>
-                      <Col>
-                        <div className="mb-4">
-                          <Form.Group className="position-relative">
-                            <Form.Label className="fs-16 fw-400 base-color">Enter Mobile Number</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="Enter Your Mobile Number"
-                              name="mobile"
-                              className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                              id="mobile"
-                              value={formValues.mobile}
-                              onChange={handleChange}
-                              maxLength="10"
-                              onKeyPress={handleKeyPress}
-                              onInput={maxLengthCheck}
-                            />
-                            {formErrors.mobile && (
-                              <p className="text-danger fs-14 error-message">{formErrors.mobile}</p>
-                            )}
-                          </Form.Group>
-                        </div>
-                      </Col>
-
-                      <Col>
+                      <Col xl={3} lg={4} md={6}>
                         <div className="mb-4">
                           <Form.Group>
-                            <Form.Label className="fs-16 fw-400 base-color-1"> Filter Status</Form.Label>
+                            <Form.Label className="fs-14 fw-500 base-color-2"> Filter Status</Form.Label>
                             <div className="mt-2">
                               <Form.Label className="cursor-pointer user-select-none base-color-2" htmlFor="approved">
                                 <input
@@ -506,7 +346,7 @@ function Users() {
                           </Form.Group>
                         </div>
                       </Col>
-                      <Col>
+                      <Col xl={3} lg={4} md={6}>
                         <div className="d-flex align-items-center  filters-dropdown-btn">
                           <Button className="common-btn px-3 text-nowrap" type="Submit">
                             <span className="me-2">
@@ -526,7 +366,7 @@ function Users() {
 
               <Card className="bg-white common-card-box">
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">Users Approval</h4>
+                  <h4 className="common-heading mb-0">Account Approval</h4>
                 </div>
                 <Card.Body className="box-padding">
                   <CustomDataTable rows={filteredData} columns={columns} options={tableOptions} />
@@ -540,4 +380,4 @@ function Users() {
   );
 }
 
-export default Users;
+export default AccountApproval;

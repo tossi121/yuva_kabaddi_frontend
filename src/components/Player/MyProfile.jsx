@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Button, Card, Col, Container, Dropdown, Form, Row, Spinner } from 'react-bootstrap';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 
-import DashboardBreadcrumb from '@/components/Layouts/Breadcrumb/DashboardBreadcrumbar';
 import {
   maxLengthCheck,
   validAccountNumber,
@@ -12,6 +12,10 @@ import {
   validName,
   validPAN,
 } from '@/_helper/regex';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCloudUpload, faUpload } from '@fortawesome/free-solid-svg-icons';
+
+const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function MyProfile() {
   const initialFormValues = {
@@ -31,10 +35,9 @@ function MyProfile() {
   const [formValues, setFormValues] = useState(initialFormValues);
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
-
+  const [imageFileData, setImageFileData] = useState(null);
   const [profileImage, setProfileImage] = useState();
   const [profileImages, setProfileImages] = useState();
-
   const [getAllStatesList, setGetAllStatesList] = useState([]);
   const [selectState, setSelectState] = useState('Select State');
   const [selectStateId, setSelectStateId] = useState('');
@@ -142,6 +145,9 @@ function MyProfile() {
     if (!values.bankName) {
       errors.bankName = 'Please enter a bank name';
     }
+    if (!values.imageFileData) {
+      errors.imageFileData = 'Please upload PAN card  ';
+    }
     return errors;
   };
 
@@ -157,11 +163,11 @@ function MyProfile() {
         <div className="d-flex justify-content-between align-items-center">
           <DashboardBreadcrumb breadcrumbTitle="My Profile" data={'Dashboard'} />
         </div>
-        <Row className="py-4 align-items-stretch h-100">
+        <Row className="py-4 ">
           <Col lg={12}>
             <Card className="card-border rounded-4 mb-4">
               <div className="card-head card-head-padding border-bottom">
-                <h4 className="common-heading mb-0">Update your profile</h4>
+                <h4 className="common-heading mb-0">My profile</h4>
               </div>
               <Card.Body className="box-padding">
                 <Form>
@@ -212,7 +218,7 @@ function MyProfile() {
                     <Col lg={6}>
                       <div className="mb-4">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Enter Full Name</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Enter Full Name</Form.Label>
                           <Form.Control
                             type="text"
                             placeholder="Enter Your Full Name"
@@ -228,7 +234,7 @@ function MyProfile() {
                     <Col lg={6}>
                       <div className="mb-4">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Enter Email Address</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
                           <Form.Control
                             type="email"
                             placeholder="Enter Your Email Address"
@@ -244,18 +250,19 @@ function MyProfile() {
                     <Col lg={6}>
                       <div className="mb-4">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Enter Mobile Number</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Enter Mobile Number</Form.Label>
                           <Form.Control
                             type="text"
                             placeholder="Enter Your Mobile Number"
                             name="mobile"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                             id="mobile"
-                            value={formValues.mobile}
+                            value={formValues.mobile || '12345677890'}
                             onChange={handleChange}
                             maxLength="10"
                             onKeyPress={handleKeyPress}
                             onInput={maxLengthCheck}
+                            disabled
                           />
                           {formErrors.mobile && <p className="text-danger fs-14 error-message">{formErrors.mobile}</p>}
                         </Form.Group>
@@ -264,7 +271,7 @@ function MyProfile() {
 
                     <Col lg={6}>
                       <div className="mb-4">
-                        <Form.Group className="position-relative" controlId="formBasicEmail">
+                        <Form.Group className="position-relative">
                           <Form.Label className="fs-14 fw-500 base-color-2">City</Form.Label>
                           <div className="form-select-catgory">
                             <Dropdown className="form-control px-0 py-0 card-border">
@@ -277,13 +284,13 @@ function MyProfile() {
                                   {(selectCity && selectCity) || 'Select City'}
                                 </span>
                               </Dropdown.Toggle>
-                              <Dropdown.Menu className="w-100 card-border banner-filter-menu">
+                              <Dropdown.Menu className="w-100 card-border ">
                                 <div className="px-2 mb-2">
                                   <input
                                     type="search"
                                     placeholder="Search City"
                                     onChange={(e) => setSearchCity(e.target.value)}
-                                    className="form-control shadow-none card-border fs-14 select-search-box"
+                                    className="form-control shadow-none card-border fs-14 hight-50"
                                   />
                                 </div>
                                 {getAllCityList &&
@@ -308,7 +315,7 @@ function MyProfile() {
 
                     <Col lg={6}>
                       <div className="mb-4">
-                        <Form.Group className="position-relative" controlId="formBasicEmail">
+                        <Form.Group className="position-relative">
                           <Form.Label className="fs-14 fw-500 base-color-2">State</Form.Label>
                           <div className="form-select-catgory">
                             <Dropdown className="form-control px-0 py-0 card-border">
@@ -319,13 +326,13 @@ function MyProfile() {
                               >
                                 <span className="text-truncate pe-3">{selectState || 'Select State'}</span>
                               </Dropdown.Toggle>
-                              <Dropdown.Menu className="w-100 card-border banner-filter-menu">
+                              <Dropdown.Menu className="w-100 card-border ">
                                 <div className="px-2 mb-2">
                                   <input
                                     type="search"
                                     placeholder="Search State"
                                     onChange={(e) => setSearchState(e.target.value)}
-                                    className="form-control shadow-none card-border fs-14 select-search-box"
+                                    className="form-control shadow-none card-border fs-14 hight-50"
                                   />
                                 </div>
                                 {getAllStatesList &&
@@ -350,7 +357,7 @@ function MyProfile() {
 
                     <Col lg={6}>
                       <div className="mb-4">
-                        <Form.Group className="position-relative" controlId="formBasicEmail">
+                        <Form.Group className="position-relative">
                           <Form.Label className="fs-14 fw-500 base-color-2">Add Address</Form.Label>
                           <Form.Control
                             type="text"
@@ -374,9 +381,56 @@ function MyProfile() {
                 <Form>
                   <Row>
                     <Col lg={6}>
+                      <div className="box-profile-image mb-4">
+                        <div className="img-profile me-3">
+                          {/* {imageFileData && (
+                        <Image
+                          src={getImagePreviewURL(imageFileData)}
+                          alt="profile"
+                          width={100}
+                          height={100}
+                          className="img-fluid rounded-3"
+                        />
+                      )}
+                      {!imageFileData && profileImages && (
+          ""
+          )} */}
+                        </div>
+                        {/* <Image
+                          src={(profileImage && profileImages) || '/images/team-roster/user-details.png'}
+                          alt="image"
+                          width={100}
+                          height={100}
+                          className="img-fluid rounded-3 me-4"
+                        /> */}
+                        <div className="info-profile pan-card-upload p-3 w-50 d-flex justify-content-center flex-column align-items-center">
+                          <FontAwesomeIcon icon={faCloudUpload} className="base-color-2 mb-3" width={35} height={35} />
+                          <div>
+                            <Form.Control
+                              type="file"
+                              id="pan"
+                              onChange={(e) => setImageFileData(e.target.files[0])}
+                              accept="image/png, image/jpeg, image/jpg, image/svg+xml"
+                              className="d-none"
+                              name="imageFileData"
+                              // value={imageFileData}
+                              aria-describedby="passwordHelpBlock"
+                            />
+                            <label className="common-btn py-2 px-3 fs-14 me-2 cursor-pointer" htmlFor="pan">
+                              <span className="d-inline-flex align-middle">Upload PAN Card</span>
+                            </label>
+                            {/* <span className="text-decoration-underline fs-14  base-color"> Delete</span> */}
+                          </div>
+                        </div>
+                          {formErrors.imageFileData && (
+                            <p className="text-danger fs-14 error-message">{formErrors.imageFileData}</p>
+                          )}
+                      </div>
+                    </Col>
+                    <Col lg={6}>
                       <div className="mb-4">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Enter PAN Card No.</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Enter PAN Card No.</Form.Label>
                           <Form.Control
                             type="text"
                             placeholder="Enter PAN Card No."
@@ -395,7 +449,7 @@ function MyProfile() {
                     <Col lg={6}>
                       <div className="mb-4">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Enter Bank IFSC Code</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Enter Bank IFSC Code</Form.Label>
                           <Form.Control
                             type="text"
                             placeholder="Enter Bank IFSC Code"
@@ -414,7 +468,7 @@ function MyProfile() {
                     <Col lg={6}>
                       <div className="mb-4">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Enter Bank Name</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Enter Bank Name</Form.Label>
                           <Form.Control
                             type="text"
                             placeholder="Enter Bank Name"
@@ -433,7 +487,7 @@ function MyProfile() {
                     <Col lg={6}>
                       <div className="mb-4">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Enter Bank Branch Name</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Enter Bank Branch Name</Form.Label>
                           <Form.Control
                             type="text"
                             placeholder="Enter Bank Branch Name"
@@ -452,7 +506,7 @@ function MyProfile() {
                     <Col lg={6}>
                       <div className="mb-4">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Enter Account Number</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Enter Account Number</Form.Label>
                           <Form.Control
                             type="text"
                             placeholder="Enter Account Number"

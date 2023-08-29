@@ -98,7 +98,7 @@ a {
 }
 
 .base-color {
-  color: var(--base-color-1);
+  color: var(--base-color);
 }
 .base-link-color {
   color: var(--base-link-color);
@@ -133,12 +133,15 @@ a {
   color: var(--base-color-9);
 }
 
-.base-color-11 {
+.base-color1 {
   color: var(--base-border-color);
 }
 
 .cursor-pointer {
-  cursor: pointer ;
+  cursor: pointer;
+}
+.btn-close {
+  box-shadow: unset !important;
 }
 
 .bg-blue {
@@ -200,6 +203,10 @@ a {
   flex-grow: 1;
 }
 
+.dropdown-height {
+  height: 300px;
+}
+
 ::-webkit-scrollbar {
   width: 5px;
   height: 4px;
@@ -215,6 +222,20 @@ a {
   background: var(--base-link-color);
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+input:-webkit-autofill::first-line,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  -webkit-text-fill-color: var(--base-color-2) !important;
+}
+
 .common-card-shadow {
   box-shadow: var(--base-box-shadow);
 }
@@ -225,15 +246,45 @@ a {
 .section-title {
   font-size: 36px;
   line-height: 45px;
-  color: var(--base-color-1);
+  color: var(--base-color);
   font-weight: 700;
 }
 
 .common-heading {
   font-size: 24px;
-  color: var(--base-color-1);
+  color: var(--base-color);
   line-height: 28px;
   font-weight: 600;
+}
+
+.common-outline-btn {
+  display: block;
+  color: var(--base-link-color) !important;
+  background: var(--label-color-white) !important;
+  transition: 0.2s;
+  border: 1px solid var(--base-link-color);
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  &:hover {
+    color: var(--label-color-white) !important;
+    background: var(--base-link-color) !important;
+    border: 1px solid var(--base-link-color) !important;
+  }
+}
+
+.common-btn {
+  display: block;
+  color: var(--label-color-white) !important;
+  background-color: var(--base-link-color) !important;
+  transition: 0.2s;
+  border: 1px solid var(--base-link-color);
+  border-radius: 4px;
+  box-shadow: none !important;
+  &:hover {
+    color: var(--label-color-white) !important;
+    background: var(--base-color) !important;
+    border: 1px solid var(--base-color) !important;
+  }
 }
 
 .section-subtitle {
@@ -280,7 +331,7 @@ a {
   font-size: 18px;
   line-height: 24px;
   font-weight: 600;
-  color: var(--base-color-1);
+  color: var(--base-color);
 }
 
 .form-control {
