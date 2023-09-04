@@ -1,7 +1,7 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 
-const Login = dynamic(import('@/components/Registration/Login'));
+const Login = dynamic(import('@/components/Player/Login'));
 
 function DefaultPage() {
   return (
