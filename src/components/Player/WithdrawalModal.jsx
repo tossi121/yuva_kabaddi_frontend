@@ -74,11 +74,13 @@ function WithdrawalModal(props) {
 
   const total = parseFloat(formValues.totalAmount);
   const formattedAmount = total.toFixed(2).toLocaleString('en-IN');
+  const tdsRate = 0.07;
+  const tdsAmount = totalAmount * tdsRate;
 
   return (
     <Modal show={show} onHide={handleCloseModal} centered>
       <Modal.Header closeButton>
-        <h4 className='base-color mb-0'>Withdrawal Amount </h4>
+        <h4 className="base-color mb-0">Withdrawal Amount </h4>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit} autoComplete="off">
@@ -111,6 +113,16 @@ function WithdrawalModal(props) {
               )}
             </Form.Group>
           </div>
+          {formValues.withdrawalAmount.length > 0 && (
+            <div className="d-flex align-items-center">
+              <p className="fs-16 fw-semibold base-color">Summary:- &nbsp;</p>
+              <p className="fs-14 fw-400 base-color">
+                Paid: {parseFloat(formValues.withdrawalAmount - tdsAmount).toFixed(2)} Remaining:
+                {totalAmount - parseFloat(formValues.withdrawalAmount).toFixed(2)} TDS: {tdsAmount.toFixed(2)}
+              </p>
+            </div>
+          )}
+
           <div className="text-center">
             <Button
               variant="white"
