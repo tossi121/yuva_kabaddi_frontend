@@ -1,7 +1,5 @@
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 import React from 'react';
-import { useEffect } from 'react';
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 import OtpInput from 'react18-input-otp';
 
@@ -30,7 +28,7 @@ function VerifyOtp(props) {
         <Container>
           <Row className="justify-content-center">
             <Col xxl={4} lg={6} md={7}>
-              <Form className="login-form bg-white shadow p-5 rounded-2">
+              <Form onSubmit={handleSubmit} className="login-form bg-white shadow p-5 rounded-2">
                 <div className="circle-container d-flex justify-content-center align-items-center m-auto rounded-circle">
                   <Image width={70} height={70} src={'/images/mobiles.png'} alt="otp-icon" />
                 </div>
@@ -48,7 +46,6 @@ function VerifyOtp(props) {
                     shouldAutoFocus={true}
                     numInputs={4}
                     isInputNum={true}
-                    onSubmit={true}
                   />
                 </div>
 
@@ -67,7 +64,7 @@ function VerifyOtp(props) {
                   <Button
                     type="submit"
                     className="common-btn w-100 mb-3"
-                    onClick={handleSubmit}
+                    onSubmit={handleSubmit}
                     disabled={oneTimePassword?.length !== 4}
                   >
                     Verify

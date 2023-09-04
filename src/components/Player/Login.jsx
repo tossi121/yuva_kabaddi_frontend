@@ -1,9 +1,13 @@
 import { maxLengthCheck, validMobile } from '@/_helper/regex';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import VerifyOtp from './VerifyOtp';
 import Image from 'next/image';
+import { getLogin, getOtp } from '@/_services/services_api';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
+import { toast } from 'react-hot-toast';
 
 function Login() {
   const initialValues = {
@@ -13,7 +17,17 @@ function Login() {
   const [formValues, setFormValues] = useState(initialValues);
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [mobileNumber, setMobileNumber] = useState('');
+  const [oneTimePassword, setOneTimePassword] = useState(null);
+  const [showOtpPopup, setShowOtpPopup] = useState(false);
+  const [otpResendSeconds, setOtpResendSeconds] = useState(0);
+  const [isTypingOtp, setIsTypingOtp] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (showOtpPopup) {
+      handleOtp();
+    }
+  }, [showOtpPopup, oneTimePassword]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,20 +54,72 @@ function Login() {
     return errors;
   }
 
+  const handleOtp = async () => {
+    if (formValues.mobile && !oneTimePassword && !isTypingOtp) {
+      const params = {
+        contactno: formValues.mobile,
+      };
+      const res = await getOtp(params);
+      if (res?.status) {
+        toast.success(res?.message);
+      } else {
+        toast.error(res?.message);
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormErrors(validate(formValues));
-    const errObj = validate(formValues);
-    if (Object?.keys(errObj).length == 0) {
+    const errors = validate(formValues);
+    setFormErrors(errors);
+    if (Object.keys(errors).length === 0) {
       setLoading(true);
-      const phoneNumber = `+91 ${formValues.mobile}`;
-      setMobileNumber(phoneNumber);
+      handleLogin();
+    }
+  };
+
+  const handleRegistration = async (e) => {
+    e.preventDefault();
+    const errors = validate(formValues);
+    setFormErrors(errors);
+    if (Object.keys(errors).length === 0) {
+      setShowOtpPopup(true);
+      setOtpResendSeconds(30);
+    }
+  };
+
+  const handleLogin = async () => {
+    const params = {
+      contactno: formValues.mobile,
+      otp: oneTimePassword,
+    };
+
+    const res = await getLogin(params);
+    if (res?.status) {
+      router.push('/dashboard');
+      const token = res.data.access_token;
+      Cookies.set('token', token);
+      toast.success(res.message);
+    } else {
+      toast.error(res?.message);
     }
   };
 
   return (
     <>
-      {(mobileNumber && <VerifyOtp {...{ mobileNumber }} />) || (
+      {(showOtpPopup && (
+        <VerifyOtp
+          oneTimePassword={oneTimePassword}
+          handleSubmit={handleSubmit}
+          otpResendSeconds={otpResendSeconds}
+          setShowOtpPopup={setShowOtpPopup}
+          setOtpResendSeconds={setOtpResendSeconds}
+          formValues={formValues}
+          handleOtp={handleOtp}
+          setIsTypingOtp={setIsTypingOtp}
+          setOneTimePassword={setOneTimePassword}
+        />
+      )) || (
         <>
           <section className="login-page min-vh-100 d-flex align-items-center justify-content-center">
             <Container>
@@ -74,7 +140,7 @@ function Login() {
                             <h2 className="base-color fw-700">Welcome Back!</h2>
                             <h6 className="fs-14 fw-500 base-color-2">Login in to your account</h6>
                           </div>
-                          <Form onSubmit={handleSubmit} autoComplete="off">
+                          <Form onSubmit={handleRegistration} autoComplete="off">
                             <div className="mb-3">
                               <Form.Group className="position-relative">
                                 <Form.Label className="fs-16 fw-400 base-color">Enter Mobile Number</Form.Label>
@@ -99,11 +165,14 @@ function Login() {
                             <div className="text-center">
                               <Button
                                 variant="white"
-                                
                                 className="my-3 mt-4 w-50 mx-auto fw-400 fs-18 text-white common-btn shadow-none py-2"
+                                disabled={loading}
+                                type="submit"
                               >
                                 Login
-                                {loading && <Spinner animation="border" variant="white" className="ms-1 spinner" />}
+                                {loading && (
+                                  <Spinner animation="border" variant="white" size="sm" className="ms-1 spinner" />
+                                )}
                               </Button>
                               <span className="base-color-2 me-2">Don&apos; have an account?</span>
                               <Link href={'/signup'} className="base-link-color">

@@ -3,10 +3,19 @@ import { Button, Card, Col, Container, Dropdown, Form, Row, Spinner } from 'reac
 import { maxLengthCheck, validEmail, validMobile, validName } from '@/_helper/regex';
 import VerifyOtp from './VerifyOtp';
 import Link from 'next/link';
-import { getMatchDetails, getOtp, getRole, getSignup, getSeries, getMatchPlayers } from '@/_services/services_api';
+import {
+  getMatchDetails,
+  getOtp,
+  getRole,
+  getSignup,
+  getSeries,
+  getMatchPlayers,
+  checkMobileNumber,
+} from '@/_services/services_api';
 import { Toaster, toast } from 'react-hot-toast';
 import ReusableDropdown from './ReusableDropdown';
 import { useRouter } from 'next/router';
+import Cookies from 'js-cookie';
 
 function Signup() {
   const initialFormValues = {
@@ -30,6 +39,7 @@ function Signup() {
   const [selectedPlayer, setSelectedPlayer] = useState('');
   const [otpResendSeconds, setOtpResendSeconds] = useState(0);
   const [isTypingOtp, setIsTypingOtp] = useState(false);
+  const [isMobileNumberRegistered, setIsMobileNumberRegistered] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -95,23 +105,29 @@ function Signup() {
     setFormErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
   };
 
-  async function handleSignup() {
+  const handleSignup = async () => {
     const params = {
       contactno: formValues.mobile,
       email: formValues.email,
-      name: formValues.user,
+      user_name: formValues.user,
       user_role: selectedRole.role_name,
       player_id: selectedPlayer.player_id,
       otp: oneTimePassword,
     };
-    const res = await getSignup(params);
-    if (res?.status) {
-      toast.success(res?.message);
-      router.push('/dashboard');
-    } else {
-      toast.error(res?.message);
+    const isMobileAlreadyRegistered = await handleCheckMobileNumber();
+
+    if (!isMobileAlreadyRegistered && oneTimePassword !== null) {
+      const res = await getSignup(params);
+      if (res?.status) {
+        router.push('/dashboard');
+        const token = res.data.access_token;
+        Cookies.set('token', token);
+        toast.success(res.message);
+      } else {
+        toast.error(res?.message);
+      }
     }
-  }
+  };
 
   const handleKeyPress = (e) => {
     const key = e.key;
@@ -130,28 +146,57 @@ function Signup() {
     }
   };
 
-  async function handleOtp() {
+  const handleOtp = async () => {
     if (formValues.mobile && !oneTimePassword && !isTypingOtp) {
-      const params = {
-        contactno: formValues.mobile,
-      };
-      const res = await getOtp(params);
-      if (res?.status) {
-        toast.success(res?.message);
+      if (!isMobileNumberRegistered) {
+        const params = {
+          contactno: formValues.mobile,
+        };
+        const res = await getOtp(params);
+        if (res?.status) {
+          toast.success(res?.message);
+        } else {
+          toast.error(res?.message);
+        }
       } else {
-        toast.error(res?.message);
+        toast.error('Mobile number is already registered.');
       }
     } else if (!formValues.mobile) {
       toast.error('Please enter a mobile number');
     }
-  }
+  };
 
-  const handleRegistration = () => {
+  const handleCheckMobileNumber = async () => {
+    if (formValues.mobile) {
+      const params = {
+        contactno: formValues.mobile,
+      };
+      const res = await checkMobileNumber(params);
+      if (res?.status) {
+        setIsMobileNumberRegistered(true);
+        toast.error(res?.message);
+        return true;
+      } else {
+        setIsMobileNumberRegistered(false);
+      }
+    }
+    return false;
+  };
+
+  const handleRegistration = async (e) => {
+    e.preventDefault();
     const errors = validate(formValues);
     setFormErrors(errors);
     if (Object.keys(errors).length === 0) {
-      setShowOtpPopup(true);
-      setOtpResendSeconds(30);
+      const isMobileAlreadyRegistered = await handleCheckMobileNumber();
+      if (!isMobileAlreadyRegistered) {
+        setShowOtpPopup(true);
+        setOtpResendSeconds(30);
+      } else {
+        setTimeout(() => {
+          router.push('/login');
+        }, 800);
+      }
     }
   };
 
@@ -196,17 +241,15 @@ function Signup() {
       <Toaster position="top-right" reverseOrder={false} />
       {(showOtpPopup && (
         <VerifyOtp
-          {...{
-            oneTimePassword,
-            handleSubmit,
-            otpResendSeconds,
-            setShowOtpPopup,
-            setOtpResendSeconds,
-            formValues,
-            handleOtp,
-            setIsTypingOtp,
-            setOneTimePassword,
-          }}
+          oneTimePassword={oneTimePassword}
+          handleSubmit={handleSubmit}
+          otpResendSeconds={otpResendSeconds}
+          setShowOtpPopup={setShowOtpPopup}
+          setOtpResendSeconds={setOtpResendSeconds}
+          formValues={formValues}
+          handleOtp={handleOtp}
+          setIsTypingOtp={setIsTypingOtp}
+          setOneTimePassword={setOneTimePassword}
         />
       )) || (
         <>
@@ -220,7 +263,7 @@ function Signup() {
                         <h2 className="base-color fw-700">Welcome!</h2>
                         <h6 className="fs-14 fw-500 base-color-2">Create your account</h6>
                       </div>
-                      <Form autoComplete="off" onSubmit={handleSubmit}>
+                      <Form autoComplete="off" onSubmit={handleRegistration}>
                         <Row>
                           <Col lg={6}>
                             <div className="mb-3">
@@ -359,12 +402,14 @@ function Signup() {
                         <div className="text-center">
                           <Button
                             variant="white"
-                            onClick={handleRegistration}
                             type="submit"
                             className="my-3 mt-4 w-50 mx-auto fw-400 fs-18 text-white common-btn shadow-none py-2"
+                            disabled={loading}
                           >
                             Signup
-                            {loading && <Spinner animation="border" variant="white" className="ms-1 spinner" />}
+                            {loading && (
+                              <Spinner animation="border" size="sm" variant="white" className="ms-1 spinner" />
+                            )}
                           </Button>
                           <span className="base-color-2 me-2">Already have an account?</span>
                           <Link href={'/login'} className="base-link-color">

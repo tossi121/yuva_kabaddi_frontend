@@ -1,6 +1,7 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 
 const Sidebar = dynamic(import('./Sidebar'));
 const Topbar = dynamic(import('./Topbar'));
@@ -23,28 +24,29 @@ function DashboardLayout(props) {
   return (
     <>
       {/* {(isLoggedIn && ( */}
-        <>
-          <Topbar ToggleFun={SidebarToggle} />
-          <div className="d-flex h-100 layout-wrapper w-100">
-            <Sidebar
-              responisveToggle={responsiveSidebar}
-              setResponsiveSidebar={setResponsiveSidebar}
-              toggle={isSidebar}
-              ToggleFun={SidebarToggle}
-              setisSidebar={setisSidebar}
-              responsiveToggle={responsiveToggle}
-              toggleResponsive={toggleResponsive}
-              setToggleResponsive={setToggleResponsive}
-            />
-            <div
-              className={`dashboard-content-section ms-auto py-4 px-md-3 px-2 ${
-                (!isSidebar && 'dashboard-content-sm') || ''
-              }`}
-            >
-              {children}
-            </div>
+      <>
+        <Toaster position="top-right" reverseOrder={false} />
+        <Topbar ToggleFun={SidebarToggle} />
+        <div className="d-flex h-100 layout-wrapper w-100">
+          <Sidebar
+            responisveToggle={responsiveSidebar}
+            setResponsiveSidebar={setResponsiveSidebar}
+            toggle={isSidebar}
+            ToggleFun={SidebarToggle}
+            setisSidebar={setisSidebar}
+            responsiveToggle={responsiveToggle}
+            toggleResponsive={toggleResponsive}
+            setToggleResponsive={setToggleResponsive}
+          />
+          <div
+            className={`dashboard-content-section ms-auto py-4 px-md-3 px-2 ${
+              (!isSidebar && 'dashboard-content-sm') || ''
+            }`}
+          >
+            {children}
           </div>
-        </>
+        </div>
+      </>
       {/* )) ||
         ''} */}
     </>

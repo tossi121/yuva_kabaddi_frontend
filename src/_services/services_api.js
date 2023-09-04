@@ -8,6 +8,16 @@ export async function getOtp(params) {
     return null;
   }
 }
+
+export async function checkMobileNumber(params) {
+  try {
+    const response = await fetcher('POST', process.env.CHECK_MOBILE_NUMBER_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
 export async function getSignup(params) {
   try {
     const response = await fetcher('POST', process.env.SIGNUP_DATA, params);
@@ -16,6 +26,16 @@ export async function getSignup(params) {
     return null;
   }
 }
+
+export async function getLogin(params) {
+  try {
+    const response = await fetcher('POST', process.env.LOGIN_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
 export async function getRole(params) {
   try {
     const response = await fetcher('GET', process.env.ROLE_DATA, params);
