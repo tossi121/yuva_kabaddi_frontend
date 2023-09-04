@@ -3,58 +3,115 @@ import { Button, Card, Col, Container, Dropdown, Form, Row, Spinner } from 'reac
 import { maxLengthCheck, validEmail, validMobile, validName } from '@/_helper/regex';
 import VerifyOtp from './VerifyOtp';
 import Link from 'next/link';
-import { getSignup } from '@/_services/services_api';
+import { getMatchDetails, getOtp, getRole, getSignup, getSeries, getMatchPlayers } from '@/_services/services_api';
 import { Toaster, toast } from 'react-hot-toast';
+import ReusableDropdown from './ReusableDropdown';
+import { useRouter } from 'next/router';
 
 function Signup() {
   const initialFormValues = {
     user: '',
     email: '',
     mobile: '',
-    role: '',
-    tournament: '',
-    team: '',
-    squad: '',
   };
 
   const [formValues, setFormValues] = useState(initialFormValues);
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [mobileNumber, setMobileNumber] = useState('');
+  const [oneTimePassword, setOneTimePassword] = useState(null);
+  const [showOtpPopup, setShowOtpPopup] = useState(false);
+  const [roleData, setRoleData] = useState([]);
   const [selectedRole, setSelectedRole] = useState('');
-  const [selectedTournament, setSelectedTournament] = useState('');
-  const [selectedTeam, setSelectedTeam] = useState('');
-  const [selectedSquad, setSelectedSquad] = useState('');
-  const [searchRole, setSearchRole] = useState('');
-  const [searchTournament, setSearchTournament] = useState('');
-  const [searchTeam, setSearchTeam] = useState('');
-  const [searchSquad, setSearchSquad] = useState('');
+  const [seriesData, setSeriesData] = useState([]);
+  const [selectedSeries, setSelectedSeries] = useState('');
+  const [matchData, setMatchData] = useState([]);
+  const [selectedMatch, setSelectedMatch] = useState('');
+  const [playerData, setPlayerData] = useState([]);
+  const [selectedPlayer, setSelectedPlayer] = useState('');
+  const [otpResendSeconds, setOtpResendSeconds] = useState(0);
+  const [isTypingOtp, setIsTypingOtp] = useState(false);
+  const router = useRouter();
 
-  async function handleSignup() {
-    const params = {
-      contactno: '5714573708',
-      email: 'tosif.geekologix@gmail.com',
-      name: 'Tossi',
-      user_role: 'PLAYER',
-      otp: '2468',
-    };
-    const res = await getSignup(params);
-    // if (res?.status) {
-    //   toast.success(res?.message);
-    // } else {
-    //   toast.error(res?.message);
-    // }
+  useEffect(() => {
+    handleRole();
+    handleSeries();
+    handleMatchPlayers();
+    handleMatch();
+    if (showOtpPopup) {
+      handleOtp();
+    }
+  }, [showOtpPopup, oneTimePassword, selectedMatch.match_id, selectedPlayer.player_id, selectedSeries.id]);
+
+  useEffect(() => {
+    if (otpResendSeconds > 0) {
+      const timer = setInterval(() => {
+        setOtpResendSeconds((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+      return () => {
+        clearInterval(timer);
+      };
+    }
+  }, [otpResendSeconds]);
+
+  async function handleRole() {
+    const res = await getRole();
+    if (res?.status) {
+      const data = res.data;
+      setRoleData(data);
+    }
+  }
+
+  async function handleSeries() {
+    const res = await getSeries();
+    if (res?.status) {
+      const data = res.data;
+      setSeriesData(data);
+    }
+  }
+
+  async function handleMatch() {
+    if (selectedSeries.id) {
+      const res = await getMatchDetails(selectedSeries.id);
+      if (res?.status) {
+        const data = res.data;
+        setMatchData(data);
+      }
+    }
+  }
+
+  async function handleMatchPlayers() {
+    if (selectedMatch.match_id) {
+      const res = await getMatchPlayers(selectedMatch.match_id);
+      if (res?.status) {
+        const data = res.data;
+        setPlayerData(data);
+      }
+    }
   }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'role' || name === 'tournament' || name === 'team' || name === 'squad') {
-      setRoleName(value);
-    } else {
-      setFormValues((prevData) => ({ ...prevData, [name]: value }));
-      setFormErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
-    }
+    setFormValues((prevData) => ({ ...prevData, [name]: value }));
+    setFormErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
   };
+
+  async function handleSignup() {
+    const params = {
+      contactno: formValues.mobile,
+      email: formValues.email,
+      name: formValues.user,
+      user_role: selectedRole.role_name,
+      player_id: selectedPlayer.player_id,
+      otp: oneTimePassword,
+    };
+    const res = await getSignup(params);
+    if (res?.status) {
+      toast.success(res?.message);
+      router.push('/dashboard');
+    } else {
+      toast.error(res?.message);
+    }
+  }
 
   const handleKeyPress = (e) => {
     const key = e.key;
@@ -63,32 +120,39 @@ function Signup() {
     }
   };
 
-  const handleRoleSelect = (selectedRole) => {
-    setSelectedRole(selectedRole);
-    setSearchRole('');
-    setFormValues((prevData) => ({ ...prevData, role: selectedRole }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, role: '' }));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const errors = validate(formValues);
+    setFormErrors(errors);
+    if (Object.keys(errors).length === 0) {
+      setLoading(true);
+      handleSignup();
+    }
   };
 
-  const handleTournamentSelect = (selectedTournament) => {
-    setSelectedTournament(selectedTournament);
-    setSearchTournament('');
-    setFormValues((prevData) => ({ ...prevData, tournament: selectedTournament }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, tournament: '' }));
-  };
+  async function handleOtp() {
+    if (formValues.mobile && !oneTimePassword && !isTypingOtp) {
+      const params = {
+        contactno: formValues.mobile,
+      };
+      const res = await getOtp(params);
+      if (res?.status) {
+        toast.success(res?.message);
+      } else {
+        toast.error(res?.message);
+      }
+    } else if (!formValues.mobile) {
+      toast.error('Please enter a mobile number');
+    }
+  }
 
-  const handleTeamSelect = (selectedTeam) => {
-    setSelectedTeam(selectedTeam);
-    setSearchTeam('');
-    setFormValues((prevData) => ({ ...prevData, team: selectedTeam }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, team: '' }));
-  };
-
-  const handleSquadSelect = (selectedSquad) => {
-    setSelectedSquad(selectedSquad);
-    setSearchSquad('');
-    setFormValues((prevData) => ({ ...prevData, squad: selectedSquad }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, squad: '' }));
+  const handleRegistration = () => {
+    const errors = validate(formValues);
+    setFormErrors(errors);
+    if (Object.keys(errors).length === 0) {
+      setShowOtpPopup(true);
+      setOtpResendSeconds(30);
+    }
   };
 
   const validate = (values) => {
@@ -111,37 +175,40 @@ function Signup() {
       errors.mobile = 'Please enter a valid 10-digit mobile number';
     }
 
-    if (!values.role) {
-      errors.role = 'Please select a role';
+    if (!selectedRole.role_name) {
+      errors.role_name = 'Please select a role';
     }
-    if (!values.tournament) {
-      errors.tournament = 'Please select a tournament';
+    if (!selectedSeries.series_name) {
+      errors.series_name = 'Please select a series';
     }
-    if (!values.team) {
-      errors.team = 'Please select a team';
+    if (!selectedMatch.match_number) {
+      errors.match_number = 'Please select a match';
     }
-    if (!values.squad) {
-      errors.squad = 'Please select a squad';
+    if (!selectedPlayer.player_name) {
+      errors.player_name = 'Please select a player';
     }
 
     return errors;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const errors = validate(formValues);
-    setFormErrors(errors);
-    if (Object.keys(errors).length === 0) {
-      setLoading(true);
-      const phoneNumber = `+91 ${formValues.mobile}`;
-      setMobileNumber(phoneNumber);
-    }
-  };
-
   return (
     <>
-      {/* <Toaster position="top-right" reverseOrder={false} /> */}
-      {(mobileNumber && <VerifyOtp {...{ mobileNumber }} />) || (
+      <Toaster position="top-right" reverseOrder={false} />
+      {(showOtpPopup && (
+        <VerifyOtp
+          {...{
+            oneTimePassword,
+            handleSubmit,
+            otpResendSeconds,
+            setShowOtpPopup,
+            setOtpResendSeconds,
+            formValues,
+            handleOtp,
+            setIsTypingOtp,
+            setOneTimePassword,
+          }}
+        />
+      )) || (
         <>
           <section className="login-page min-vh-100 d-flex align-items-center justify-content-center">
             <Container>
@@ -159,196 +226,70 @@ function Signup() {
                             <div className="mb-3">
                               <Form.Group className="position-relative">
                                 <Form.Label className="fs-16 fw-400 base-color">Select Role</Form.Label>
-                                <div className="form-select-catgory">
-                                  <Dropdown className="form-control px-0 py-0 card-border">
-                                    <Dropdown.Toggle
-                                      variant="none"
-                                      className="w-100 hight-50 text-start filter-box-dropdown base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
-                                      id="dropdown-basic"
-                                    >
-                                      <span className="text-truncate pe-3">{selectedRole || 'Select Role'}</span>
-                                    </Dropdown.Toggle>
-                                    <Dropdown.Menu className="w-100 card-border ">
-                                      <div className="px-2 mb-2">
-                                        <input
-                                          type="search"
-                                          placeholder="Search Role"
-                                          onChange={(e) => setSearchRole(e.target.value)}
-                                          className="form-control shadow-none card-border fs-14 hight-50"
-                                        />
-                                      </div>
-
-                                      {['Player', 'Coach']
-                                        .filter((role) => role.toLowerCase().includes(searchRole.toLowerCase()))
-                                        .map((role) => (
-                                          <Dropdown.Item
-                                            key={role}
-                                            className={`py-2 fs-14 base-color ${selectedRole === role ? 'active' : ''}`}
-                                            onClick={() => handleRoleSelect(role)}
-                                          >
-                                            {role}
-                                          </Dropdown.Item>
-                                        ))}
-                                    </Dropdown.Menu>
-                                  </Dropdown>
-                                </div>
-                                {formErrors.role && (
-                                  <p className="text-danger fs-14 error-message">{formErrors.role}</p>
-                                )}
-                              </Form.Group>
-                            </div>
-                          </Col>
-                          <Col lg={6}>
-                            <div className="mb-3">
-                              <Form.Group className="position-relative">
-                                <Form.Label className="fs-16 fw-400 base-color">Select Tournament</Form.Label>
-                                <div className="form-select-catgory">
-                                  <Dropdown className="form-control px-0 py-0 card-border">
-                                    <Dropdown.Toggle
-                                      variant="none"
-                                      className="w-100 hight-50 text-start filter-box-dropdown base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
-                                      id="dropdown-basic"
-                                    >
-                                      <span className="text-truncate pe-3">
-                                        {selectedTournament || 'Select Tournament'}
-                                      </span>
-                                    </Dropdown.Toggle>
-                                    <Dropdown.Menu className="w-100 card-border ">
-                                      <div className="px-2 mb-2">
-                                        <input
-                                          type="search"
-                                          placeholder="Search Tournament"
-                                          onChange={(e) => setSearchTournament(e.target.value)}
-                                          className="form-control shadow-none card-border fs-14 hight-50"
-                                        />
-                                      </div>
-
-                                      {[
-                                        'Yuva Kabaddi Series Summer Edition, 2023',
-                                        'KMP YKS IDYL 2023',
-                                        'MONSOON EDITION 2022',
-                                        'Geekologix Series Winter Edition, 2023',
-                                      ]
-                                        .filter((tournament) =>
-                                          tournament.toLowerCase().includes(searchTournament.toLowerCase())
-                                        )
-                                        .map((tournament) => (
-                                          <Dropdown.Item
-                                            key={tournament}
-                                            className={`py-2 fs-14 base-color ${
-                                              selectedTournament === tournament ? 'active' : ''
-                                            }`}
-                                            onClick={() => handleTournamentSelect(tournament)}
-                                          >
-                                            {tournament}
-                                          </Dropdown.Item>
-                                        ))}
-                                    </Dropdown.Menu>
-                                  </Dropdown>
-                                </div>
-                                {formErrors.tournament && (
-                                  <p className="text-danger fs-14 error-message">{formErrors.tournament}</p>
-                                )}
-                              </Form.Group>
-                            </div>
-                          </Col>
-                          <Col lg={6}>
-                            <div className="mb-3">
-                              <Form.Group className="position-relative">
-                                <Form.Label className="fs-16 fw-400 base-color">Select Team</Form.Label>
-                                <div className="form-select-catgory">
-                                  <Dropdown className="form-control px-0 py-0 card-border">
-                                    <Dropdown.Toggle
-                                      variant="none"
-                                      className="w-100 hight-50 text-start filter-box-dropdown base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
-                                      id="dropdown-basic"
-                                    >
-                                      <span className="text-truncate pe-3">{selectedTeam || 'Select Team'}</span>
-                                    </Dropdown.Toggle>
-                                    <Dropdown.Menu className="w-100 card-border ">
-                                      <div className="px-2 mb-2">
-                                        <input
-                                          type="search"
-                                          placeholder="Search Team"
-                                          onChange={(e) => setSearchTeam(e.target.value)}
-                                          className="form-control shadow-none card-border fs-14 hight-50"
-                                        />
-                                      </div>
-
-                                      {['Chola Veerans', 'Chambal Challengers', 'Nilgiri Knights', 'Sindh Sonics']
-                                        .filter((team) => team.toLowerCase().includes(searchTeam.toLowerCase()))
-                                        .map((team) => (
-                                          <Dropdown.Item
-                                            key={team}
-                                            className={`py-2 fs-14 base-color ${selectedTeam === team ? 'active' : ''}`}
-                                            onClick={() => handleTeamSelect(team)}
-                                          >
-                                            {team}
-                                          </Dropdown.Item>
-                                        ))}
-                                    </Dropdown.Menu>
-                                  </Dropdown>
-                                </div>
-                                {formErrors.team && (
-                                  <p className="text-danger fs-14 error-message">{formErrors.team}</p>
+                                <ReusableDropdown
+                                  options={roleData}
+                                  selectedValue={selectedRole.role_name || 'Select Role'}
+                                  onSelect={setSelectedRole}
+                                  placeholder="Role"
+                                  displayKey="role_name"
+                                  valueKey="id"
+                                />
+                                {formErrors.role_name && (
+                                  <p className="text-danger fs-14 error-message">{formErrors.role_name}</p>
                                 )}
                               </Form.Group>
                             </div>
                           </Col>
 
                           <Col lg={6}>
+                            <Form.Group className="position-relative">
+                              <Form.Label className="fs-16 fw-400 base-color">Select Series</Form.Label>
+
+                              <ReusableDropdown
+                                options={seriesData}
+                                selectedValue={selectedSeries?.series_name || 'Select Series'}
+                                onSelect={setSelectedSeries}
+                                placeholder="Series"
+                                displayKey="series_name"
+                                valueKey="id"
+                              />
+                              {formErrors.series_name && (
+                                <p className="text-danger fs-14 error-message">{formErrors.series_name}</p>
+                              )}
+                            </Form.Group>
+                          </Col>
+
+                          <Col lg={6}>
+                            <Form.Group className="position-relative">
+                              <Form.Label className="fs-16 fw-400 base-color">Select Match</Form.Label>
+                              <ReusableDropdown
+                                options={matchData}
+                                selectedValue={selectedMatch?.match_number || 'Select Match'}
+                                onSelect={setSelectedMatch}
+                                placeholder="Match"
+                                displayKey="match_number"
+                                valueKey="match_id"
+                              />
+                              {formErrors.match_number && (
+                                <p className="text-danger fs-14 error-message">{formErrors.match_number}</p>
+                              )}
+                            </Form.Group>
+                          </Col>
+
+                          <Col lg={6}>
                             <div className="mb-3">
                               <Form.Group className="position-relative">
-                                <Form.Label className="fs-16 fw-400 base-color">Select Squad</Form.Label>
-                                <div className="form-select-catgory">
-                                  <Dropdown className="form-control px-0 py-0 card-border">
-                                    <Dropdown.Toggle
-                                      variant="none"
-                                      className="w-100 hight-50 text-start filter-box-dropdown base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
-                                      id="dropdown-basic"
-                                    >
-                                      <span className="text-truncate pe-3">{selectedSquad || 'Select Squad'}</span>
-                                    </Dropdown.Toggle>
-                                    <Dropdown.Menu className="w-100 card-border overflow-auto dropdown-height">
-                                      <div className="px-2 mb-2">
-                                        <input
-                                          type="search"
-                                          placeholder="Search Squad"
-                                          onChange={(e) => setSearchSquad(e.target.value)}
-                                          className="form-control shadow-none card-border fs-14 hight-50"
-                                        />
-                                      </div>
-
-                                      {[
-                                        'Velavan Muruganantham',
-                                        'Kesavan Raja',
-                                        'S Manikandan Sudalaimani',
-                                        'S Marimuthu Selvam',
-                                        'Manikandan Nesamani',
-                                        'Surya Selvam',
-                                        'S Santhosh Srinivasan',
-                                        'Ajainandha Krishna',
-                                        'Balaganapathi Manikam',
-                                        'S Abikumar',
-                                        'Ezhumalai Moorthy',
-                                      ]
-                                        .filter((squad) => squad.toLowerCase().includes(searchSquad.toLowerCase()))
-                                        .map((squad) => (
-                                          <Dropdown.Item
-                                            key={squad}
-                                            className={`py-2 fs-14 base-color ${
-                                              selectedSquad === squad ? 'active' : ''
-                                            }`}
-                                            onClick={() => handleSquadSelect(squad)}
-                                          >
-                                            {squad}
-                                          </Dropdown.Item>
-                                        ))}
-                                    </Dropdown.Menu>
-                                  </Dropdown>
-                                </div>
-                                {formErrors.squad && (
-                                  <p className="text-danger fs-14 error-message">{formErrors.squad}</p>
+                                <Form.Label className="fs-16 fw-400 base-color">Select Player</Form.Label>
+                                <ReusableDropdown
+                                  options={playerData}
+                                  selectedValue={selectedPlayer?.player_name || 'Select Player'}
+                                  onSelect={setSelectedPlayer}
+                                  placeholder="Player"
+                                  displayKey="player_name"
+                                  valueKey="player_id"
+                                />
+                                {formErrors.player_name && (
+                                  <p className="text-danger fs-14 error-message">{formErrors.player_name}</p>
                                 )}
                               </Form.Group>
                             </div>
@@ -378,7 +319,7 @@ function Signup() {
                               <Form.Group className="position-relative">
                                 <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
                                 <Form.Control
-                                  type="email"
+                                  type="text"
                                   placeholder="Enter Your Email Address"
                                   name="email"
                                   className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
@@ -415,10 +356,10 @@ function Signup() {
                             </div>
                           </Col>
                         </Row>
-
                         <div className="text-center">
                           <Button
                             variant="white"
+                            onClick={handleRegistration}
                             type="submit"
                             className="my-3 mt-4 w-50 mx-auto fw-400 fs-18 text-white common-btn shadow-none py-2"
                           >

@@ -156,7 +156,7 @@ function AddUser() {
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
                           <Form.Control
-                            type="email"
+                            type="text"
                             placeholder="Enter Your Email Address"
                             name="email"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
