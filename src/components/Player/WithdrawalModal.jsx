@@ -75,7 +75,7 @@ function WithdrawalModal(props) {
   const total = parseFloat(formValues.totalAmount);
   const formattedAmount = total.toFixed(2).toLocaleString('en-IN');
   const tdsRate = 0.07;
-  const tdsAmount = totalAmount * tdsRate;
+  const tdsAmount = formValues.withdrawalAmount * tdsRate;
 
   return (
     <Modal show={show} onHide={handleCloseModal} centered>
