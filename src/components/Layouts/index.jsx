@@ -23,7 +23,6 @@ function DashboardLayout(props) {
 
   return (
     <>
-      {/* {(isLoggedIn && ( */}
       <>
         <Toaster position="top-right" reverseOrder={false} />
         <Topbar ToggleFun={SidebarToggle} />
@@ -47,8 +46,6 @@ function DashboardLayout(props) {
           </div>
         </div>
       </>
-      {/* )) ||
-        ''} */}
     </>
   );
 }

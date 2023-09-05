@@ -5,32 +5,34 @@ import { createContext, useContext, useEffect, useState } from 'react';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [isContextLoaded, setIsContextLoaded] = useState(true);
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.push('/dashboard');
-      getUserData();
-    } else {
-      router.push('/login');
-    }
-  }, [isContextLoaded, isLoggedIn]);
-
-  function getUserData() {
+  async function checkUserAuthentication() {
     const token = Cookies.get('token');
-    if (token) {
-      setIsLoggedIn(true);
-      setIsContextLoaded(true);
-    } else {
-      setIsLoggedIn(false);
-      setIsContextLoaded(true);
-    }
+    const isAuthenticated = !!token;
+    setIsLoggedIn(isAuthenticated);
+    return isAuthenticated;
   }
 
-  return <AuthContext.Provider value={{ getUserData, isContextLoaded, isLoggedIn }}>{children}</AuthContext.Provider>;
+  useEffect(() => {
+    async function redirectToCorrectRoute() {
+      const isAuthenticated = await checkUserAuthentication();
+      const currentPath = router.pathname;
+
+      if (!isAuthenticated && (currentPath === '/signup' || currentPath === '/login')) {
+        return;
+      }
+
+      if (!isAuthenticated) {
+        router.push('/login');
+      }
+    }
+
+    redirectToCorrectRoute();
+  }, []);
+
+  return <AuthContext.Provider value={{ isLoggedIn, checkUserAuthentication }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);
