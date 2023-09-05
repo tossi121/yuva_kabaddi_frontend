@@ -131,7 +131,7 @@ const CommentModal = (props) => {
                   className="base-color-2 fs-14"
                   label="Approved"
                   type="radio"
-                  id="approved"
+                  id="approve"
                   value="approved"
                   checked={formValues.status === 'approved'}
                   onChange={handleChange}

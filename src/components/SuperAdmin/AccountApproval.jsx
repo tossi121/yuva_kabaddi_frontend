@@ -96,6 +96,7 @@ function AccountApproval() {
   const [filteredData, setFilteredData] = useState(data);
   const [selectedRole, setSelectedRole] = useState('');
   const [startDate, setStartDate] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [endDate, setEndDate] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
@@ -368,8 +369,24 @@ function AccountApproval() {
                 <div className="card-head card-head-padding border-bottom">
                   <h4 className="common-heading mb-0">Account Approval</h4>
                 </div>
-                <Card.Body className="box-padding">
-                  <CustomDataTable rows={filteredData} columns={columns} options={tableOptions} />
+                <Card.Body className="box-padding position-relative">
+                  <div className="position-absolute end-0 me-4 review-btn mt-2">
+                    <Button
+                      className="common-btn fs-14 me-2"
+                      disabled={selectedIds.length === 0}
+                      onClick={() => setShow(true)}
+                    >
+                      Bulk Review
+                    </Button>
+                  </div>
+                  <CustomDataTable
+                    rows={filteredData}
+                    columns={columns}
+                    options={tableOptions}
+                    showCheckboxes={true}
+                    selectedIds={selectedIds}
+                    setSelectedIds={setSelectedIds}
+                  />
                 </Card.Body>
               </Card>
             </Col>

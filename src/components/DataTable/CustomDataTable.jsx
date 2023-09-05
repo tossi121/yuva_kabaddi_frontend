@@ -1,11 +1,9 @@
-import { faExchange, faLongArrowAltDown, faLongArrowAltUp, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faLongArrowAltDown, faLongArrowAltUp, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
-import { Button, Form } from 'react-bootstrap';
-import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
-import { useRouter } from 'next/router';
+import { Form } from 'react-bootstrap';
 
 const CustomPagination = dynamic(import('./CustomPagination'));
 
@@ -18,24 +16,8 @@ const defaultProps = {
   pagination: true,
   sorting: true,
 };
-
-export default function CustomDataTable(props) {
-  const router = useRouter();
-  const {
-    rows,
-    columns,
-    options,
-    handleDelete,
-    button,
-    hadelUpdateStatus,
-    showStatusBtn,
-    showDeleteFilter,
-    selectNull,
-    handleCheckKey,
-    selectedTournament,
-    showCencelAlert,
-    setShowCencelAlert,
-  } = props;
+function CustomDataTable(props) {
+  const { rows, columns, options, showCheckboxes, selectedIds, setSelectedIds } = props;
   const [cols, setCols] = useState(null);
   const [currentData, setCurrentData] = useState([]);
   const [currentPageSize, setCurrentPageSize] = useState(10);
@@ -47,14 +29,45 @@ export default function CustomDataTable(props) {
   const [searchInput, setSearchInput] = useState('');
   const [sortingBy, setSortingBy] = useState('');
   const [sortType, setSortType] = useState('');
-  const [allChecked, setAllChecked] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [entity, setEntities] = useState(Object.assign({}, defaultProps, options));
+  const [selectedRows, setSelectedRows] = useState({});
+  const [selectAll, setSelectAll] = useState(false);
 
   const cellClasses = {
     left: 'text-start',
     center: 'text-center',
     right: 'text-end',
   };
+
+  function handleSelectAll() {
+    const newSelectAll = !selectAll;
+    setSelectAll(newSelectAll);
+
+    // Update the selectedRows state for all rows.
+    const newSelectedRows = {};
+    rows.forEach((_, rowIndex) => {
+      newSelectedRows[rowIndex] = newSelectAll;
+    });
+    setSelectedRows(newSelectedRows);
+
+    // Extract the selected IDs and update the selectedIds state.
+    const newSelectedIds = newSelectAll ? rows.map((row) => row.id) : [];
+    setSelectedIds(newSelectedIds);
+  }
+
+  function handleRowSelection(rowIndex) {
+    // Toggle the selected state for the clicked row.
+    const updatedSelectedRows = { ...selectedRows };
+    updatedSelectedRows[rowIndex] = !updatedSelectedRows[rowIndex];
+    setSelectedRows(updatedSelectedRows);
+
+    // Get the IDs of selected rows and update the selectedIds state.
+    const updatedSelectedIds = Object.keys(updatedSelectedRows)
+      .filter((key) => updatedSelectedRows[key])
+      .map((key) => rows[parseInt(key, 10)].id);
+    setSelectedIds(updatedSelectedIds);
+  }
 
   useEffect(() => {
     if (entity) {
@@ -78,30 +91,20 @@ export default function CustomDataTable(props) {
       setSortingBy(columns[0]['field']);
       handleSorting(columns[0]['field']);
     }
-  }, [entity, rows, selectNull]);
-
-  // useEffect(() => {
-  //   if (paginationLimit) {
-  //     setCurrentPageSize(10);
-  //   }
-  // }, [paginationLimit]);
-
-  function handleDeleteAlert() {
-    setShowAlert(true);
-  }
-
-  function handleCancelbooking() {
-    setShowCencelAlert(true);
-  }
+  }, [entity]);
 
   useEffect(() => {
     if (searchInput !== '') {
       const filtered = rows.filter((item) => {
-        return Object.keys(item).some((key) =>
-          item?.[key]?.toString().toLowerCase().includes(searchInput.toLowerCase())
-        );
+        return Object.keys(item).some((key) => {
+          const value = item[key];
+          if (typeof value === 'number') {
+            const formattedValue = value.toFixed(2);
+            return formattedValue.toString().toLowerCase().includes(searchInput?.replaceAll(',', '').toLowerCase());
+          }
+          return value?.toString().toLowerCase().includes(searchInput?.replaceAll(',', '').toLowerCase());
+        });
       });
-
       setFilterData(filtered);
       setTempFilterData(filtered);
     } else {
@@ -181,74 +184,41 @@ export default function CustomDataTable(props) {
     }
   }
 
-  const handleSelectAllClick = () => {
-    setAllChecked(!allChecked);
-    handleCheckKey(allChecked ? [] : rows.map((row) => row.id));
-    // const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    // checkboxes.forEach((checkbox) => {
-    //   checkbox.checked = false;
-    // });
-  };
-
-  const handleSelectItems = (event) => {
-    const targetValue = event?.target.value;
-    handleCheckKey((prevCheckedItems) => {
-      if (prevCheckedItems.includes(targetValue)) {
-        return prevCheckedItems.filter((item) => item !== targetValue);
-      } else {
-        return [...prevCheckedItems, targetValue];
-      }
-    });
-  };
-
   function renderTableColumns() {
     return (
       <thead>
         <tr>
+          {showCheckboxes && (
+            <th className="text-center">
+              <input type="checkbox" checked={selectAll} onChange={handleSelectAll} />
+            </th>
+          )}
           {cols &&
-            cols.map((col, index) => {
+            cols.map((col, key) => {
               return (
                 <th
-                  key={index}
-                  className={`cursor-pointer user-select-none ${
-                    ((col?.field == ['Action'] ||
-                      col?.field == ['Status'] ||
-                      col?.field == ['View_Match'] ||
-                      col?.field == ['Is_vacant'] ||
-                      col?.field == ['Select_All']) &&
-                      'text-center') ||
-                    'text-left'
-                  }
-                `}
+                  key={key}
+                  className={`${(entity?.sorting && 'cursor-pointer') || ''}   
+                    ${(col?.align && cellClasses[col.align]) || 'text-left'}
+                  `}
                   onClick={() => handleSorting(col.field)}
                 >
                   {col.heading}
-                  {(col.field == ['Select_All'] && (
-                    <Form.Check
-                      className="cursor-pointer shadow-none tabel-select-box pt-0 "
-                      id="Create"
-                      onChange={handleSelectAllClick}
-                      // onChange={selectAllData}
-                    />
-                  )) || (
-                    <>
-                      {entity?.sorting && (
-                        <button className="ps-1 pe-0 bg-transparent border-0 text-white outline-0 shadow-none ms-auto">
-                          {sortingBy == col.field && sortType == 'asc' && (
-                            <FontAwesomeIcon icon={faLongArrowAltUp} width={5} className="mb-1 ms-1 fs-10" />
-                          )}
-                          {sortingBy == col.field && sortType == 'desc' && (
-                            <FontAwesomeIcon icon={faLongArrowAltDown} width={5} className="mt-1 fs-10" />
-                          )}
-                          {sortingBy != col.field && (
-                            <>
-                              <FontAwesomeIcon icon={faLongArrowAltUp} width={5} className="mb-1 ms-1 fs-12" />
-                              <FontAwesomeIcon icon={faLongArrowAltDown} width={5} className="mt-1 fs-10" />
-                            </>
-                          )}
-                        </button>
+                  {entity?.sorting && (
+                    <button className="ps-1 pe-0 bg-transparent border-0 text-white outline-0 shadow-none ms-auto">
+                      {sortingBy == col.field && sortType == 'asc' && (
+                        <FontAwesomeIcon icon={faLongArrowAltUp} width={5} className="mb-1 ms-1" />
                       )}
-                    </>
+                      {sortingBy == col.field && sortType == 'desc' && (
+                        <FontAwesomeIcon icon={faLongArrowAltDown} width={5} className="mt-1" />
+                      )}
+                      {sortingBy != col.field && (
+                        <>
+                          <FontAwesomeIcon icon={faLongArrowAltUp} width={5} className="mb-1 ms-1" />
+                          <FontAwesomeIcon icon={faLongArrowAltDown} width={5} className="mt-1" />
+                        </>
+                      )}
+                    </button>
                   )}
                 </th>
               );
@@ -259,81 +229,44 @@ export default function CustomDataTable(props) {
   }
 
   function renderTableRows() {
-    return currentData.map((row, index) => {
-      return (
-        <tr key={index}>
-          {cols &&
-            cols.map((col, index) => {
-              const colMethod = eval(entity?.columns?.render?.[col['field']]);
-
-              return (
-                <>
-                  {(col.field == 'Select_All' && (
-                    <td>
-                      {(row.is_default == 1 && (
-                        <span></span>
-
-                        // <Form.Check
-                        //   className="cursor-pointer shadow-none tabel-select-box pt-0 "
-                        //   id={row.id}
-                        //   value={row.id}
-                        //   checked={allChecked || selectedTournament}
-                        //   onChange={handleSelectItems}
-                        // />
-                      )) || (
-                        <>
-                          {(router.pathname == '/dashboard/book-facilities' && (
-                            <>
-                              {((!row.status || row.is_present == 'absent' || row.is_present == 'present') && (
-                                <span></span>
-                              )) || (
-                                <Form.Check
-                                  className="cursor-pointer shadow-none tabel-select-box pt-0 "
-                                  id={row.id}
-                                  value={row.id}
-                                  checked={allChecked || selectedTournament}
-                                  onChange={handleSelectItems}
-                                />
-                              )}
-                            </>
-                          )) || (
-                            <Form.Check
-                              className="cursor-pointer shadow-none tabel-select-box pt-0 "
-                              id={row.id}
-                              value={row.id}
-                              checked={allChecked || selectedTournament}
-                              onChange={handleSelectItems}
-                            />
-                          )}
-                        </>
-                      )}
-                    </td>
-                  )) || (
+    return (
+      <tbody>
+        {currentData.map((row, key) => {
+          const isSelected = selectedRows[key];
+          return (
+            <tr key={key}>
+              {showCheckboxes && (
+                <td className="text-center">
+                  <input type="checkbox" checked={isSelected} onChange={() => handleRowSelection(key)} />
+                </td>
+              )}
+              {cols &&
+                cols.map((col, index) => {
+                  const colMethod = eval(entity?.columns?.render?.[col['field']]);
+                  return (
                     <td
                       key={index}
                       className={`
-                  ${(col?.align && cellClasses[col.align]) || 'text-left'}
-                  `}
+                        ${(col?.align && cellClasses[col.align]) || 'text-left'}
+                      `}
                     >
-                      <span>{(colMethod && colMethod(row[col['field']], row, col['field'])) || row[col['field']]}</span>
+                      {col['field'] == 'net_value' ? (
+                        <span className={`${row[col['field']] > 0 ? 'percent-green' : 'percent-red'}`}>
+                          {(colMethod && colMethod(row[col['field']], row, col['field'])) || row[col['field']]}
+                        </span>
+                      ) : (
+                        <span>
+                          {(colMethod && colMethod(row[col['field']], row, col['field'])) || row[col['field']]}
+                        </span>
+                      )}
                     </td>
-                  )}
-                </>
-              );
-            })}
-        </tr>
-      );
-    });
-  }
-
-  function hadelUpdateStatusData() {
-    hadelUpdateStatus();
-    setAllChecked(false);
-  }
-
-  function handleCancelConfirm() {
-    hadelUpdateStatus();
-    setAllChecked(false);
+                  );
+                })}
+            </tr>
+          );
+        })}
+      </tbody>
+    );
   }
 
   function selectBox() {
@@ -361,9 +294,9 @@ export default function CustomDataTable(props) {
   }
 
   return (
-    <div className="position-relative custom-datatable">
-      {rows?.length >= 1 && entity && (
-        <div className="d-md-flex align-items-center justify-content-between mb-1">
+    <div className="position-relative">
+      {rows.length >= 1 && entity && (
+        <>
           {entity?.search && (
             <div className="search-input-box position-relative mb-2">
               {(!searchInput && (
@@ -384,103 +317,23 @@ export default function CustomDataTable(props) {
               />
             </div>
           )}
-          <div className="action-buttons d-flex mb-2">
-            {(router.pathname == '/dashboard/book-facilities' && (
-              <>
-                {(selectNull.length == [] && <span className="d-none"></span>) || (
-                  <Button
-                    className="px-3 py-1 table-btns fs-16 fw-400 rounded-1 me-2 btn-danger"
-                    onClick={handleCancelbooking}
-                    title="Cancel Booking"
-                  >
-                    <FontAwesomeIcon icon={faTimes} />
-                  </Button>
-                )}
-              </>
-            )) || (
-              <>
-                {(showStatusBtn && (
-                  <Button
-                    className="px-2 py-1 table-btns fs-16 fw-400 rounded-1 me-2"
-                    disabled={selectNull?.length == 0}
-                    onClick={hadelUpdateStatusData}
-                    title="Change Status"
-                  >
-                    <FontAwesomeIcon icon={faExchange} />
-                  </Button>
-                )) ||
-                  ''}
-              </>
-            )}
-            {(showDeleteFilter && (
-              <>
-                {(router.pathname == '/dashboard/book-facilities' && <span className="d-none"></span>) || (
-                  <Button
-                    variant="danger"
-                    onClick={handleDeleteAlert}
-                    className="btn-danger px-2 py-1 table-btns fs-16 fw-400 rounded-1"
-                    title="Delete"
-                    disabled={selectNull?.length == 0}
-                  >
-                    <FontAwesomeIcon icon={faTrashCan} />
-                  </Button>
-                )}
-              </>
-            )) ||
-              ''}
-            {/* {showAlert && (
-              <SweetAlert
-                warning
-                showCancel
-                confirmBtnText="Yes, delete it!"
-                confirmBtnBsStyle="danger"
-                title="Are you sure?"
-                onConfirm={handleDelete}
-                onCancel={() => setShowAlert(false)}
-                focusCancelBtn
-              >
-                You will not be able to recover this imaginary file!
-              </SweetAlert>
-            )}
-
-            {showCencelAlert &&
-              ((
-                <SweetAlert
-                  warning
-                  showCancel
-                  confirmBtnText="Yes, delete it!"
-                  confirmBtnBsStyle="danger"
-                  title="Are you sure?"
-                  onConfirm={handleCancelConfirm}
-                  onCancel={() => setShowCencelAlert(false)}
-                  focusCancelBtn
-                >
-                  You will not be able to recover this imaginary file!
-                </SweetAlert>
-              ) ||
-                '')} */}
-          </div>
-        </div>
+        </>
       )}
       <div className="table-responsive overview-table">
-        {/* {(isLoaded && <TableLoader />) || ( */}
-        <table className="w-100 common-table">
+        <table className="w-100 nifty-table">
           {cols?.length > 0 && entity && renderTableColumns()}
-          <tbody>
-            {(currentData?.length > 0 && renderTableRows()) || (
+          {(currentData?.length > 0 && renderTableRows()) || (
+            <tbody>
               <tr>
-                <td colSpan={cols?.length} className="text-center fs-18 label-red">
-                  No record found!
-                </td>
+                <td colSpan={cols?.length}>No record found!</td>
               </tr>
-            )}
-          </tbody>
+            </tbody>
+          )}
         </table>
-        {/* )} */}
       </div>
-      <div className="row align-items-center my-3">
-        <div className="fs-14 col-md-5 col-12 pt-2 pt-md-0">
-          <div className="m-auto w-max-content ms-sm-0">
+      <div className="row align-items-center my-3 pagination-box justify-content-between">
+        <div className="fs-14 col-md-4 col-12 pt-2 pt-md-0 mb-2 mb-lg-0">
+          <div className="m-auto w-max-content ms-md-0">
             {currentData.length > 0 && entity?.info && (
               <>
                 {(rows.length > 10 && (
@@ -520,3 +373,5 @@ export default function CustomDataTable(props) {
     </div>
   );
 }
+
+export default CustomDataTable;

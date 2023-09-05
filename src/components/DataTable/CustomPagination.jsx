@@ -4,9 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DOTS, usePagination } from './usePagination';
 
 const CustomPagination = (props) => {
-  const { siblingCount = 1, pageSize, setCurrentData, data, setNumFirst, setNumData, setLoading } = props;
+  const { siblingCount = 1, pageSize, setCurrentData, data, setNumFirst, setNumData } = props;
   const [currentPage, setCurrentPage] = useState(1);
-  // const [activePage, setActivePage] = useState(null);
   const totalCount = data?.length;
 
   function onPageChange(page) {
@@ -15,19 +14,8 @@ const CustomPagination = (props) => {
 
   useEffect(() => {
     setCurrentPage(1);
-
-    // paginationRange.map((pageNumber, index) => {
-    //   if (pageNumber === currentPage) {
-    // setActivePage(true);
-    //   }
-    // });
   }, [pageSize]);
 
-  // useEffect(() => {
-  //   if (totalCount != pageSize) {
-  //     setCurrentPage(1);
-  //   }
-  // }, [data]);
   const paginationRange = usePagination({ currentPage, totalCount, siblingCount, pageSize });
 
   const currentTableData = useMemo(() => {

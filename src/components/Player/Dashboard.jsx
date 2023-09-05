@@ -326,11 +326,13 @@ function Dashboard() {
                     <h6 className="section-subtitle">Total Earning:</h6>
                     <h6 className="section-subtitle">Match Fee Earnings:</h6>
                     <h6 className="section-subtitle">Award Earnings:</h6>
+                    <h6 className="section-subtitle">Total Approved Withdrawal:</h6>
                   </div>
                   <div className="ms-4">
                     <h6 className="section-subtitle">&#8377;15,725.00</h6>
                     <h6 className="section-subtitle">&#8377;6,725.00</h6>
                     <h6 className="section-subtitle">&#8377;9,000.00</h6>
+                    <h6 className="section-subtitle">&#8377;11,000.00</h6>
                   </div>
                 </div>
               </Card.Body>
@@ -344,7 +346,7 @@ function Dashboard() {
             </Col>
           ))}
         </Row>
-        <Row>
+        <Row className="align-items-baseline">
           <Col lg={9}>
             <Card className="common-card-box common-card-shadow transition w-100">
               <Card.Body>
