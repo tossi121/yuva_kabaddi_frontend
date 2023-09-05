@@ -15,6 +15,7 @@ const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 function Withdrawal() {
   const data = [
     {
+      id: 1,
       receiptNo: 'RCPT001',
       status: 'Approved',
       amount: 250.0,
@@ -24,6 +25,7 @@ function Withdrawal() {
       userType: 'Player',
     },
     {
+      id: 2,
       receiptNo: 'RCPT002',
       status: 'Pending',
       amount: 150.0,
@@ -33,6 +35,7 @@ function Withdrawal() {
       userType: 'Player',
     },
     {
+      id: 3,
       receiptNo: 'RCPT003',
       status: 'Approved',
       amount: 350.0,
@@ -42,6 +45,7 @@ function Withdrawal() {
       userType: 'Coach',
     },
     {
+      id: 4,
       receiptNo: 'RCPT004',
       status: 'Pending',
       amount: 200.0,
@@ -51,6 +55,7 @@ function Withdrawal() {
       userType: 'Coach',
     },
     {
+      id: 5,
       receiptNo: 'RCPT005',
       status: 'Reject',
       amount: 180.0,
@@ -60,6 +65,7 @@ function Withdrawal() {
       userType: 'Player',
     },
     {
+      id: 6,
       receiptNo: 'RCPT006',
       status: 'Pending',
       amount: 300.0,
@@ -69,6 +75,7 @@ function Withdrawal() {
       userType: 'Player',
     },
     {
+      id: 7,
       receiptNo: 'RCPT007',
       status: 'Reject',
       amount: 400.0,
@@ -78,6 +85,7 @@ function Withdrawal() {
       userType: 'Coach',
     },
     {
+      id: 8,
       receiptNo: 'RCPT008',
       status: 'Pending',
       amount: 220.0,
@@ -87,6 +95,7 @@ function Withdrawal() {
       userType: 'Coach',
     },
     {
+      id: 9,
       receiptNo: 'RCPT009',
       status: 'Reject',
       amount: 270.0,
@@ -96,6 +105,7 @@ function Withdrawal() {
       userType: 'Player',
     },
     {
+      id: 10,
       receiptNo: 'RCPT010',
       status: 'Pending',
       amount: 130.0,
@@ -105,6 +115,7 @@ function Withdrawal() {
       userType: 'Player',
     },
     {
+      id: 11,
       receiptNo: 'RCPT011',
       status: 'Approved',
       amount: 320.0,
@@ -114,6 +125,7 @@ function Withdrawal() {
       userType: 'Coach',
     },
     {
+      id: 12,
       receiptNo: 'RCPT012',
       status: 'Pending',
       amount: 190.0,
@@ -123,6 +135,7 @@ function Withdrawal() {
       userType: 'Coach',
     },
     {
+      id: 13,
       receiptNo: 'RCPT013',
       status: 'Reject',
       amount: 210.0,
@@ -132,6 +145,7 @@ function Withdrawal() {
       userType: 'Player',
     },
     {
+      id: 14,
       receiptNo: 'RCPT014',
       status: 'Pending',
       amount: 280.0,
@@ -141,6 +155,7 @@ function Withdrawal() {
       userType: 'Player',
     },
     {
+      id: 15,
       receiptNo: 'RCPT015',
       status: 'Approved',
       amount: 370.0,
@@ -150,6 +165,7 @@ function Withdrawal() {
       userType: 'Coach',
     },
     {
+      id: 16,
       receiptNo: 'RCPT016',
       status: 'Pending',
       amount: 240.0,
@@ -159,6 +175,7 @@ function Withdrawal() {
       userType: 'Coach',
     },
     {
+      id: 17,
       receiptNo: 'RCPT017',
       status: 'Approved',
       amount: 290.0,
@@ -168,6 +185,7 @@ function Withdrawal() {
       userType: 'Player',
     },
     {
+      id: 18,
       receiptNo: 'RCPT018',
       status: 'Pending',
       amount: 170.0,
@@ -177,6 +195,7 @@ function Withdrawal() {
       userType: 'Player',
     },
     {
+      id: 19,
       receiptNo: 'RCPT019',
       status: 'Approved',
       amount: 420.0,
@@ -186,6 +205,7 @@ function Withdrawal() {
       userType: 'Coach',
     },
     {
+      id: 20,
       receiptNo: 'RCPT020',
       status: 'Pending',
       amount: 180.0,
@@ -210,6 +230,7 @@ function Withdrawal() {
   const [endDate, setEndDate] = useState(null);
   const [filteredData, setFilteredData] = useState(data);
   const [selectedRole, setSelectedRole] = useState('');
+  const [selectedIds, setSelectedIds] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
@@ -255,7 +276,7 @@ function Withdrawal() {
     return <span>{moment(row.date).format('DD-MMMM-YYYY')} </span>;
   }
 
-  function renderWithdrawalModal(id) {
+  function renderWithdrawalModal() {
     const handleClick = () => {
       setShow(true);
     };
@@ -266,6 +287,7 @@ function Withdrawal() {
       </Button>
     );
   }
+
   const handleRoleSelect = (selectedRole) => {
     setSelectedRole(selectedRole);
     setFormValues((prevData) => ({ ...prevData, role: selectedRole }));
@@ -405,22 +427,7 @@ function Withdrawal() {
                           </Form.Group>
                         </div>
                       </Col>
-                      {/* <Col>
-                        <div className="mb-4">
-                          <Form.Group className="position-relative">
-                            <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="Enter Your Email Address"
-                              name="email"
-                              className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                              value={formValues.email}
-                              onChange={handleChange}
-                            />
-                            {formErrors.email && <p className="text-danger fs-14 error-message">{formErrors.email}</p>}
-                          </Form.Group>
-                        </div>
-                      </Col> */}
+
                       <Col>
                         <Form.Label className="fs-16 fw-400 base-color-1">Select Start Date</Form.Label>
                         <div className="mb-2 d-flex flex-column">
@@ -525,8 +532,24 @@ function Withdrawal() {
                 <div className="card-head card-head-padding border-bottom">
                   <h4 className="common-heading mb-0">Withdrawal Approval</h4>
                 </div>
-                <Card.Body className="box-padding">
-                  <CustomDataTable rows={filteredData} columns={columns} options={tableOptions} />
+                <Card.Body className="box-padding position-relative">
+                  <div className="position-absolute end-0 me-4 review-btn mt-2">
+                    <Button
+                      className="common-btn fs-14 me-2"
+                      disabled={selectedIds.length === 0}
+                      onClick={() => setShow(true)}
+                    >
+                      Bulk Review
+                    </Button>
+                  </div>
+                  <CustomDataTable
+                    rows={filteredData}
+                    columns={columns}
+                    options={tableOptions}
+                    showCheckboxes={true}
+                    selectedIds={selectedIds}
+                    setSelectedIds={setSelectedIds}
+                  />
                 </Card.Body>
               </Card>
             </Col>

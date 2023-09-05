@@ -8,6 +8,7 @@ import {
   faMoneyBillAlt,
   faMoneyBillTransfer,
   faMoneyBills,
+  faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { Bar, Doughnut } from 'react-chartjs-2';
 
@@ -332,16 +333,23 @@ function Dashboard() {
       <Container fluid>
         <Row className="mt-4">
           <Col lg={12}>
-            <div className="d-flex justify-content-between">
-              <div className="mb-4">
-                <DashboardBreadcrumbComponent data={'Dashboard'} />
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <DashboardBreadcrumbComponent data={'Dashboard'} />
+              <div className="d-sm-flex justify-content-between align-items-center ">
+                <div className="add-filter d-flex mt-sm-0 mt-2">
+                  <Button
+                    className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
+                    onClick={toggleFilterBox}
+                  >
+                    <FontAwesomeIcon icon={faFilter} className="fs-18" />
+                  </Button>
+                  <Link href={'/super-admin/add-tds'}>
+                    <Button className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center">
+                      <FontAwesomeIcon icon={faPlus} className="fs-18" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
-              <Button
-                className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
-                onClick={toggleFilterBox}
-              >
-                <FontAwesomeIcon icon={faFilter} className="fs-18" />
-              </Button>
             </div>
 
             <Card
@@ -422,11 +430,13 @@ function Dashboard() {
                     <h6 className="section-subtitle">Total Spent:</h6>
                     <h6 className="section-subtitle">Match Fee Spent:</h6>
                     <h6 className="section-subtitle">Award Spent:</h6>
+                    <h6 className="section-subtitle">Total Approved Withdrawal:</h6>
                   </div>
                   <div className="ms-4">
                     <h6 className="section-subtitle">&#8377;15,725.00</h6>
                     <h6 className="section-subtitle">&#8377;6,725.00</h6>
                     <h6 className="section-subtitle">&#8377;9,000.00</h6>
+                    <h6 className="section-subtitle">&#8377;11,000.00</h6>
                   </div>
                 </div>
               </Card.Body>

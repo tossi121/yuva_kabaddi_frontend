@@ -403,7 +403,7 @@ function MyProfile() {
                           height={100}
                           className="img-fluid rounded-3 me-4"
                         /> */}
-                        <div className="info-profile pan-card-upload p-3 w-50 d-flex justify-content-center flex-column align-items-center">
+                        <div className="info-profile pan-card-upload p-3 d-flex justify-content-center flex-column align-items-center">
                           <FontAwesomeIcon icon={faCloudUpload} className="base-color-2 mb-3" width={35} height={35} />
                           <div>
                             <Form.Control
@@ -422,9 +422,56 @@ function MyProfile() {
                             {/* <span className="text-decoration-underline fs-14  base-color"> Delete</span> */}
                           </div>
                         </div>
-                          {formErrors.imageFileData && (
-                            <p className="text-danger fs-14 error-message">{formErrors.imageFileData}</p>
-                          )}
+                        {formErrors.imageFileData && (
+                          <p className="text-danger fs-14 error-message">{formErrors.imageFileData}</p>
+                        )}
+                      </div>
+                    </Col>
+                    <Col lg={6}>
+                      <div className="box-profile-image mb-4">
+                        <div className="img-profile me-3">
+                          {/* {imageFileData && (
+                        <Image
+                          src={getImagePreviewURL(imageFileData)}
+                          alt="profile"
+                          width={100}
+                          height={100}
+                          className="img-fluid rounded-3"
+                        />
+                      )}
+                      {!imageFileData && profileImages && (
+          ""
+          )} */}
+                        </div>
+                        {/* <Image
+                          src={(profileImage && profileImages) || '/images/team-roster/user-details.png'}
+                          alt="image"
+                          width={100}
+                          height={100}
+                          className="img-fluid rounded-3 me-4"
+                        /> */}
+                        <div className="info-profile pan-card-upload p-3 d-flex justify-content-center flex-column align-items-center">
+                          <FontAwesomeIcon icon={faCloudUpload} className="base-color-2 mb-3" width={35} height={35} />
+                          <div>
+                            <Form.Control
+                              type="file"
+                              id="pan"
+                              onChange={(e) => setImageFileData(e.target.files[0])}
+                              accept="image/png, image/jpeg, image/jpg, image/svg+xml"
+                              className="d-none"
+                              name="imageFileData"
+                              // value={imageFileData}
+                              aria-describedby="passwordHelpBlock"
+                            />
+                            <label className="common-btn py-2 px-3 fs-14 me-2 cursor-pointer" htmlFor="pan">
+                              <span className="d-inline-flex align-middle">Upload Bank Passbook</span>
+                            </label>
+                            {/* <span className="text-decoration-underline fs-14  base-color"> Delete</span> */}
+                          </div>
+                        </div>
+                        {formErrors.imageFileData && (
+                          <p className="text-danger fs-14 error-message">{formErrors.imageFileData}</p>
+                        )}
                       </div>
                     </Col>
                     <Col lg={6}>

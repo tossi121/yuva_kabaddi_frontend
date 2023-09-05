@@ -201,6 +201,7 @@ function Users() {
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [filteredData, setFilteredData] = useState(data);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
@@ -528,8 +529,31 @@ function Users() {
                 <div className="card-head card-head-padding border-bottom">
                   <h4 className="common-heading mb-0">Users Approval</h4>
                 </div>
-                <Card.Body className="box-padding">
-                  <CustomDataTable rows={filteredData} columns={columns} options={tableOptions} />
+                <Card.Body className="box-padding position-relative">
+                  <div className="position-absolute end-0 me-4 review-btn mt-2 d-flex">
+                    <Button
+                      className="common-btn fs-14 me-2"
+                      disabled={selectedIds.length === 0}
+                      onClick={() => setShow(true)}
+                    >
+                      Bulk Review
+                    </Button>
+                    <Button
+                      className="common-btn fs-14 me-2"
+                      disabled={selectedIds.length === 0}
+                      onClick={() => setShowModal(true)}
+                    >
+                      Bulk Delete
+                    </Button>
+                  </div>
+                  <CustomDataTable
+                    rows={filteredData}
+                    columns={columns}
+                    options={tableOptions}
+                    showCheckboxes={true}
+                    selectedIds={selectedIds}
+                    setSelectedIds={setSelectedIds}
+                  />
                 </Card.Body>
               </Card>
             </Col>
