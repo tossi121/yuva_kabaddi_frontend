@@ -15,6 +15,7 @@ const nextConfig = {
     LOGIN_DATA: 'login',
     OTP_DATA: 'sendotpbysms',
     CHECK_MOBILE_NUMBER_DATA: 'checkmobileno',
+    CHECK_EXISTING_USERS: 'checkexistingusers',
     ROLE_DATA: 'admin/role',
     SERIES_DATA: 'series',
     MATCH_DATA: 'series/matchdetails',

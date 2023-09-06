@@ -17,6 +17,14 @@ export async function checkMobileNumber(params) {
     return null;
   }
 }
+export async function checkUser(params) {
+  try {
+    const response = await fetcher('POST', process.env.CHECK_EXISTING_USERS, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
 
 export async function getSignup(params) {
   try {

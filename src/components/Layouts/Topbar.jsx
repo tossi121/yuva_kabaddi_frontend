@@ -11,6 +11,7 @@ function Topbar(props) {
 
   function logout() {
     Cookies.remove('token');
+    Cookies.remove('role');
     router.push('/login');
     history.pushState(null, null, location.href);
     window.onpopstate = function () {
@@ -25,7 +26,7 @@ function Topbar(props) {
           <Col lg={'12'}>
             <div className="d-flex align-items-center">
               <div className="d-flex justify-content-center logo-wrapper align-items-center">
-                <Link href={'/dashboard'}>
+                <Link href={'/'}>
                   <Image src="/images/logo.png" alt="" width={110} height={54} />
                 </Link>
               </div>

@@ -1,38 +1,42 @@
 import Cookies from 'js-cookie';
-import { useRouter } from 'next/router';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [role, setRole] = useState('');
   const router = useRouter();
 
-  async function checkUserAuthentication() {
+  const checkUserAuthentication = async () => {
     const token = Cookies.get('token');
     const isAuthenticated = !!token;
     setIsLoggedIn(isAuthenticated);
     return isAuthenticated;
-  }
+  };
 
-  useEffect(() => {
-    async function redirectToCorrectRoute() {
-      const isAuthenticated = await checkUserAuthentication();
-      const currentPath = router.pathname;
+  const redirectToCorrectRoute = async () => {
+    const currentPath = router.pathname;
+    setRole(Cookies.get('role'));
+    const isAuthenticated = await checkUserAuthentication();
 
-      if (!isAuthenticated && (currentPath === '/signup' || currentPath === '/login')) {
-        return;
+    if (isAuthenticated) {
+      if (currentPath === '/signup' || currentPath === '/login') {
+        router.push('/');
       }
-
-      if (!isAuthenticated) {
+    } else {
+      if (currentPath !== '/signup' && currentPath !== '/login') {
         router.push('/login');
       }
     }
+  };
 
+  useEffect(() => {
     redirectToCorrectRoute();
-  }, []);
+  }, [role]);
 
-  return <AuthContext.Provider value={{ isLoggedIn, checkUserAuthentication }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ isLoggedIn, role, checkUserAuthentication }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);

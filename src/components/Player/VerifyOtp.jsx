@@ -11,6 +11,7 @@ function VerifyOtp(props) {
     otpResendSeconds,
     setOtpResendSeconds,
     handleOtp,
+    loading,
     setIsTypingOtp,
     setOneTimePassword,
   } = props;
@@ -65,7 +66,7 @@ function VerifyOtp(props) {
                     type="submit"
                     className="common-btn w-100 mb-3"
                     onSubmit={handleSubmit}
-                    disabled={oneTimePassword?.length !== 4}
+                    disabled={oneTimePassword?.length !== 4 || loading}
                   >
                     Verify
                   </Button>

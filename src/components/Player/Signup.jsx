@@ -10,7 +10,7 @@ import {
   getSignup,
   getSeries,
   getMatchPlayers,
-  checkMobileNumber,
+  checkUser,
 } from '@/_services/services_api';
 import { Toaster, toast } from 'react-hot-toast';
 import ReusableDropdown from './ReusableDropdown';
@@ -114,14 +114,15 @@ function Signup() {
       player_id: selectedPlayer.player_id,
       otp: oneTimePassword,
     };
-    const isMobileAlreadyRegistered = await handleCheckMobileNumber();
+    const isMobileAlreadyRegistered = await handleCheckUser();
 
     if (!isMobileAlreadyRegistered && oneTimePassword !== null) {
       const res = await getSignup(params);
       if (res?.status) {
-        router.push('/dashboard');
-        const token = res.data.access_token;
-        Cookies.set('token', token);
+        const token = res.data;
+        Cookies.set('token', token.access_token, { expires: 30, path: '/' });
+        Cookies.set('role', token.user_role, { expires: 30, path: '/' });
+        router.push('/');
         toast.success(res.message);
       } else {
         toast.error(res?.message);
@@ -138,11 +139,18 @@ function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errors = validate(formValues);
+    const errors = validate();
     setFormErrors(errors);
+
     if (Object.keys(errors).length === 0) {
-      setLoading(true);
-      handleSignup();
+      try {
+        setLoading(true);
+        await handleLogin();
+      } catch (error) {
+        console.error('Error during login:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -166,13 +174,15 @@ function Signup() {
     }
   };
 
-  const handleCheckMobileNumber = async () => {
+  const handleCheckUser = async () => {
     if (formValues.mobile) {
       const params = {
         contactno: formValues.mobile,
+        email: formValues.email,
+        player_id: selectedPlayer.player_id,
       };
-      const res = await checkMobileNumber(params);
-      if (res?.status) {
+      const res = await checkUser(params);
+      if (!res?.status) {
         setIsMobileNumberRegistered(true);
         toast.error(res?.message);
         return true;
@@ -188,14 +198,12 @@ function Signup() {
     const errors = validate(formValues);
     setFormErrors(errors);
     if (Object.keys(errors).length === 0) {
-      const isMobileAlreadyRegistered = await handleCheckMobileNumber();
+      const isMobileAlreadyRegistered = await handleCheckUser();
       if (!isMobileAlreadyRegistered) {
         setShowOtpPopup(true);
         setOtpResendSeconds(30);
       } else {
-        setTimeout(() => {
-          router.push('/login');
-        }, 800);
+        router.push('/signup');
       }
     }
   };

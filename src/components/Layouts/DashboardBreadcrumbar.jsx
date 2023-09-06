@@ -9,7 +9,7 @@ function DashboardBreadcrumb(props) {
     <>
       <div className="dashboard-breadcrumb-wrapper">
         <nav aria-label="breadcrumb" className="dashboard-breadcrumb pe-3 py-1">
-          {(router.pathname != '/dashboard' && (
+          {(router.pathname != '/' && (
             <ol className="breadcrumb justify-content-start card-border bg-white py-2 rounded-2 mb-0">
               <li className="breadcrumb-item">
                 <Link href="/dashboard/">
@@ -32,7 +32,7 @@ function DashboardBreadcrumb(props) {
           )) || (
             <ol className="breadcrumb mb-0 card-border bg-white py-2 rounded-2 mb-0">
               <li className="breadcrumb-item">
-                <Link href="/dashboard">
+                <Link href="/">
                   <span className="text-decoration-none base-color-2 fs-14 fw-400">
                     <Image
                       src={'/images/dashboard-icons/dashboard-home.svg'}
