@@ -243,7 +243,6 @@ function ViewPriceMoney() {
     }
   }, [label, showTable, showTableData]);
 
-  console.log(filteredData);
   const [selectedFilters, setSelectedFilters] = useState({
     paid: true,
     pending: true,

@@ -156,7 +156,7 @@ function EditUser() {
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
                           <Form.Control
-                            type="email"
+                            type="text"
                             placeholder="Enter Your Email Address"
                             name="email"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
@@ -185,7 +185,7 @@ function EditUser() {
                         </Form.Group>
                       </div>
 
-                      <Button className="common-btn py-2 px-3 mt-4 fs-14 d-flex align-items-center" type="submit">
+                      <Button className="common-btn py-2 px-3 mt-4 fs-14 d-flex align-items-center" >
                         <Image
                           src="/images/team-roster/apply.svg"
                           alt="Post New Job"

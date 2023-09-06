@@ -236,7 +236,7 @@ function MyProfile() {
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
                           <Form.Control
-                            type="email"
+                            type="text"
                             placeholder="Enter Your Email Address"
                             name="email"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
@@ -570,7 +570,7 @@ function MyProfile() {
                     </Col>
                   </Row>
 
-                  <Button className="common-btn py-2 px-3 mt-3 fs-14" type="submit" onClick={handleSubmit}>
+                  <Button className="common-btn py-2 px-3 mt-3 fs-14"  onClick={handleSubmit}>
                     <Image
                       src="/images/team-roster/apply.svg"
                       alt="Save Change"

@@ -11,4 +11,4 @@ function DefaultPage() {
   );
 }
 DefaultPage.layout = 'DashboardLayout';
-export default DefaultPage;
+export default (DefaultPage);

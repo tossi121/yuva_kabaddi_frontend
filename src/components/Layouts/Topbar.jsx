@@ -2,9 +2,23 @@ import React from 'react';
 import { Row, Col, Dropdown } from 'react-bootstrap';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
+import Cookies from 'js-cookie';
 
 function Topbar(props) {
   const { ToggleFun } = props;
+  const router = useRouter();
+
+  function logout() {
+    Cookies.remove('token');
+    Cookies.remove('role');
+    router.push('/login');
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+      history.go(1);
+    };
+  }
+
   return (
     <>
       <div className="w-100 top-bar position-sticky top-0 bg-white">
@@ -12,7 +26,7 @@ function Topbar(props) {
           <Col lg={'12'}>
             <div className="d-flex align-items-center">
               <div className="d-flex justify-content-center logo-wrapper align-items-center">
-                <Link href={'/dashboard'}>
+                <Link href={'/'}>
                   <Image src="/images/logo.png" alt="" width={110} height={54} />
                 </Link>
               </div>
@@ -54,7 +68,9 @@ function Topbar(props) {
                                   <span className="base-color-3 d-block"> Profile</span>
                                 </Link>
                               </Dropdown.Item>
-                              <Dropdown.Item className="py-2 fs-14 base-color-3">Logout</Dropdown.Item>
+                              <Dropdown.Item className="py-2 fs-14 base-color-3" onClick={logout}>
+                                Logout
+                              </Dropdown.Item>
                             </Dropdown.Menu>
                           </Dropdown>
                         </div>

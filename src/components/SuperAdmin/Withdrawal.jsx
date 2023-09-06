@@ -512,7 +512,7 @@ function Withdrawal() {
                       </Col>
                       <Col>
                         <div className="d-flex align-items-center  filters-dropdown-btn">
-                          <Button className="common-btn px-3 text-nowrap" type="Submit">
+                          <Button className="common-btn px-3 text-nowrap" >
                             <span className="me-2">
                               <FontAwesomeIcon icon={faSearch} width={18} height={18} />
                             </span>

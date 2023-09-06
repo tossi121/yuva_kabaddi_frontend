@@ -5,16 +5,24 @@ import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBank, faUserCheck, faUserEdit, faUsersGear } from '@fortawesome/free-solid-svg-icons';
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
+import { useAuth } from '@/_context/authContext';
 
-const sidebarLinks = [
+const commonLinks = [
   { href: '/dashboard', label: 'Dashboard', iconSrc: faUsersGear },
   { href: '/dashboard/view-price-money', label: 'View Price Money', iconSrc: faMoneyBillAlt },
   { href: '/dashboard/profile', label: 'My Profile', iconSrc: faUserEdit },
-  { href: '/super-admin/dashboard', label: 'Dashboard', iconSrc: faUsersGear },
-  { href: '/super-admin/users', label: 'Users Approval', iconSrc: faUsersGear },
-  { href: '/super-admin/withdrawal-approval', label: 'Withdrawal Approval', iconSrc: faBank },
-  { href: '/super-admin/account-approval', label: 'Account Approval', iconSrc: faUserCheck },
 ];
+
+const sidebarLinks = {
+  PLAYER: [...commonLinks],
+  SUPER_ADMIN: [
+    { href: '/super-admin/dashboard', label: 'Dashboard', iconSrc: faUsersGear },
+    { href: '/super-admin/users', label: 'Users Approval', iconSrc: faUsersGear },
+    { href: '/super-admin/withdrawal-approval', label: 'Withdrawal Approval', iconSrc: faBank },
+    { href: '/super-admin/account-approval', label: 'Account Approval', iconSrc: faUserCheck },
+  ],
+  COACH: [...commonLinks],
+};
 
 function SidebarLink({ href, label, iconSrc }) {
   const router = useRouter();
@@ -33,6 +41,8 @@ function SidebarLink({ href, label, iconSrc }) {
 }
 
 function Sidebar({ toggle, ToggleFun, toggleResponsive }) {
+  const { role } = useAuth();
+  const links = sidebarLinks[role] || [];
   return (
     <section
       className={`sidebar-section bg-white position-fixed ${!toggle ? 'sidebar-sm' : ''} ${
@@ -53,7 +63,7 @@ function Sidebar({ toggle, ToggleFun, toggleResponsive }) {
           />
         </span>
         <ul className="navbar-nav px-3 py-3 vh-100">
-          {sidebarLinks.map(({ href, label, iconSrc }) => (
+          {links.map(({ href, label, iconSrc }) => (
             <SidebarLink key={href} href={href} label={toggle ? label : ''} iconSrc={iconSrc} />
           ))}
         </ul>

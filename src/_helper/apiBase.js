@@ -28,7 +28,7 @@ async function makeRequest(method, url, params, contentType = 'application/json'
       return handleResponse(response.data);
     }
   } catch (error) {
-    return errorResponse({ resultMessage: error.message });
+    return errorResponse({ message: error.response.data.message });
   }
 }
 
@@ -64,7 +64,7 @@ function errorResponse(response) {
   return {
     status: false,
     data: null,
-    message: response || 'An error occurred.',
+    message: response?.message || 'An error occurred.',
   };
 }
 
