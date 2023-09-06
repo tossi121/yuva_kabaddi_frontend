@@ -108,3 +108,29 @@ export async function getWithdrawnRequests(params) {
     return null;
   }
 }
+export async function getCurrentUserDetails(params) {
+  try {
+    const response = await fetcher('GET', process.env.CURRENT_USER, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function stateListData(params) {
+  try {
+    const response = await fetcher('GET', process.env.STATE_LIST, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function cityListData(id)
+ {
+  try {
+    const url = `${process.env.CITY_BY_STATE}/${id}`;
+    const response = await fetcher('GET', url);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}

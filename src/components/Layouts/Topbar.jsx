@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Col, Dropdown } from 'react-bootstrap';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -52,7 +52,7 @@ function Topbar(props) {
                         className="img-fluid rounded-circle"
                       />
                       <div className="info-member ms-2">
-                        <span className="base-color fw-700 fs-14">Rajendra</span>
+                        <span className="base-color fw-700 fs-14">{currentUser.user_name}</span>
                         <div className="Profile">
                           <Dropdown className="px-0 py-0 rounded-2">
                             <Dropdown.Toggle

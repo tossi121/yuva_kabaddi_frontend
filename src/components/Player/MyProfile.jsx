@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Container, Dropdown, Form, Row, Spinner } from 'react-bootstrap';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
@@ -14,6 +14,7 @@ import {
 } from '@/_helper/regex';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUpload, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { cityListData, getCurrentUserDetails, stateListData } from '@/_services/services_api';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
@@ -42,12 +43,47 @@ function MyProfile() {
   const [selectState, setSelectState] = useState('Select State');
   const [selectStateId, setSelectStateId] = useState('');
   const [searchState, setSearchState] = useState('');
-
+  const [userAddress, setUserAddress] = useState('');
   const [getAllCityList, setGetAllCityList] = useState([]);
   const [selectCity, setSelectCity] = useState('Select City');
   const [selectCityId, setSelectCityId] = useState('');
   const [searchCity, setSearchCity] = useState('');
+  useEffect(() =>{
+    handleWithdrawnRequest()
+    getStateList()
+  },[])
+  async function getStateList() {
+    const response = await stateListData();
+    // setGetAllStatesList(response);
+    console.log('this is response from state',response)
+    if (response.status) {
+      setGetAllStatesList(response.data);
 
+    }
+  }
+  async function handleWithdrawnRequest() {
+    const resw = await getCurrentUserDetails();
+    const userData = resw?.data;
+    console.log('sdffffffsdfsdasfas',userData,)
+    if (resw?.status) {
+      setFormValues({
+        user: userData.user_name || '',
+        email: userData.email || '',
+        mobile: userData.contactno || '', 
+        state: '',
+        city: userData.city_id ||'',
+        address: '',
+        pancard: userData.pan_no || '',
+        bankIfsc: userData.ifsc_code || '',
+        bankName: userData.bank_name || '',
+        acNumber: userData.account_number || '',
+        bankBranch: userData.branch_name || '',
+      });
+      // toast.success(resw?.message);
+    } else {
+      // toast.error(resw?.message);
+    }
+  }
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'role') {
@@ -64,7 +100,7 @@ function MyProfile() {
       e.preventDefault();
     }
   };
-
+  console.log('sdjkdhaf dffhjk ak v fdvfd jkdfh ===',getAllStatesList)
   const stateSearchItem = getAllStatesList.filter((item) => {
     if (searchState == '') {
       return item;
@@ -72,22 +108,27 @@ function MyProfile() {
       return item;
     }
   });
+  
 
-  async function getCityList() {
-    const params = {
-      state_id: selectStateId,
-    };
-    const response = await cityListData(params);
+  async function getCityList(id) {
+    // const state_id: selectStateId
+    const response = await cityListData(id);
     if (response.status) {
       setGetAllCityList(response?.data);
     }
   }
+  
 
   function handleSelectCity(id, name) {
     setSelectCity(name);
     setSelectCityId(id);
   }
-
+  function handleSelectState(id, name) {
+    setSelectState(name);
+    setSelectStateId(id);
+    getCityList(id)
+  }
+  
   const citySearchItem = getAllCityList.filter((item) => {
     if (searchCity == '') {
       return item;
