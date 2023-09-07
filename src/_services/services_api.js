@@ -43,7 +43,14 @@ export async function getLogin(params) {
     return null;
   }
 }
-
+export async function updateUserDetails(params) {
+  try {
+    const response = await fetcher('POST', process.env.UPDATE_USER_DETAILS, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
 export async function getRole(params) {
   try {
     const response = await fetcher('GET', process.env.ROLE_DATA, params);

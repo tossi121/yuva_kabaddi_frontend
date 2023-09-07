@@ -14,13 +14,13 @@ import {
 } from '@/_helper/regex';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUpload, faUpload } from '@fortawesome/free-solid-svg-icons';
-import { cityListData, getCurrentUserDetails, stateListData } from '@/_services/services_api';
+import { cityListData, getCurrentUserDetails, stateListData, updateUserDetails } from '@/_services/services_api';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function MyProfile() {
   const initialFormValues = {
-    user: '',
+    user_name: '',
     email: '',
     mobile: '',
     state: '',
@@ -48,6 +48,9 @@ function MyProfile() {
   const [selectCity, setSelectCity] = useState('Select City');
   const [selectCityId, setSelectCityId] = useState('');
   const [searchCity, setSearchCity] = useState('');
+  const [panFileData, setPanFileData] = useState(null);
+  const [passbookFileData, setPassbookFileData] = useState(null);
+  
   useEffect(() =>{
     handleWithdrawnRequest()
     getStateList()
@@ -67,7 +70,7 @@ function MyProfile() {
     console.log('sdffffffsdfsdasfas',userData,)
     if (resw?.status) {
       setFormValues({
-        user: userData.user_name || '',
+        user_name: userData.user_name || '',
         email: userData.email || '',
         mobile: userData.contactno || '', 
         state: '',
@@ -79,6 +82,9 @@ function MyProfile() {
         acNumber: userData.account_number || '',
         bankBranch: userData.branch_name || '',
       });
+      setPanFileData(userData.pan_image)
+      setPassbookFileData(userData.passbook_image)
+      
       // toast.success(resw?.message);
     } else {
       // toast.error(resw?.message);
@@ -150,10 +156,10 @@ function MyProfile() {
     } else if (!validEmail(values.email)) {
       errors.email = 'Please enter a valid email address';
     }
-    if (!values.user) {
-      errors.user = 'Please enter a full name';
-    } else if (!validName(values.user)) {
-      errors.user = 'Please enter a valid name';
+    if (!values.user_name) {
+      errors.user_name = 'Please enter a full name';
+    } else if (!validName(values.user_name)) {
+      errors.user_name = 'Please enter a valid name';
     }
 
     if (!values.mobile) {
@@ -196,6 +202,16 @@ function MyProfile() {
     e.preventDefault();
     const errors = validate(formValues);
     setFormErrors(errors);
+    const params = {
+      ...formValues
+    }
+    // updateUserDetails()
+    const res = await updateUserDetails(params);
+    // handleApiResponse(res);
+    if (res.status) {
+      console.log("responce is",res)
+    }
+    // console.log(data)
   };
 
   return (
@@ -263,12 +279,12 @@ function MyProfile() {
                           <Form.Control
                             type="text"
                             placeholder="Enter Your Full Name"
-                            name="user"
+                            name="user_name"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                            value={formValues.user}
+                            value={formValues.user_name}
                             onChange={handleChange}
                           />
-                          {formErrors.user && <p className="text-danger fs-14 error-message">{formErrors.user}</p>}
+                          {formErrors.user_name && <p className="text-danger fs-14 error-message">{formErrors.user_name}</p>}
                         </Form.Group>
                       </div>
                     </Col>
@@ -403,11 +419,12 @@ function MyProfile() {
                           <Form.Control
                             type="text"
                             as="textarea"
+                            name="address"
                             placeholder="Enter Your Address"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3 card-border rounded-1 text-area"
                             // value={userAddress || ''}
                             // defaultValue={userAllDetails?.address}
-                            onChange={(e) => setUserAddress(e.target.value)}
+                            onChange={handleChange}
                           />
                         </Form.Group>
                       </div>
@@ -450,11 +467,11 @@ function MyProfile() {
                             <Form.Control
                               type="file"
                               id="pan"
-                              onChange={(e) => setImageFileData(e.target.files[0])}
+                              onChange={(e) => setPanFileData(e.target.files[0])}
                               accept="image/png, image/jpeg, image/jpg, image/svg+xml"
                               className="d-none"
                               name="imageFileData"
-                              // value={imageFileData}
+                              // value={panFileData}
                               aria-describedby="passwordHelpBlock"
                             />
                             <label className="common-btn py-2 px-3 fs-14 me-2 cursor-pointer" htmlFor="pan">
@@ -497,11 +514,11 @@ function MyProfile() {
                             <Form.Control
                               type="file"
                               id="pan"
-                              onChange={(e) => setImageFileData(e.target.files[0])}
+                              onChange={(e) => setPassbookFileData(e.target.files[0])}
                               accept="image/png, image/jpeg, image/jpg, image/svg+xml"
                               className="d-none"
                               name="imageFileData"
-                              // value={imageFileData}
+                              // value={passbookFileData}
                               aria-describedby="passwordHelpBlock"
                             />
                             <label className="common-btn py-2 px-3 fs-14 me-2 cursor-pointer" htmlFor="pan">

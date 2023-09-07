@@ -4,9 +4,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
+import { getCurrentUserDetails } from '@/_services/services_api';
 
 function Topbar(props) {
   const { ToggleFun } = props;
+  const [currentUser , setCurrentUser] = useState([]);
   const router = useRouter();
 
   function logout() {
@@ -19,7 +21,18 @@ function Topbar(props) {
       history.go(1);
     };
   }
-
+  useEffect(() =>{
+    handleWithdrawnRequest()
+  },[])
+  async function handleWithdrawnRequest() {
+    const resw = await getCurrentUserDetails();
+    if (resw?.status) {
+      setCurrentUser(resw?.data);
+      // toast.success(resw?.message);
+    } else {
+      // toast.error(resw?.message);
+    }
+  }
   return (
     <>
       <div className="w-100 top-bar position-sticky top-0 bg-white">
