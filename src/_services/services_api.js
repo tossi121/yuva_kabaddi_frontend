@@ -19,7 +19,7 @@ export async function checkMobileNumber(params) {
 }
 export async function checkUser(params) {
   try {
-    const response = await fetcher('POST', process.env.CHECK_EXISTING_USERS, params);
+    const response = await fetcher('POST', process.env.CHECK_EXISTING_USERS_DATA, params);
     return response;
   } catch (err) {
     return null;
@@ -74,8 +74,35 @@ export async function getMatchDetails(id) {
 
 export async function getMatchPlayers(id) {
   try {
-    const url = `${process.env.MATCH_PLAYERS}/${id}`;
+    const url = `${process.env.MATCH_PLAYERS_DATA}/${id}`;
     const response = await fetcher('GET', url);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function getPriceMoney(params) {
+  try {
+    const response = await fetcher('GET', process.env.PRICE_MONEY_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function getEarnings(params) {
+  try {
+    const response = await fetcher('GET', process.env.PRICE_MONEY_ALL_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function getWithdrawnRequests(params) {
+  try {
+    const response = await fetcher('GET', process.env.WITHDRAWN_REQUESTS_OF_USER_DATA, params);
     return response;
   } catch (err) {
     return null;

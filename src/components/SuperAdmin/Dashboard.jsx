@@ -341,11 +341,11 @@ function Dashboard() {
                     className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
                     onClick={toggleFilterBox}
                   >
-                    <FontAwesomeIcon icon={faFilter} className="fs-18" />
+                     <FontAwesomeIcon icon={faFilter} width={20} height={20} />
                   </Button>
                   <Link href={'/super-admin/add-tds'}>
                     <Button className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center">
-                      <FontAwesomeIcon icon={faPlus} className="fs-18" />
+                      <FontAwesomeIcon icon={faPlus}  width={20} height={20} />
                     </Button>
                   </Link>
                 </div>
@@ -430,7 +430,7 @@ function Dashboard() {
                     <h6 className="section-subtitle">Total Spent:</h6>
                     <h6 className="section-subtitle">Match Fee Spent:</h6>
                     <h6 className="section-subtitle">Award Spent:</h6>
-                    <h6 className="section-subtitle">Total Approved Withdrawal:</h6>
+                    <h6 className="section-subtitle">Total Spent Withdrawal:</h6>
                   </div>
                   <div className="ms-4">
                     <h6 className="section-subtitle">&#8377;15,725.00</h6>

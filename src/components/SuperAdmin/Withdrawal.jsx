@@ -371,7 +371,7 @@ function Withdrawal() {
                       className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
                       onClick={toggleFilterBox}
                     >
-                      <FontAwesomeIcon icon={faFilter} className="fs-18" />
+                        <FontAwesomeIcon icon={faFilter} width={20} height={20} />
                     </Button>
                   </div>
                 </div>

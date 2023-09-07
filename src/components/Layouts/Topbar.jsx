@@ -12,6 +12,7 @@ function Topbar(props) {
   function logout() {
     Cookies.remove('token');
     Cookies.remove('role');
+    Cookies.remove('user');
     router.push('/login');
     history.pushState(null, null, location.href);
     window.onpopstate = function () {
