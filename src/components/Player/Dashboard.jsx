@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFilter,
@@ -9,14 +10,16 @@ import {
   faMoneyBillTransfer,
   faMoneyBills,
 } from '@fortawesome/free-solid-svg-icons';
-import { Bar, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { faMoneyBill1 } from '@fortawesome/free-regular-svg-icons';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import Link from 'next/link';
 import { getEarnings, getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
 import { useAuth } from '@/_context/authContext';
+import WithdrawalsChart from './Chart/WithdrawalsChart';
+import EarningChart from './Chart/EarningChart';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
@@ -33,15 +36,79 @@ function Dashboard() {
   const [expanded, setExpanded] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [filteredData, setFilteredData] = useState(null);
-  const [filteredEarningsData, setFilteredEarningsData] = useState(null);
   const [playerData, setPlayerData] = useState(null);
   const [dataRequests, setDataRequests] = useState([]);
   const [earningsData, setEarningsData] = useState([]);
+  const [withdrawalsChartData, setWithdrawalsChartData] = useState({
+    labels: [],
+    datasets: [],
+  });
 
   const { user } = useAuth();
 
   useEffect(() => {
+    async function fetchData() {
+      try {
+        const [earningsResponse, priceMoneyResponse, withdrawnRequestsResponse] = await Promise.all([
+          getEarnings(),
+          getPriceMoney(),
+          getWithdrawnRequests(),
+        ]);
+
+        if (earningsResponse?.status) {
+          setPlayerData(earningsResponse.data);
+        }
+
+        if (priceMoneyResponse?.status) {
+          setEarningsData(priceMoneyResponse.data);
+        }
+
+        if (withdrawnRequestsResponse?.status) {
+          const data = withdrawnRequestsResponse.data;
+
+          const requestCountsByDate = data.reduce((counts, request) => {
+            const { createdAt, status } = request;
+            const date = new Date(createdAt).toISOString().split('T')[0];
+            if (!counts[date]) {
+              counts[date] = { pending: 0, paid: 0, rejected: 0 };
+            }
+
+            if (status === 'Pending') {
+              counts[date].pending++;
+            } else if (status === 'Paid') {
+              counts[date].paid++;
+            } else if (status === 'Reject') {
+              counts[date].rejected++;
+            }
+
+            return counts;
+          }, {});
+
+          const colorsWithdrawals = ['#508AA8', '#56BFE9', '#7DDFE2', '#FAA69A'];
+
+          const filteredRequestTypes = requestTypes.filter((type) => type.label !== 'Total Withdrawals');
+
+          const updatedChartData = {
+            labels: Object.keys(requestCountsByDate),
+            datasets: filteredRequestTypes.map((type, index) => ({
+              label: type.label,
+              data: Object.values(requestCountsByDate).map(
+                (counts) => counts[type.label.toLowerCase().split(' ')[0]] || 0
+              ),
+              backgroundColor: colorsWithdrawals[index % colorsWithdrawals.length],
+              barThickness: 60,
+              maxBarThickness: 40,
+            })),
+          };
+
+          setWithdrawalsChartData(updatedChartData);
+          setDataRequests(data);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
     fetchData();
   }, [startDate, endDate]);
 
@@ -49,26 +116,6 @@ function Dashboard() {
     setStartDate(date);
     setEndDate(null);
   };
-
-  async function fetchData() {
-    const [earningsResponse, priceMoneyResponse, withdrawnRequestsResponse] = await Promise.all([
-      getEarnings(),
-      getPriceMoney(),
-      getWithdrawnRequests(),
-    ]);
-
-    if (earningsResponse?.status) {
-      setPlayerData(earningsResponse.data);
-    }
-
-    if (priceMoneyResponse?.status) {
-      setEarningsData(priceMoneyResponse.data);
-    }
-
-    if (withdrawnRequestsResponse?.status) {
-      setDataRequests(withdrawnRequestsResponse.data);
-    }
-  }
 
   const getRequest = (label) => {
     if (label === 'Total Withdrawals') {
@@ -87,88 +134,9 @@ function Dashboard() {
     return 0;
   };
 
-  const requestCountsByDate = dataRequests.reduce((counts, request) => {
-    const { createdAt, status } = request;
-    const date = new Date(createdAt).toISOString().split('T')[0];
-    if (!counts[date]) {
-      counts[date] = { pending: 0, paid: 0, rejected: 0 };
-    }
-
-    if (status === 'Pending') {
-      counts[date].pending++;
-    } else if (status === 'Paid') {
-      counts[date].paid++;
-    } else if (status === 'Reject') {
-      counts[date].rejected++;
-    }
-
-    return counts;
-  }, {});
-
   const colorsWithdrawals = ['#508AA8', '#56BFE9', '#7DDFE2', '#FAA69A'];
-  const colorsEarnings = ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50'];
 
   const filteredRequestTypes = requestTypes.filter((type) => type.label !== 'Total Withdrawals');
-
-  const withdrawalsChartData = {
-    labels: Object.keys(requestCountsByDate),
-    datasets: filteredRequestTypes.map((type, index) => ({
-      label: type.label,
-      data: Object.values(requestCountsByDate).map((counts) => counts[type.label.toLowerCase().split(' ')[0]] || 0),
-      backgroundColor: colorsWithdrawals[index % colorsWithdrawals.length],
-      barThickness: 60,
-      maxBarThickness: 40,
-    })),
-  };
-
-  const chartData = earningsData.reduce(
-    (data, entry) => {
-      const { Date, priceFor, priceAmount } = entry;
-
-      if (!data.labels.includes(Date)) {
-        data.labels.push(Date);
-        data.matchFeePrices.push(0);
-        data.awardPrices.push(0);
-      }
-
-      const dateIndex = data.labels.indexOf(Date);
-
-      if (priceFor === 'match_fee') {
-        data.matchFeePrices[dateIndex] += parseFloat(priceAmount);
-      } else if (priceFor === 'award') {
-        data.awardPrices[dateIndex] += parseFloat(priceAmount);
-      }
-
-      return data;
-    },
-    {
-      labels: [],
-      matchFeePrices: [],
-      awardPrices: [],
-    }
-  );
-
-  const chartDatasets = [
-    {
-      label: 'Match Fee',
-      backgroundColor: colorsEarnings[0],
-      data: chartData.matchFeePrices,
-      barThickness: 60,
-      maxBarThickness: 40,
-    },
-    {
-      label: 'Award',
-      backgroundColor: colorsEarnings[1],
-      data: chartData.awardPrices,
-      barThickness: 60,
-      maxBarThickness: 40,
-    },
-  ];
-
-  const chartDataFinal = {
-    labels: chartData.labels,
-    datasets: chartDatasets,
-  };
 
   const chartOptions = {
     scales: {
@@ -198,6 +166,8 @@ function Dashboard() {
     ],
   };
 
+  const colorsEarnings = ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50'];
+
   const earningsLeft = playerData?.Total_Earninig - playerData?.sumAprovedEarning;
 
   const earningsDoughnutData = {
@@ -215,6 +185,61 @@ function Dashboard() {
     ],
   };
 
+  const generateChartData = (earningsData) => {
+    const chartData = earningsData.reduce(
+      (data, entry) => {
+        const { Date, priceFor, priceAmount } = entry;
+
+        if (!data.labels.includes(Date)) {
+          data.labels.push(Date);
+          data.matchFeePrices.push(0);
+          data.awardPrices.push(0);
+        }
+
+        const dateIndex = data.labels.indexOf(Date);
+
+        if (priceFor === 'match_fee') {
+          data.matchFeePrices[dateIndex] += parseFloat(priceAmount);
+        } else if (priceFor === 'award') {
+          data.awardPrices[dateIndex] += parseFloat(priceAmount);
+        }
+
+        return data;
+      },
+      {
+        labels: [],
+        matchFeePrices: [],
+        awardPrices: [],
+      }
+    );
+
+    const chartDatasets = [
+      {
+        label: 'Match Fee',
+        backgroundColor: colorsEarnings[0],
+        data: chartData.matchFeePrices,
+        barThickness: 60,
+        maxBarThickness: 40,
+      },
+      {
+        label: 'Award',
+        backgroundColor: colorsEarnings[1],
+        data: chartData.awardPrices,
+        barThickness: 60,
+        maxBarThickness: 40,
+      },
+    ];
+
+    const chartDataFinal = {
+      labels: chartData.labels,
+      datasets: chartDatasets,
+    };
+
+    return chartDataFinal;
+  };
+
+  const chartDataFinal = generateChartData(earningsData);
+
   const toggleFilterBox = () => {
     setExpanded(!expanded);
   };
@@ -222,80 +247,51 @@ function Dashboard() {
   const handleReset = () => {
     setStartDate(null);
     setEndDate(null);
-    setFilteredData(null);
-    setFilteredEarningsData(null);
-  };
-
-  const filterChartDataByDate = (start, end) => {
-    if (!start || !end) {
-      return withdrawalsChartData;
-    }
-
-    const adjustedEndDate = new Date(end);
-    adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
-
-    const filteredData = dataRequests.filter((request) => {
-      const requestDate = new Date(request.createdAt);
-      return start <= requestDate && requestDate < adjustedEndDate;
-    });
-
-    const requestCountsByDate = {};
-
-    filteredData.forEach((request) => {
-      const { createdAt, status } = request;
-      const date = new Date(createdAt).toISOString().split('T')[0];
-
-      if (!requestCountsByDate[date]) {
-        requestCountsByDate[date] = { pending: 0, paid: 0, rejected: 0 };
-      }
-
-      if (status === 'Pending') {
-        requestCountsByDate[date].pending++;
-      } else if (status === 'Paid') {
-        requestCountsByDate[date].paid++;
-      } else if (status === 'Reject') {
-        requestCountsByDate[date].rejected++;
-      }
-    });
-
-    const labels = Object.keys(requestCountsByDate);
-    const datasets = filteredRequestTypes.map((type, index) => ({
-      label: type.label,
-      data: labels.map((date) => requestCountsByDate[date][type.label.toLowerCase().split(' ')[0]] || 0),
-      backgroundColor: colorsWithdrawals[index % colorsWithdrawals.length],
-      barThickness: 60,
-      maxBarThickness: 40,
-    }));
-
-    const filteredChartData = {
-      labels: labels,
-      datasets: datasets,
-    };
-
-    return filteredChartData;
-  };
-
-  const filterEarningsData = (startDate, endDate) => {
-    if (!startDate || !endDate) {
-      return earningsData;
-    }
-
-    const filteredData = earningsData.filter((entry) => {
-      const entryDate = new Date(entry.Date);
-      return entryDate >= startDate && entryDate < endDate;
-    });
-
-    return filteredData;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const filteredChartData = filterChartDataByDate(startDate, endDate);
-    const filteredEarnings = filterEarningsData(startDate, endDate);
-    console.log('filteredChartData:', filteredChartData);
-    console.log('filteredEarnings:', filteredEarnings);
-    setFilteredData(filteredChartData);
-    setFilteredEarningsData(filteredEarnings);
+
+    const nextDay = new Date(endDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+
+    const filteredData = dataRequests.filter((request) => {
+      const createdAt = new Date(request.createdAt);
+      return startDate <= createdAt && createdAt < nextDay;
+    });
+
+    const requestCountsByDateFiltered = filteredData.reduce((counts, request) => {
+      const { createdAt, status } = request;
+      const date = new Date(createdAt).toISOString().split('T')[0];
+      if (!counts[date]) {
+        counts[date] = { pending: 0, paid: 0, rejected: 0 };
+      }
+
+      if (status === 'Pending') {
+        counts[date].pending++;
+      } else if (status === 'Paid') {
+        counts[date].paid++;
+      } else if (status === 'Reject') {
+        counts[date].rejected++;
+      }
+
+      return counts;
+    }, {});
+
+    const filteredChartData = {
+      labels: Object.keys(requestCountsByDateFiltered),
+      datasets: filteredRequestTypes.map((type, index) => ({
+        label: type.label,
+        data: Object.values(requestCountsByDateFiltered).map(
+          (counts) => counts[type.label.toLowerCase().split(' ')[0]] || 0
+        ),
+        backgroundColor: colorsWithdrawals[index % colorsWithdrawals.length],
+        barThickness: 60,
+        maxBarThickness: 40,
+      })),
+    };
+
+    setWithdrawalsChartData(filteredChartData);
   };
 
   return (
@@ -415,42 +411,18 @@ function Dashboard() {
             </Col>
           ))}
         </Row>
-        <Row className="align-items-baseline">
-          <Col lg={9}>
-            <Card className="common-card-box common-card-shadow transition w-100">
-              <Card.Body>
-                <h5 className="common-heading text-center">Withdrawals Chart</h5>
-                <Bar data={filteredData || withdrawalsChartData} options={chartOptions} />
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col lg={3}>
-            <Card className="common-card-box common-card-shadow transition mt-4 doughnut-chart">
-              <Card.Body>
-                <h5 className="common-heading text-center">Withdrawals Chart</h5>
-                <Doughnut data={doughnutData} />
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-        <Row className="align-items-baseline">
-          <Col lg={9}>
-            <Card className="common-card-box common-card-shadow transition w-100">
-              <Card.Body>
-                <h5 className="common-heading text-center">Earning Chart</h5>
-                <Bar data={chartDataFinal} options={chartOptions} />
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col lg={3}>
-            <Card className="common-card-box common-card-shadow transition mt-4 doughnut-chart">
-              <Card.Body>
-                <h5 className="common-heading text-center">Earning Chart</h5>
-                <Doughnut data={earningsDoughnutData} />
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+
+        <WithdrawalsChart
+          withdrawalsChartData={withdrawalsChartData || filteredChartData}
+          chartOptions={chartOptions}
+          doughnutData={doughnutData}
+        />
+
+        <EarningChart
+          chartDataFinal={chartDataFinal}
+          chartOptions={chartOptions}
+          earningsDoughnutData={earningsDoughnutData}
+        />
       </Container>
     </div>
   );
