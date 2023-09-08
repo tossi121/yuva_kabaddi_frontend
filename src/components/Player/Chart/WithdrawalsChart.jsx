@@ -2,7 +2,23 @@ import React from 'react';
 import { Card, Col, Row } from 'react-bootstrap';
 import { Bar, Doughnut } from 'react-chartjs-2';
 
-function WithdrawalsChart({withdrawalsChartData, chartOptions, doughnutData}) {
+function WithdrawalsChart(props) {
+  const { withdrawalsChartData, chartOptions, getRequest, colorsWithdrawals } = props;
+  const doughnutData = {
+    labels: ['Paid', 'Pending', 'Rejected', 'Total'],
+    datasets: [
+      {
+        data: [
+          getRequest('Paid Withdrawals'),
+          getRequest('Pending Withdrawals'),
+          getRequest('Rejected Withdrawals'),
+          getRequest('Total Withdrawals'),
+        ],
+        backgroundColor: colorsWithdrawals,
+      },
+    ],
+  };
+
   return (
     <>
       <Row className="align-items-baseline">

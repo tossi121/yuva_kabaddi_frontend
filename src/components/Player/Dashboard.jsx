@@ -3,6 +3,14 @@ import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { getEarnings, getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
+import { useAuth } from '@/_context/authContext';
+import WithdrawalsChart from './Chart/WithdrawalsChart';
+import EarningChart from './Chart/EarningChart';
+
 import {
   faFilter,
   faSearch,
@@ -10,14 +18,8 @@ import {
   faMoneyBillTransfer,
   faMoneyBills,
 } from '@fortawesome/free-solid-svg-icons';
-import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
+
 import { faMoneyBill1 } from '@fortawesome/free-regular-svg-icons';
-import ReactDatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { getEarnings, getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
-import { useAuth } from '@/_context/authContext';
-import WithdrawalsChart from './Chart/WithdrawalsChart';
-import EarningChart from './Chart/EarningChart';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
@@ -39,6 +41,7 @@ function Dashboard() {
   const [playerData, setPlayerData] = useState(null);
   const [dataRequests, setDataRequests] = useState([]);
   const [earningsData, setEarningsData] = useState([]);
+  const [earningsChartData, setEarningsChartData] = useState([]);
   const [withdrawalsChartData, setWithdrawalsChartData] = useState({
     labels: [],
     datasets: [],
@@ -151,95 +154,6 @@ function Dashboard() {
     },
   };
 
-  const doughnutData = {
-    labels: ['Paid', 'Pending', 'Rejected', 'Total'],
-    datasets: [
-      {
-        data: [
-          getRequest('Paid Withdrawals'),
-          getRequest('Pending Withdrawals'),
-          getRequest('Rejected Withdrawals'),
-          getRequest('Total Withdrawals'),
-        ],
-        backgroundColor: colorsWithdrawals,
-      },
-    ],
-  };
-
-  const colorsEarnings = ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50'];
-
-  const earningsLeft = playerData?.Total_Earninig - playerData?.sumAprovedEarning;
-
-  const earningsDoughnutData = {
-    labels: ['Match Fee', 'Awards', 'Approved', 'Amount Left'],
-    datasets: [
-      {
-        data: [
-          playerData?.sumplayerEarningFee,
-          playerData?.sumPlayerOfAwards,
-          playerData?.sumAprovedEarning,
-          earningsLeft,
-        ],
-        backgroundColor: colorsEarnings,
-      },
-    ],
-  };
-
-  const generateChartData = (earningsData) => {
-    const chartData = earningsData.reduce(
-      (data, entry) => {
-        const { Date, priceFor, priceAmount } = entry;
-
-        if (!data.labels.includes(Date)) {
-          data.labels.push(Date);
-          data.matchFeePrices.push(0);
-          data.awardPrices.push(0);
-        }
-
-        const dateIndex = data.labels.indexOf(Date);
-
-        if (priceFor === 'match_fee') {
-          data.matchFeePrices[dateIndex] += parseFloat(priceAmount);
-        } else if (priceFor === 'award') {
-          data.awardPrices[dateIndex] += parseFloat(priceAmount);
-        }
-
-        return data;
-      },
-      {
-        labels: [],
-        matchFeePrices: [],
-        awardPrices: [],
-      }
-    );
-
-    const chartDatasets = [
-      {
-        label: 'Match Fee',
-        backgroundColor: colorsEarnings[0],
-        data: chartData.matchFeePrices,
-        barThickness: 60,
-        maxBarThickness: 40,
-      },
-      {
-        label: 'Award',
-        backgroundColor: colorsEarnings[1],
-        data: chartData.awardPrices,
-        barThickness: 60,
-        maxBarThickness: 40,
-      },
-    ];
-
-    const chartDataFinal = {
-      labels: chartData.labels,
-      datasets: chartDatasets,
-    };
-
-    return chartDataFinal;
-  };
-
-  const chartDataFinal = generateChartData(earningsData);
-
   const toggleFilterBox = () => {
     setExpanded(!expanded);
   };
@@ -249,12 +163,27 @@ function Dashboard() {
     setEndDate(null);
   };
 
+  const filterEarningsData = (startDate, endDate) => {
+    if (!startDate || !endDate) {
+      return earningsData;
+    }
+
+    const filteredData = earningsData.filter((entry) => {
+      const entryDate = new Date(entry.Date);
+      return entryDate >= startDate && entryDate <= endDate;
+    });
+
+    return filteredData;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const nextDay = new Date(endDate);
     nextDay.setDate(nextDay.getDate() + 1);
 
+    const filteredEarningsData = filterEarningsData(startDate, endDate);
+    setEarningsData(filteredEarningsData);
     const filteredData = dataRequests.filter((request) => {
       const createdAt = new Date(request.createdAt);
       return startDate <= createdAt && createdAt < nextDay;
@@ -415,13 +344,15 @@ function Dashboard() {
         <WithdrawalsChart
           withdrawalsChartData={withdrawalsChartData || filteredChartData}
           chartOptions={chartOptions}
-          doughnutData={doughnutData}
+          getRequest={getRequest}
+          colorsWithdrawals={colorsWithdrawals}
         />
 
         <EarningChart
-          chartDataFinal={chartDataFinal}
+          earningsData={earningsData}
           chartOptions={chartOptions}
-          earningsDoughnutData={earningsDoughnutData}
+          playerData={playerData}
+          earningsChartData={earningsChartData}
         />
       </Container>
     </div>
