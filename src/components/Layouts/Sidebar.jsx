@@ -43,6 +43,7 @@ function SidebarLink({ href, label, iconSrc }) {
 function Sidebar({ toggle, ToggleFun, toggleResponsive }) {
   const { role } = useAuth();
   const links = sidebarLinks[role] || [];
+
   return (
     <section
       className={`sidebar-section bg-white position-fixed ${!toggle ? 'sidebar-sm' : ''} ${

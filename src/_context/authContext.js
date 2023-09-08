@@ -7,6 +7,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState('');
+  const [user, setUser] = useState('');
   const router = useRouter();
 
   const checkUserAuthentication = async () => {
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }) => {
   const redirectToCorrectRoute = async () => {
     const currentPath = router.pathname;
     setRole(Cookies.get('role'));
+    setUser(Cookies.get('user'));
     const isAuthenticated = await checkUserAuthentication();
 
     if (isAuthenticated) {
@@ -34,9 +36,13 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     redirectToCorrectRoute();
-  }, [role]);
+  }, [role, user, router]);
 
-  return <AuthContext.Provider value={{ isLoggedIn, role, checkUserAuthentication }}>{children}</AuthContext.Provider>;
+
+
+  return (
+    <AuthContext.Provider value={{ isLoggedIn, role, user, checkUserAuthentication }}>{children}</AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => useContext(AuthContext);

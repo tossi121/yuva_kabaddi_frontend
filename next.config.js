@@ -15,11 +15,14 @@ const nextConfig = {
     LOGIN_DATA: 'login',
     OTP_DATA: 'sendotpbysms',
     CHECK_MOBILE_NUMBER_DATA: 'checkmobileno',
-    CHECK_EXISTING_USERS: 'checkexistingusers',
+    CHECK_EXISTING_USERS_DATA: 'checkexistingusers',
     ROLE_DATA: 'admin/role',
     SERIES_DATA: 'series',
     MATCH_DATA: 'series/matchdetails',
-    MATCH_PLAYERS: 'match/players',
+    MATCH_PLAYERS_DATA: 'match/players',
+    PRICE_MONEY_DATA:'pricedetail',
+    PRICE_MONEY_ALL_DATA:'pricedetailtotal',
+    WITHDRAWN_REQUESTS_OF_USER_DATA:'getplayerwithdrawnrequestslistforuser',
   },
 };
 

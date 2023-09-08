@@ -362,11 +362,11 @@ function Users() {
                       className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
                       onClick={toggleFilterBox}
                     >
-                      <FontAwesomeIcon icon={faFilter} className="fs-18" />
+                       <FontAwesomeIcon icon={faFilter} width={20} height={20} />
                     </Button>
                     <Link href={'/super-admin/users/add-user'}>
                       <Button className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center">
-                        <FontAwesomeIcon icon={faPlus} className="fs-18" />
+                        <FontAwesomeIcon icon={faPlus}  width={20} height={20} />
                       </Button>
                     </Link>
                   </div>

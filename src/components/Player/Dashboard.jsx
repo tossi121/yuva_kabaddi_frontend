@@ -1,7 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { getEarnings, getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
+import { useAuth } from '@/_context/authContext';
+import WithdrawalsChart from './Chart/WithdrawalsChart';
+import EarningChart from './Chart/EarningChart';
+
 import {
   faFilter,
   faSearch,
@@ -9,126 +18,116 @@ import {
   faMoneyBillTransfer,
   faMoneyBills,
 } from '@fortawesome/free-solid-svg-icons';
-import { Bar, Doughnut } from 'react-chartjs-2';
 
-import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { faMoneyBill1 } from '@fortawesome/free-regular-svg-icons';
-import ReactDatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import Link from 'next/link';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 const DashboardBreadcrumbComponent = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 const requestTypes = [
-  { label: 'Paid Earnings', icon: faMoneyBills },
-  { label: 'Pending Earnings', icon: faMoneyBillAlt },
-  { label: 'Rejected Earnings', icon: faMoneyBill1 },
-  { label: 'Total Earnings', icon: faMoneyBillTransfer },
+  { label: 'Paid Withdrawals', icon: faMoneyBills },
+  { label: 'Pending Withdrawals', icon: faMoneyBillAlt },
+  { label: 'Rejected Withdrawals', icon: faMoneyBill1 },
+  { label: 'Total Withdrawals', icon: faMoneyBillTransfer },
 ];
 
 function Dashboard() {
   const [expanded, setExpanded] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [filteredData, setFilteredData] = useState(null);
+  const [playerData, setPlayerData] = useState(null);
+  const [dataRequests, setDataRequests] = useState([]);
+  const [earningsData, setEarningsData] = useState([]);
+  const [earningsChartData, setEarningsChartData] = useState([]);
+  const [withdrawalsChartData, setWithdrawalsChartData] = useState({
+    labels: [],
+    datasets: [],
+  });
 
-  const dataRequests = [
-    {
-      id: 1,
-      amount: 30000,
-      status: 'Reject',
-      date: '2023-08-10',
-    },
-    {
-      id: 2,
-      amount: 150.0,
-      status: 'Reject',
-      date: '2023-08-11',
-    },
-    {
-      id: 3,
-      amount: 15000,
-      status: 'Reject',
-      date: '2023-08-12',
-    },
-    {
-      id: 4,
-      amount: 1500.0,
-      status: 'Reject',
-      date: '2023-08-12',
-    },
-    {
-      id: 5,
-      amount: 30000,
-      status: 'Pending',
-      date: '2023-08-15',
-    },
-    {
-      id: 6,
-      amount: 150.0,
-      status: 'Paid',
-      date: '2023-08-17',
-    },
-    {
-      id: 7,
-      amount: 150000,
-      status: 'Reject',
-      date: '2023-08-17',
-    },
-    {
-      id: 8,
-      amount: 300.0,
-      status: 'Paid',
-      date: '2023-08-20',
-    },
-    {
-      id: 9,
-      amount: 215000,
-      status: 'Pending',
-      date: '2023-08-24',
-    },
-    {
-      id: 10,
-      amount: 225.0,
-      status: 'Reject',
-      date: '2023-08-25',
-    },
-    {
-      id: 11,
-      amount: 330000,
-      status: 'Paid',
-      date: '2023-08-28',
-    },
-    {
-      id: 12,
-      amount: 150.0,
-      status: 'Pending',
-      date: '2023-08-30',
-    },
-    {
-      id: 13,
-      amount: 30000,
-      status: 'Paid',
-      date: '2023-09-02',
-    },
-    {
-      id: 14,
-      amount: 30000,
-      status: 'Pending',
-      date: '2023-09-05',
-    },
-  ];
+  const { user } = useAuth();
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [earningsResponse, priceMoneyResponse, withdrawnRequestsResponse] = await Promise.all([
+          getEarnings(),
+          getPriceMoney(),
+          getWithdrawnRequests(),
+        ]);
+
+        if (earningsResponse?.status) {
+          setPlayerData(earningsResponse.data);
+        }
+
+        if (priceMoneyResponse?.status) {
+          setEarningsData(priceMoneyResponse.data);
+        }
+
+        if (withdrawnRequestsResponse?.status) {
+          const data = withdrawnRequestsResponse.data;
+
+          const requestCountsByDate = data.reduce((counts, request) => {
+            const { createdAt, status } = request;
+            const date = new Date(createdAt).toISOString().split('T')[0];
+            if (!counts[date]) {
+              counts[date] = { pending: 0, paid: 0, rejected: 0 };
+            }
+
+            if (status === 'Pending') {
+              counts[date].pending++;
+            } else if (status === 'Paid') {
+              counts[date].paid++;
+            } else if (status === 'Reject') {
+              counts[date].rejected++;
+            }
+
+            return counts;
+          }, {});
+
+          const colorsWithdrawals = ['#508AA8', '#56BFE9', '#7DDFE2', '#FAA69A'];
+
+          const filteredRequestTypes = requestTypes.filter((type) => type.label !== 'Total Withdrawals');
+
+          const updatedChartData = {
+            labels: Object.keys(requestCountsByDate),
+            datasets: filteredRequestTypes.map((type, index) => ({
+              label: type.label,
+              data: Object.values(requestCountsByDate).map(
+                (counts) => counts[type.label.toLowerCase().split(' ')[0]] || 0
+              ),
+              backgroundColor: colorsWithdrawals[index % colorsWithdrawals.length],
+              barThickness: 60,
+              maxBarThickness: 40,
+            })),
+          };
+
+          setWithdrawalsChartData(updatedChartData);
+          setDataRequests(data);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    fetchData();
+  }, [startDate, endDate]);
+
+  const handleChangeStartDate = (date) => {
+    setStartDate(date);
+    setEndDate(null);
+  };
 
   const getRequest = (label) => {
-    if (label === 'Total Earnings') {
+    if (label === 'Total Withdrawals') {
       return dataRequests.length;
     }
     const statusMapping = {
-      'Paid Earnings': 'Paid',
-      'Pending Earnings': 'Pending',
-      'Rejected Earnings': 'Reject',
+      'Paid Withdrawals': 'Paid',
+      'Pending Withdrawals': 'Pending',
+      'Rejected Withdrawals': 'Reject',
     };
 
     const status = statusMapping[label];
@@ -138,50 +137,23 @@ function Dashboard() {
     return 0;
   };
 
-  const requestCountsByDate = dataRequests.reduce((counts, request) => {
-    const { date, status } = request;
-    if (!counts[date]) {
-      counts[date] = { pending: 0, paid: 0, rejected: 0 };
-    }
+  const colorsWithdrawals = ['#508AA8', '#56BFE9', '#7DDFE2', '#FAA69A'];
 
-    if (status === 'Pending') {
-      counts[date].pending++;
-    } else if (status === 'Paid') {
-      counts[date].paid++;
-    } else if (status === 'Reject') {
-      counts[date].rejected++;
-    }
+  const filteredRequestTypes = requestTypes.filter((type) => type.label !== 'Total Withdrawals');
 
-    return counts;
-  }, {});
-
-  const colors = ['#508AA8', '#56BFE9', '#7DDFE2', '#FAA69A'];
-
-  const filteredRequestTypes = requestTypes.filter((type) => type.label !== 'Total Earnings');
-
-  const data = {
-    labels: Object.keys(requestCountsByDate),
-    datasets: filteredRequestTypes.map((type, index) => ({
-      label: type.label,
-      data: Object.values(requestCountsByDate).map((counts) => counts[type.label.toLowerCase().split(' ')[0]] || 0),
-      backgroundColor: colors[index % colors.length],
-    })),
-  };
-
-  const doughnutData = {
-    labels: ['Paid', 'Pending', 'Rejected', 'Total'],
-    datasets: [
-      {
-        data: [
-          getRequest('Paid Earnings'),
-          getRequest('Pending Earnings'),
-          getRequest('Rejected Earnings'),
-          getRequest('Total Earnings'),
-        ],
-        backgroundColor: colors,
+  const chartOptions = {
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
       },
-    ],
+      y: {
+        beginAtZero: true,
+      },
+    },
   };
+
   const toggleFilterBox = () => {
     setExpanded(!expanded);
   };
@@ -189,19 +161,37 @@ function Dashboard() {
   const handleReset = () => {
     setStartDate(null);
     setEndDate(null);
-    setFilteredData(data);
+  };
+
+  const filterEarningsData = (startDate, endDate) => {
+    if (!startDate || !endDate) {
+      return earningsData;
+    }
+
+    const filteredData = earningsData.filter((entry) => {
+      const entryDate = new Date(entry.Date);
+      return entryDate >= startDate && entryDate <= endDate;
+    });
+
+    return filteredData;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const filteredRequests = dataRequests.filter((request) => {
-      const requestDate = new Date(request.date);
-      return (!startDate || requestDate >= startDate) && (!endDate || requestDate <= endDate);
+    const nextDay = new Date(endDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+
+    const filteredEarningsData = filterEarningsData(startDate, endDate);
+    setEarningsData(filteredEarningsData);
+    const filteredData = dataRequests.filter((request) => {
+      const createdAt = new Date(request.createdAt);
+      return startDate <= createdAt && createdAt < nextDay;
     });
 
-    const filteredRequestCountsByDate = filteredRequests.reduce((counts, request) => {
-      const { date, status } = request;
+    const requestCountsByDateFiltered = filteredData.reduce((counts, request) => {
+      const { createdAt, status } = request;
+      const date = new Date(createdAt).toISOString().split('T')[0];
       if (!counts[date]) {
         counts[date] = { pending: 0, paid: 0, rejected: 0 };
       }
@@ -217,18 +207,20 @@ function Dashboard() {
       return counts;
     }, {});
 
-    const filteredData = {
-      labels: Object.keys(filteredRequestCountsByDate),
-      datasets: requestTypes.map((type, index) => ({
+    const filteredChartData = {
+      labels: Object.keys(requestCountsByDateFiltered),
+      datasets: filteredRequestTypes.map((type, index) => ({
         label: type.label,
-        data: Object.values(filteredRequestCountsByDate).map(
+        data: Object.values(requestCountsByDateFiltered).map(
           (counts) => counts[type.label.toLowerCase().split(' ')[0]] || 0
         ),
-        backgroundColor: colors[index % colors.length],
+        backgroundColor: colorsWithdrawals[index % colorsWithdrawals.length],
+        barThickness: 60,
+        maxBarThickness: 40,
       })),
     };
 
-    setFilteredData(filteredData);
+    setWithdrawalsChartData(filteredChartData);
   };
 
   return (
@@ -244,7 +236,7 @@ function Dashboard() {
                 className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
                 onClick={toggleFilterBox}
               >
-                <FontAwesomeIcon icon={faFilter} className="fs-18" />
+                <FontAwesomeIcon icon={faFilter} width={20} height={20} />
               </Button>
             </div>
 
@@ -267,10 +259,10 @@ function Dashboard() {
                           showYearDropdown
                           dropdownMode="select"
                           selected={startDate}
-                          onChange={(date) => setStartDate(date)}
+                          maxDate={new Date()}
+                          onChange={handleChangeStartDate}
                           placeholderText="Select Start Date"
                           showTimeSelect={false}
-                          minDate={startDate}
                           dateFormat="dd-MMM-yyyy"
                           className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                         />
@@ -289,6 +281,8 @@ function Dashboard() {
                             onChange={(date) => setEndDate(date)}
                             placeholderText="Select End Date"
                             showTimeSelect={false}
+                            minDate={startDate}
+                            maxDate={new Date()}
                             dateFormat="dd-MMM-yyyy"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                           />
@@ -320,19 +314,19 @@ function Dashboard() {
           <Col>
             <Card className="bg-white rounded-4 card-border">
               <Card.Body className="box-padding">
-                <h5 className="common-heading">Rajendra Bhakar</h5>
-                <div className="d-flex align-items-center">
+                <h5 className="common-heading text-capitalize">{user}</h5>
+                <div className="d-flex align-items-baseline">
                   <div>
-                    <h6 className="section-subtitle">Total Earning:</h6>
+                    <h6 className="section-subtitle">Total Earnings:</h6>
                     <h6 className="section-subtitle">Match Fee Earnings:</h6>
                     <h6 className="section-subtitle">Award Earnings:</h6>
-                    <h6 className="section-subtitle">Total Approved Withdrawal:</h6>
+                    <h6 className="section-subtitle">Total Approved Withdrawals:</h6>
                   </div>
                   <div className="ms-4">
-                    <h6 className="section-subtitle">&#8377;15,725.00</h6>
-                    <h6 className="section-subtitle">&#8377;6,725.00</h6>
-                    <h6 className="section-subtitle">&#8377;9,000.00</h6>
-                    <h6 className="section-subtitle">&#8377;11,000.00</h6>
+                    <h6 className="section-subtitle">&#8377;{playerData?.Total_Earninig}</h6>
+                    <h6 className="section-subtitle">&#8377;{playerData?.sumplayerEarningFee}</h6>
+                    <h6 className="section-subtitle">&#8377;{playerData?.sumPlayerOfAwards}</h6>
+                    <h6 className="section-subtitle">&#8377;{playerData?.sumAprovedEarning}</h6>
                   </div>
                 </div>
               </Card.Body>
@@ -346,24 +340,20 @@ function Dashboard() {
             </Col>
           ))}
         </Row>
-        <Row className="align-items-baseline">
-          <Col lg={9}>
-            <Card className="common-card-box common-card-shadow transition w-100">
-              <Card.Body>
-                <h5 className="common-heading">Price Money Chart</h5>
-                <Bar data={filteredData || data} />
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col lg={3}>
-            <Card className="common-card-box common-card-shadow transition mt-4 doughnut-chart">
-              <Card.Body>
-                <h5 className="common-heading">Price Money Chart</h5>
-                <Doughnut data={doughnutData} />
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+
+        <WithdrawalsChart
+          withdrawalsChartData={withdrawalsChartData || filteredChartData}
+          chartOptions={chartOptions}
+          getRequest={getRequest}
+          colorsWithdrawals={colorsWithdrawals}
+        />
+
+        <EarningChart
+          earningsData={earningsData}
+          chartOptions={chartOptions}
+          playerData={playerData}
+          earningsChartData={earningsChartData}
+        />
       </Container>
     </div>
   );
