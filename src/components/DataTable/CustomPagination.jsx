@@ -65,7 +65,7 @@ const CustomPagination = (props) => {
     onPageChange(currentPage - 1);
   };
 
-  const lastPage = paginationRange[paginationRange?.length - 1];
+  const lastPage = paginationRange?.[paginationRange?.length - 1];
   return (
     <>
       <div className="d-flex align-items-baseline">
@@ -80,7 +80,7 @@ const CustomPagination = (props) => {
           >
             <FontAwesomeIcon icon={faChevronLeft} width={8} />
           </li>
-          {paginationRange.map((pageNumber, index) => {
+          {paginationRange?.map((pageNumber, index) => {
             if (pageNumber === DOTS) {
               return (
                 <li key={index} className="px-2 bg-transparent dots">

@@ -97,6 +97,14 @@ export async function getPriceMoney(params) {
     return null;
   }
 }
+export async function getPriceMoneyTotal(params) {
+  try {
+    const response = await fetcher('GET', process.env.PRICE_MONEY_DATA_TOTAL, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
 
 export async function getEarnings(params) {
   try {

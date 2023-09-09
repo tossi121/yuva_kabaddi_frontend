@@ -334,7 +334,7 @@ function CustomDataTable(props) {
       <div className="row align-items-center my-3 pagination-box justify-content-between">
         <div className="fs-14 col-md-4 col-12 pt-2 pt-md-0 mb-2 mb-lg-0">
           <div className="m-auto w-max-content ms-md-0">
-            {currentData.length > 0 && entity?.info && (
+            {currentData?.length > 0 && entity?.info && (
               <>
                 {(rows.length > 10 && (
                   <p className="m-0 fw-500 label-color-4">

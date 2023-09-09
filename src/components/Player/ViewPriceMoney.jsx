@@ -8,7 +8,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/router';
-import { getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
+import { getPriceMoney, getPriceMoneyTotal, getWithdrawnRequests } from '@/_services/services_api';
 import { toast } from 'react-hot-toast';
 
 const WithdrawalModal = dynamic(import('./WithdrawalModal'));
@@ -48,12 +48,14 @@ function ViewPriceMoney() {
   useEffect(() => {
     handleWithdrawnRequest()
     handlePriceMoney()
+    handlePriceMoneyTotal()
   }, [])
   async function handleWithdrawnRequest() {
     const resw = await getWithdrawnRequests();
     if (resw?.status) {
       setDataWithdrawal(resw?.data);
-      toast.success(resw?.message);
+      setFilteredData(resw?.data)
+      // toast.success(resw?.message);
     } else {
       toast.error(resw?.message);
     }
@@ -62,14 +64,22 @@ function ViewPriceMoney() {
     const res = await getPriceMoney();
     if (res?.status) {
       
-      setTableFilter(res?.data?.Earninig)
-      setData(res?.data?.Earninig)
+      setTableFilter(res?.data)
+      setData(res?.data)
+      // toast.success(res?.message);
+    } else {
+      toast.error(res?.message);
+    }
+  }
+  async function handlePriceMoneyTotal() {
+    const res = await getPriceMoneyTotal();
+    if (res?.status) {
       setTotalAmount(res?.data?.Total_Earninig)
       setMatchFeeEarnings(res?.data?.sumplayerEarningFee)
       setAwardEarnings(res?.data?.sumPlayerOfAwards)
-      toast.success(res?.message);
+      // toast.success(res?.message);
     } else {
-      toast.error(res?.message);
+      // toast.error(res?.message);
     }
   }
   useEffect(() => {
