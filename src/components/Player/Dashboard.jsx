@@ -41,11 +41,7 @@ function Dashboard() {
   const [playerData, setPlayerData] = useState(null);
   const [dataRequests, setDataRequests] = useState([]);
   const [earningsData, setEarningsData] = useState([]);
-  const [earningsChartData, setEarningsChartData] = useState([]);
-  const [withdrawalsChartData, setWithdrawalsChartData] = useState({
-    labels: [],
-    datasets: [],
-  });
+  const [withdrawalsChartData, setWithdrawalsChartData] = useState([]);
 
   const { user } = useAuth();
 
@@ -321,12 +317,16 @@ function Dashboard() {
                     <h6 className="section-subtitle">Match Fee Earnings:</h6>
                     <h6 className="section-subtitle">Award Earnings:</h6>
                     <h6 className="section-subtitle">Total Approved Withdrawals:</h6>
+                    <h6 className="section-subtitle">Total Amount Left:</h6>
                   </div>
                   <div className="ms-4">
                     <h6 className="section-subtitle">&#8377;{playerData?.Total_Earninig}</h6>
                     <h6 className="section-subtitle">&#8377;{playerData?.sumplayerEarningFee}</h6>
                     <h6 className="section-subtitle">&#8377;{playerData?.sumPlayerOfAwards}</h6>
                     <h6 className="section-subtitle">&#8377;{playerData?.sumAprovedEarning}</h6>
+                    <h6 className="section-subtitle">
+                      &#8377;{playerData?.Total_Earninig - playerData?.sumAprovedEarning}
+                    </h6>
                   </div>
                 </div>
               </Card.Body>
@@ -340,20 +340,19 @@ function Dashboard() {
             </Col>
           ))}
         </Row>
-
-        <WithdrawalsChart
-          withdrawalsChartData={withdrawalsChartData || filteredChartData}
-          chartOptions={chartOptions}
-          getRequest={getRequest}
-          colorsWithdrawals={colorsWithdrawals}
-        />
-
-        <EarningChart
-          earningsData={earningsData}
-          chartOptions={chartOptions}
-          playerData={playerData}
-          earningsChartData={earningsChartData}
-        />
+        <Row>
+          {withdrawalsChartData.length > 0 && (
+            <WithdrawalsChart
+              withdrawalsChartData={withdrawalsChartData}
+              chartOptions={chartOptions}
+              getRequest={getRequest}
+              colorsWithdrawals={colorsWithdrawals}
+            />
+          )}
+          {earningsData.length > 0 && (
+            <EarningChart earningsData={earningsData} chartOptions={chartOptions} playerData={playerData} />
+          )}
+        </Row>
       </Container>
     </div>
   );

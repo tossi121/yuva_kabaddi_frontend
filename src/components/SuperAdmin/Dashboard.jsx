@@ -1,231 +1,127 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { getSpent, getWithdrawnRequestsList } from '@/_services/services_api';
+import { useAuth } from '@/_context/authContext';
+import WithdrawalsChart from './Chart/WithdrawalsChart';
+
 import {
   faFilter,
   faSearch,
   faMoneyBillAlt,
   faMoneyBillTransfer,
   faMoneyBills,
-  faPlus,
 } from '@fortawesome/free-solid-svg-icons';
-import { Bar, Doughnut } from 'react-chartjs-2';
 
-import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { faMoneyBill1 } from '@fortawesome/free-regular-svg-icons';
-import ReactDatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import Link from 'next/link';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 const DashboardBreadcrumbComponent = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 const requestTypes = [
-  { label: 'Approved Requests', icon: faMoneyBills },
-  { label: 'Pending Requests', icon: faMoneyBillAlt },
-  { label: 'Rejected Requests', icon: faMoneyBill1 },
-  { label: 'Total Requests', icon: faMoneyBillTransfer },
+  { label: 'Paid Withdrawals', icon: faMoneyBills },
+  { label: 'Pending Withdrawals', icon: faMoneyBillAlt },
+  { label: 'Rejected Withdrawals', icon: faMoneyBill1 },
+  { label: 'Total Withdrawals', icon: faMoneyBillTransfer },
 ];
 
 function Dashboard() {
   const [expanded, setExpanded] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [filteredData, setFilteredData] = useState(null);
+  const [playerData, setPlayerData] = useState(null);
+  const [dataRequests, setDataRequests] = useState([]);
+  const [earningsData, setEarningsData] = useState([]);
+  const [earningsChartData, setEarningsChartData] = useState([]);
+  const [withdrawalsChartData, setWithdrawalsChartData] = useState({
+    labels: [],
+    datasets: [],
+  });
 
-  const dataRequests = [
-    {
-      receiptNo: 'RCPT001',
-      status: 'Approved',
-      amount: 250.0,
-      name: 'John Doe',
-      date: '2023-04-18',
-      email: 'john.doe@example.com',
-      userType: 'Player',
-    },
-    {
-      receiptNo: 'RCPT002',
-      status: 'Pending',
-      amount: 150.0,
-      name: 'Jane Smith',
-      date: '2023-03-17',
-      email: 'jane.smith@example.com',
-      userType: 'Player',
-    },
-    {
-      receiptNo: 'RCPT003',
-      status: 'Approved',
-      amount: 350.0,
-      name: 'Michael Johnson',
-      date: '2023-02-16',
-      email: 'michael.johnson@example.com',
-      userType: 'Coach',
-    },
-    {
-      receiptNo: 'RCPT004',
-      status: 'Pending',
-      amount: 200.0,
-      name: 'Emily Brown',
-      date: '2023-08-10',
-      email: 'emily.brown@example.com',
-      userType: 'Coach',
-    },
-    {
-      receiptNo: 'RCPT005',
-      status: 'Reject',
-      amount: 180.0,
-      name: 'David Lee',
-      date: '2023-08-10',
-      email: 'david.lee@example.com',
-      userType: 'Player',
-    },
-    {
-      receiptNo: 'RCPT006',
-      status: 'Pending',
-      amount: 300.0,
-      name: 'Sarah Johnson',
-      date: '2023-12-21',
-      email: 'sarah.johnson@example.com',
-      userType: 'Player',
-    },
-    {
-      receiptNo: 'RCPT007',
-      status: 'Reject',
-      amount: 400.0,
-      name: 'Robert Smith',
-      date: '2023-12-30',
-      email: 'robert.smith@example.com',
-      userType: 'Coach',
-    },
-    {
-      receiptNo: 'RCPT008',
-      status: 'Pending',
-      amount: 220.0,
-      name: 'Michelle White',
-      date: '2023-08-10',
-      email: 'michelle.white@example.com',
-      userType: 'Coach',
-    },
-    {
-      receiptNo: 'RCPT009',
-      status: 'Reject',
-      amount: 270.0,
-      name: 'Daniel Johnson',
-      date: '2023-08-10',
-      email: 'daniel.johnson@example.com',
-      userType: 'Player',
-    },
-    {
-      receiptNo: 'RCPT010',
-      status: 'Pending',
-      amount: 130.0,
-      name: 'Olivia Davis',
-      date: '2023-08-17',
-      email: 'olivia.davis@example.com',
-      userType: 'Player',
-    },
-    {
-      receiptNo: 'RCPT011',
-      status: 'Approved',
-      amount: 320.0,
-      name: 'William Brown',
-      date: '2023-0-16',
-      email: 'william.brown@example.com',
-      userType: 'Coach',
-    },
-    {
-      receiptNo: 'RCPT012',
-      status: 'Pending',
-      amount: 190.0,
-      name: 'Emma Johnson',
-      date: '2023-09-10',
-      email: 'emma.johnson@example.com',
-      userType: 'Coach',
-    },
-    {
-      receiptNo: 'RCPT013',
-      status: 'Reject',
-      amount: 210.0,
-      name: 'James Wilson',
-      date: '2023-08-11',
-      email: 'james.wilson@example.com',
-      userType: 'Player',
-    },
-    {
-      receiptNo: 'RCPT014',
-      status: 'Pending',
-      amount: 280.0,
-      name: 'Sophia Martin',
-      date: '2023-08-10',
-      email: 'sophia.martin@example.com',
-      userType: 'Player',
-    },
-    {
-      receiptNo: 'RCPT015',
-      status: 'Approved',
-      amount: 370.0,
-      name: 'Christopher Adams',
-      date: '2023-08-02',
-      email: 'christopher.adams@example.com',
-      userType: 'Coach',
-    },
-    {
-      receiptNo: 'RCPT016',
-      status: 'Pending',
-      amount: 240.0,
-      name: 'Ava Wilson',
-      date: '2023-08-09',
-      email: 'ava.wilson@example.com',
-      userType: 'Coach',
-    },
-    {
-      receiptNo: 'RCPT017',
-      status: 'Approved',
-      amount: 290.0,
-      name: 'Matthew Turner',
-      date: '2023-08-10',
-      email: 'matthew.turner@example.com',
-      userType: 'Player',
-    },
-    {
-      receiptNo: 'RCPT018',
-      status: 'Pending',
-      amount: 170.0,
-      name: 'Isabella Moore',
-      date: '2023-08-17',
-      email: 'isabella.moore@example.com',
-      userType: 'Player',
-    },
-    {
-      receiptNo: 'RCPT019',
-      status: 'Approved',
-      amount: 420.0,
-      name: 'Andrew Parker',
-      date: '2023-04-11',
-      email: 'andrew.parker@example.com',
-      userType: 'Coach',
-    },
-    {
-      receiptNo: 'RCPT020',
-      status: 'Pending',
-      amount: 180.0,
-      name: 'Mia Turner',
-      date: '2023-06-10',
-      email: 'mia.turner@example.com',
-      userType: 'Coach',
-    },
-  ];
+  const { user } = useAuth();
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [earningsResponse, withdrawnRequestsResponse] = await Promise.all([
+          getSpent(),
+          getWithdrawnRequestsList(),
+        ]);
+
+        if (earningsResponse?.status) {
+          setPlayerData(earningsResponse.data);
+        }
+
+        if (withdrawnRequestsResponse?.status) {
+          const data = withdrawnRequestsResponse.data;
+
+          const requestCountsByDate = data.reduce((counts, request) => {
+            const { createdAt, status } = request;
+            const date = new Date(createdAt).toISOString().split('T')[0];
+            if (!counts[date]) {
+              counts[date] = { pending: 0, paid: 0, rejected: 0 };
+            }
+
+            if (status === 'Pending') {
+              counts[date].pending++;
+            } else if (status === 'Paid') {
+              counts[date].paid++;
+            } else if (status === 'Reject') {
+              counts[date].rejected++;
+            }
+
+            return counts;
+          }, {});
+
+          const colorsWithdrawals = ['#508AA8', '#56BFE9', '#7DDFE2', '#FAA69A'];
+
+          const filteredRequestTypes = requestTypes.filter((type) => type.label !== 'Total Withdrawals');
+
+          const updatedChartData = {
+            labels: Object.keys(requestCountsByDate),
+            datasets: filteredRequestTypes.map((type, index) => ({
+              label: type.label,
+              data: Object.values(requestCountsByDate).map(
+                (counts) => counts[type.label.toLowerCase().split(' ')[0]] || 0
+              ),
+              backgroundColor: colorsWithdrawals[index % colorsWithdrawals.length],
+              barThickness: 60,
+              maxBarThickness: 40,
+            })),
+          };
+
+          setWithdrawalsChartData(updatedChartData);
+          setDataRequests(data);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    fetchData();
+  }, [startDate, endDate]);
+
+  const handleChangeStartDate = (date) => {
+    setStartDate(date);
+    setEndDate(null);
+  };
 
   const getRequest = (label) => {
-    if (label === 'Total Requests') {
+    if (label === 'Total Withdrawals') {
       return dataRequests.length;
     }
     const statusMapping = {
-      'Approved Requests': 'Approved',
-      'Pending Requests': 'Pending',
-      'Rejected Requests': 'Reject',
+      'Paid Withdrawals': 'Paid',
+      'Pending Withdrawals': 'Pending',
+      'Rejected Withdrawals': 'Reject',
     };
 
     const status = statusMapping[label];
@@ -235,50 +131,23 @@ function Dashboard() {
     return 0;
   };
 
-  const requestCountsByDate = dataRequests.reduce((counts, request) => {
-    const { date, status } = request;
-    if (!counts[date]) {
-      counts[date] = { pending: 0, approved: 0, rejected: 0 };
-    }
+  const colorsWithdrawals = ['#508AA8', '#56BFE9', '#7DDFE2', '#FAA69A'];
 
-    if (status === 'Pending') {
-      counts[date].pending++;
-    } else if (status === 'Approved') {
-      counts[date].approved++;
-    } else if (status === 'Reject') {
-      counts[date].rejected++;
-    }
+  const filteredRequestTypes = requestTypes.filter((type) => type.label !== 'Total Withdrawals');
 
-    return counts;
-  }, {});
-
-  const colors = ['#508AA8', '#56BFE9', '#7DDFE2', '#FAA69A'];
-
-  const filteredRequestTypes = requestTypes.filter((type) => type.label !== 'Total Requests');
-
-  const data = {
-    labels: Object.keys(requestCountsByDate),
-    datasets: filteredRequestTypes.map((type, index) => ({
-      label: type.label,
-      data: Object.values(requestCountsByDate).map((counts) => counts[type.label.toLowerCase().split(' ')[0]] || 0),
-      backgroundColor: colors[index % colors.length],
-    })),
-  };
-
-  const doughnutData = {
-    labels: ['Approved', 'Pending', 'Rejected', 'Total'],
-    datasets: [
-      {
-        data: [
-          getRequest('Approved Requests'),
-          getRequest('Pending Requests'),
-          getRequest('Rejected Requests'),
-          getRequest('Total Requests'),
-        ],
-        backgroundColor: colors,
+  const chartOptions = {
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
       },
-    ],
+      y: {
+        beginAtZero: true,
+      },
+    },
   };
+
   const toggleFilterBox = () => {
     setExpanded(!expanded);
   };
@@ -286,27 +155,45 @@ function Dashboard() {
   const handleReset = () => {
     setStartDate(null);
     setEndDate(null);
-    setFilteredData(data);
+  };
+
+  const filterEarningsData = (startDate, endDate) => {
+    if (!startDate || !endDate) {
+      return earningsData;
+    }
+
+    const filteredData = earningsData.filter((entry) => {
+      const entryDate = new Date(entry.Date);
+      return entryDate >= startDate && entryDate <= endDate;
+    });
+
+    return filteredData;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const filteredRequests = dataRequests.filter((request) => {
-      const requestDate = new Date(request.date);
-      return (!startDate || requestDate >= startDate) && (!endDate || requestDate <= endDate);
+    const nextDay = new Date(endDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+
+    const filteredEarningsData = filterEarningsData(startDate, endDate);
+    setEarningsData(filteredEarningsData);
+    const filteredData = dataRequests.filter((request) => {
+      const createdAt = new Date(request.createdAt);
+      return startDate <= createdAt && createdAt < nextDay;
     });
 
-    const filteredRequestCountsByDate = filteredRequests.reduce((counts, request) => {
-      const { date, status } = request;
+    const requestCountsByDateFiltered = filteredData.reduce((counts, request) => {
+      const { createdAt, status } = request;
+      const date = new Date(createdAt).toISOString().split('T')[0];
       if (!counts[date]) {
-        counts[date] = { pending: 0, approved: 0, rejected: 0 };
+        counts[date] = { pending: 0, paid: 0, rejected: 0 };
       }
 
       if (status === 'Pending') {
         counts[date].pending++;
-      } else if (status === 'Approved') {
-        counts[date].approved++;
+      } else if (status === 'Paid') {
+        counts[date].paid++;
       } else if (status === 'Reject') {
         counts[date].rejected++;
       }
@@ -314,18 +201,20 @@ function Dashboard() {
       return counts;
     }, {});
 
-    const filteredData = {
-      labels: Object.keys(filteredRequestCountsByDate),
-      datasets: requestTypes.map((type, index) => ({
+    const filteredChartData = {
+      labels: Object.keys(requestCountsByDateFiltered),
+      datasets: filteredRequestTypes.map((type, index) => ({
         label: type.label,
-        data: Object.values(filteredRequestCountsByDate).map(
+        data: Object.values(requestCountsByDateFiltered).map(
           (counts) => counts[type.label.toLowerCase().split(' ')[0]] || 0
         ),
-        backgroundColor: colors[index % colors.length],
+        backgroundColor: colorsWithdrawals[index % colorsWithdrawals.length],
+        barThickness: 60,
+        maxBarThickness: 40,
       })),
     };
 
-    setFilteredData(filteredData);
+    setWithdrawalsChartData(filteredChartData);
   };
 
   return (
@@ -333,30 +222,23 @@ function Dashboard() {
       <Container fluid>
         <Row className="mt-4">
           <Col lg={12}>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <DashboardBreadcrumbComponent data={'Dashboard'} />
-              <div className="d-sm-flex justify-content-between align-items-center ">
-                <div className="add-filter d-flex mt-sm-0 mt-2">
-                  <Button
-                    className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
-                    onClick={toggleFilterBox}
-                  >
-                     <FontAwesomeIcon icon={faFilter} width={20} height={20} />
-                  </Button>
-                  <Link href={'/super-admin/add-tds'}>
-                    <Button className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center">
-                      <FontAwesomeIcon icon={faPlus}  width={20} height={20} />
-                    </Button>
-                  </Link>
-                </div>
+            <div className="d-flex justify-content-between">
+              <div className="mb-4">
+                <DashboardBreadcrumbComponent data={'Dashboard'} />
               </div>
+              <Button
+                className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
+                onClick={toggleFilterBox}
+              >
+                <FontAwesomeIcon icon={faFilter} width={20} height={20} />
+              </Button>
             </div>
 
             <Card
               className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
             >
               <div className="card-head card-head-padding border-bottom">
-                <h4 className="common-heading mb-0">Withdrawal Requests Filter</h4>
+                <h4 className="common-heading mb-0">Price Money Filter</h4>
               </div>
 
               <Card.Body className="box-padding">
@@ -371,10 +253,10 @@ function Dashboard() {
                           showYearDropdown
                           dropdownMode="select"
                           selected={startDate}
-                          onChange={(date) => setStartDate(date)}
+                          maxDate={new Date()}
+                          onChange={handleChangeStartDate}
                           placeholderText="Select Start Date"
                           showTimeSelect={false}
-                          minDate={startDate}
                           dateFormat="dd-MMM-yyyy"
                           className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                         />
@@ -393,6 +275,8 @@ function Dashboard() {
                             onChange={(date) => setEndDate(date)}
                             placeholderText="Select End Date"
                             showTimeSelect={false}
+                            minDate={startDate}
+                            maxDate={new Date()}
                             dateFormat="dd-MMM-yyyy"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                           />
@@ -424,19 +308,19 @@ function Dashboard() {
           <Col>
             <Card className="bg-white rounded-4 card-border">
               <Card.Body className="box-padding">
-                <h5 className="common-heading">Super Admin</h5>
-                <div className="d-flex align-items-center">
+                <h5 className="common-heading text-capitalize">{user}</h5>
+                <div className="d-flex align-items-baseline">
                   <div>
-                    <h6 className="section-subtitle">Total Spent:</h6>
-                    <h6 className="section-subtitle">Match Fee Spent:</h6>
-                    <h6 className="section-subtitle">Award Spent:</h6>
-                    <h6 className="section-subtitle">Total Spent Withdrawal:</h6>
+                    <h6 className="section-subtitle">Total Money Spent:</h6>
+                    <h6 className="section-subtitle">Fees Paid for Matches:</h6>
+                    <h6 className="section-subtitle">Used for Awards:</h6>
+                    <h6 className="section-subtitle">Total Accepted Expenses:</h6>
                   </div>
                   <div className="ms-4">
-                    <h6 className="section-subtitle">&#8377;15,725.00</h6>
-                    <h6 className="section-subtitle">&#8377;6,725.00</h6>
-                    <h6 className="section-subtitle">&#8377;9,000.00</h6>
-                    <h6 className="section-subtitle">&#8377;11,000.00</h6>
+                    <h6 className="section-subtitle">&#8377;{playerData?.Total_Earninig}</h6>
+                    <h6 className="section-subtitle">&#8377;{playerData?.sumplayerEarningFee}</h6>
+                    <h6 className="section-subtitle">&#8377;{playerData?.sumPlayerOfAwards}</h6>
+                    <h6 className="section-subtitle">&#8377;{playerData?.sumAprovedEarning}</h6>
                   </div>
                 </div>
               </Card.Body>
@@ -450,24 +334,13 @@ function Dashboard() {
             </Col>
           ))}
         </Row>
-        <Row>
-          <Col lg={9}>
-            <Card className="common-card-box common-card-shadow transition w-100">
-              <Card.Body>
-                <h5 className="common-heading">Withdrawal Requests Chart</h5>
-                <Bar data={filteredData || data} />
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col lg={3}>
-            <Card className="common-card-box common-card-shadow transition mt-4 doughnut-chart">
-              <Card.Body>
-                <h5 className="common-heading">Withdrawal Requests Chart</h5>
-                <Doughnut data={doughnutData} />
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+
+        <WithdrawalsChart
+          withdrawalsChartData={withdrawalsChartData || filteredChartData}
+          chartOptions={chartOptions}
+          getRequest={getRequest}
+          colorsWithdrawals={colorsWithdrawals}
+        />
       </Container>
     </div>
   );
@@ -477,7 +350,7 @@ function DashboardCard({ icon, label, count }) {
   return (
     <Card className="common-card-box h-100 dashboard-home-card common-card-shadow transition">
       <Card.Body>
-        <Link href={`/super-admin/withdrawal-approval?label=${label}`}>
+        <Link href={`/dashboard/view-price-money?label=${label}`}>
           <div className="d-flex align-items-center">
             <div className="booking-image">
               <FontAwesomeIcon icon={icon} width={50} height={50} className="base-link-color" />

@@ -108,3 +108,21 @@ export async function getWithdrawnRequests(params) {
     return null;
   }
 }
+
+// super admin
+export async function getSpent(params) {
+  try {
+    const response = await fetcher('GET', process.env.ADMIN_PRICE_MONEY_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function getWithdrawnRequestsList(params) {
+  try {
+    const response = await fetcher('GET', process.env.ADMIN_WITHDRAWN_REQUESTS_OF_USER_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}

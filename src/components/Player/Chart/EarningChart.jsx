@@ -90,24 +90,24 @@ function EarningChart(props) {
   const chartDataFinal = generateChartData(earningsData);
 
   return (
-    <Row className="align-items-baseline">
-      <Col lg={9}>
+    <>
+      <Col lg={6}>
         <Card className="common-card-box common-card-shadow transition w-100">
           <Card.Body>
-            <h5 className="common-heading text-center">Earning Chart</h5>
+            <h4 className="card-heading text-center">Earning Chart</h4>
             <Bar data={chartDataFinal} options={chartOptions} />
           </Card.Body>
         </Card>
       </Col>
-      <Col lg={3}>
+      {/* <Col lg={3}>
         <Card className="common-card-box common-card-shadow transition mt-4 doughnut-chart">
           <Card.Body>
             <h5 className="common-heading text-center">Earning Chart</h5>
             <Doughnut data={earningsDoughnutData} />
           </Card.Body>
         </Card>
-      </Col>
-    </Row>
+      </Col> */}
+    </>
   );
 }
 
