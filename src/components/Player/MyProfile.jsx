@@ -15,6 +15,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUpload, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { cityListData, getCurrentUserDetails, stateListData, updateUserDetails } from '@/_services/services_api';
+import { toast } from 'react-hot-toast';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
@@ -43,40 +44,79 @@ function MyProfile() {
   const [selectState, setSelectState] = useState('Select State');
   const [selectStateId, setSelectStateId] = useState('');
   const [searchState, setSearchState] = useState('');
-  const [userAddress, setUserAddress] = useState('');
   const [getAllCityList, setGetAllCityList] = useState([]);
   const [selectCity, setSelectCity] = useState('Select City');
   const [selectCityId, setSelectCityId] = useState('');
   const [searchCity, setSearchCity] = useState('');
   const [panFileData, setPanFileData] = useState(null);
   const [passbookFileData, setPassbookFileData] = useState(null);
+  const [profileFileData, setProfileFileData] = useState(null);
+  const [profileImagePreview, setProfileImagePreview] = useState(null);
   const [panImagePreview, setPanImagePreview] = useState(null);
   const [passbookImagePreview, setPassbookImagePreview] = useState(null);
   useEffect(() => {
     handleWithdrawnRequest()
     getStateList()
   }, [])
+  
   async function getStateList() {
-    const response = await stateListData();
-    // setGetAllStatesList(response);
-    console.log('this is response from state', response)
-    if (response.status) {
-      setGetAllStatesList(response.data);
-
+    try {
+      const response = await stateListData();
+      console.log('API Response:', response);
+  
+      if (response.status) {
+        setGetAllStatesList(response.data);
+        // No need to set selectState or call getCityList here.
+      }
+    } catch (error) {
+      console.error('Error fetching state list:', error);
     }
   }
+  useEffect(() => {
+    // This useEffect runs whenever getAllStatesList, selectStateId, or selectCityId changes.
+    // Place the logic that depends on these states here.
+    if (getAllStatesList.length > 0 && selectStateId) {
+      const selectedState = getAllStatesList.find((item) => item.id === selectStateId);
+      if (selectedState) {
+        console.log('Selected State:', selectedState.name);
+        setSelectState(selectedState.name);
+        getCityList(selectedState.id);
+      }
+    }
+  }, [getAllStatesList, selectStateId, selectCityId]);
+  useEffect(() => {
+    if (getAllCityList.length>0 && selectCityId != null) {
+      const selectedCity = getAllCityList.find((item) => item.id === selectCityId);
+      if (selectedCity) {
+        console.log('Selected City:', selectedCity.city);
+        setSelectCity(selectedCity.city);
+      }
+    }
+  }, [getAllCityList, selectCityId]);
+  // useEffect(()=>{
+  //   getAllStatesList.map((items, key) => {
+  //     // console.log('this is item',items.id)
+  //     // console.log(selectStateId)
+  //     if(items.id===selectStateId){
+  //       console.log('this is item',items)
+  //       setSelectState(items.name)
+  //       getCityList(items.id)
+  //       return items.name
+
+  //     }
+  //   })
+  // })
   async function handleWithdrawnRequest() {
     const resw = await getCurrentUserDetails();
     const userData = resw?.data;
-    console.log('sdffffffsdfsdasfas', userData,)
     if (resw?.status) {
       setFormValues({
         user_name: userData.user_name || '',
         email: userData.email || '',
         mobile: userData.contactno || '',
-        state: '',
+        state: userData.state_id || '',
         city: userData.city_id || '',
-        address: '',
+        address: userData.address || '',
         pancard: userData.pan_no || '',
         bankIfsc: userData.ifsc_code || '',
         bankName: userData.bank_name || '',
@@ -85,6 +125,9 @@ function MyProfile() {
       });
       setPanImagePreview(userData.pan_image)
       setPassbookImagePreview(userData.passbook_image)
+      setProfileImagePreview(userData.profile_image)
+      setSelectStateId(userData.state_id || '')
+      setSelectCityId(userData.city_id || '',)
       // setPassbookFileData(userData.passbook_image)
 
       // toast.success(resw?.message);
@@ -108,7 +151,7 @@ function MyProfile() {
       e.preventDefault();
     }
   };
-  console.log('sdjkdhaf dffhjk ak v fdvfd jkdfh ===', getAllStatesList)
+  // console.log('sdjkdhaf dffhjk ak v fdvfd jkdfh ===', getAllStatesList)
   const stateSearchItem = getAllStatesList.filter((item) => {
     if (searchState == '') {
       return item;
@@ -139,8 +182,10 @@ function MyProfile() {
   const handlePanFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
+      setPanFileData(file)
 
+      const reader = new FileReader();
+      console.log(file, panFileData)
       reader.onload = (e) => {
         setPanImagePreview(e.target.result);
       };
@@ -148,10 +193,25 @@ function MyProfile() {
       reader.readAsDataURL(file);
     }
   };
+  const handleProfileFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileFileData(file)
 
+      const reader = new FileReader();
+      console.log(file, panFileData)
+      reader.onload = (e) => {
+        setProfileImagePreview(e.target.result);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
   const handlePassbookFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setPassbookFileData(file)
+      console.log(file)
       const reader = new FileReader();
 
       reader.onload = (e) => {
@@ -229,13 +289,21 @@ function MyProfile() {
     const errors = validate(formValues);
     setFormErrors(errors);
     const params = {
-      ...formValues
+      ...formValues,
+      pan_image: panFileData,
+      passbook_image: passbookFileData,
+      profile_image: profileFileData,
+      state_id: selectStateId,
+      city_id: selectCityId
+
     }
+    console.log("this is params", params.state_id, params.city_id)
     // updateUserDetails()
     const res = await updateUserDetails(params);
     // handleApiResponse(res);
     if (res.status) {
       console.log("responce is", res)
+      toast.success(res.message)
     }
     // console.log(data)
   };
@@ -258,7 +326,7 @@ function MyProfile() {
                     <div className="img-profile me-3">
                     </div>
                     <Image
-                      src={(profileImage && profileImages) || '/images/team-roster/user-details.png'}
+                      src={(profileImagePreview && profileImagePreview) || '/images/team-roster/user-details.png'}
                       alt="image"
                       width={100}
                       height={100}
@@ -268,7 +336,7 @@ function MyProfile() {
                       <Form.Control
                         type="file"
                         id="uploadImage"
-                        onChange={(e) => setImageFileData(e.target.files[0])}
+                        onChange={handleProfileFileChange}
                         accept="image/png, image/jpeg, image/jpg, image/svg+xml"
                         className="d-none"
                         name="imageFileData"
@@ -371,6 +439,7 @@ function MyProfile() {
                                         key={key}
                                         className="py-2 fs-14 base-color"
                                         value={items.id}
+
                                         onClick={() => handleSelectCity(items.id, items.city)}
                                       >
                                         <span>{items.city}</span>
@@ -413,6 +482,8 @@ function MyProfile() {
                                         key={key}
                                         className="py-2 fs-14 base-color"
                                         value={items.id}
+                                        defaultValue={selectStateId}
+                                        defaultChecked={selectStateId}
                                         onClick={() => handleSelectState(items.id, items.name)}
                                       >
                                         <span>{items.name}</span>
@@ -436,7 +507,7 @@ function MyProfile() {
                             name="address"
                             placeholder="Enter Your Address"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3 card-border rounded-1 text-area"
-                            // value={userAddress || ''}
+                            value={formValues.address}
                             // defaultValue={userAllDetails?.address}
                             onChange={handleChange}
                           />
@@ -453,68 +524,68 @@ function MyProfile() {
                 <Form>
                   <Row>
                     <Col lg={6}>
-                    <div className="box-profile-image mb-4">
-        <div className="img-profile me-3">
-        </div>
-        <div className="info-profile pan-card-upload p-3 d-flex justify-content-center flex-column align-items-center">
-          {panImagePreview && (
-            <Image
-              src={panImagePreview}
-              alt="PAN Card"
-              width={150}
-              height={150}
-              className="img-fluid rounded-3"
-            />
-          )}
-          <FontAwesomeIcon icon={faCloudUpload} className="base-color-2 mb-3" width={35} height={35} />
-          <div>
-            <Form.Control
-              type="file"
-              id="pan"
-              onChange={handlePanFileChange}
-              accept="image/png, image/jpeg, image/jpg, image/svg+xml"
-              className="d-none"
-              name="imageFileData"
-              aria-describedby="passwordHelpBlock"
-            />
-            <label className="common-btn py-2 px-3 fs-14 me-2 cursor-pointer" htmlFor="pan">
-              <span className="d-inline-flex align-middle">Upload PAN Card</span>
-            </label>
-          </div>
-        </div>
-      </div>
+                      <div className="box-profile-image mb-4">
+                        <div className="img-profile me-3">
+                        </div>
+                        <div className="info-profile pan-card-upload p-3 d-flex justify-content-center flex-column align-items-center">
+                          {panImagePreview && (
+                            <Image
+                              src={panImagePreview}
+                              alt="PAN Card"
+                              width={150}
+                              height={150}
+                              className="img-fluid rounded-3"
+                            />
+                          )}
+                          <FontAwesomeIcon icon={faCloudUpload} className="base-color-2 mb-3" width={35} height={35} />
+                          <div>
+                            <Form.Control
+                              type="file"
+                              id="pan"
+                              onChange={handlePanFileChange}
+                              accept="image/png, image/jpeg, image/jpg, image/svg+xml"
+                              className="d-none"
+                              name="imageFileData"
+                              aria-describedby="passwordHelpBlock"
+                            />
+                            <label className="common-btn py-2 px-3 fs-14 me-2 cursor-pointer" htmlFor="pan">
+                              <span className="d-inline-flex align-middle">Upload PAN Card</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
                     </Col>
                     <Col lg={6}>
-                    <div className="box-profile-image mb-4">
-        <div className="img-profile me-3">
-        </div>
-        <div className="info-profile pan-card-upload p-3 d-flex justify-content-center flex-column align-items-center">
-          {passbookImagePreview && (
-            <Image
-              src={passbookImagePreview}
-              alt="Bank Passbook"
-              width={150}
-              height={150}
-              className="img-fluid rounded-3"
-            />
-          )}
-          <FontAwesomeIcon icon={faCloudUpload} className="base-color-2 mb-3" width={35} height={35} />
-          <div>
-            <Form.Control
-              type="file"
-              id="passbook"
-              onChange={handlePassbookFileChange}
-              accept="image/png, image/jpeg, image/jpg, image/svg+xml"
-              className="d-none"
-              name="imageFileData"
-              aria-describedby="passwordHelpBlock"
-            />
-            <label className="common-btn py-2 px-3 fs-14 me-2 cursor-pointer" htmlFor="passbook">
-              <span className="d-inline-flex align-middle">Upload Bank Passbook</span>
-            </label>
-          </div>
-        </div>
-      </div>
+                      <div className="box-profile-image mb-4">
+                        <div className="img-profile me-3">
+                        </div>
+                        <div className="info-profile pan-card-upload p-3 d-flex justify-content-center flex-column align-items-center">
+                          {passbookImagePreview && (
+                            <Image
+                              src={passbookImagePreview}
+                              alt="Bank Passbook"
+                              width={150}
+                              height={150}
+                              className="img-fluid rounded-3"
+                            />
+                          )}
+                          <FontAwesomeIcon icon={faCloudUpload} className="base-color-2 mb-3" width={35} height={35} />
+                          <div>
+                            <Form.Control
+                              type="file"
+                              id="passbook"
+                              onChange={handlePassbookFileChange}
+                              accept="image/png, image/jpeg, image/jpg, image/svg+xml"
+                              className="d-none"
+                              name="imageFileData"
+                              aria-describedby="passwordHelpBlock"
+                            />
+                            <label className="common-btn py-2 px-3 fs-14 me-2 cursor-pointer" htmlFor="passbook">
+                              <span className="d-inline-flex align-middle">Upload Bank Passbook</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
                     </Col>
                     <Col lg={6}>
                       <div className="mb-4">

@@ -1,4 +1,4 @@
-import { fetcher } from '@/_helper/apiBase';
+import { fetcher, filesFetch } from '@/_helper/apiBase';
 
 export async function getOtp(params) {
   try {
@@ -45,7 +45,7 @@ export async function getLogin(params) {
 }
 export async function updateUserDetails(params) {
   try {
-    const response = await fetcher('POST', process.env.UPDATE_USER_DETAILS, params);
+    const response = await filesFetch('POST', process.env.UPDATE_USER_DETAILS, params);
     return response;
   } catch (err) {
     return null;
