@@ -1,4 +1,4 @@
-import { fetcher } from '@/_helper/apiBase';
+import { fetcher, filesFetch } from '@/_helper/apiBase';
 
 export async function getOtp(params) {
   try {
@@ -43,7 +43,14 @@ export async function getLogin(params) {
     return null;
   }
 }
-
+export async function updateUserDetails(params) {
+  try {
+    const response = await filesFetch('POST', process.env.UPDATE_USER_DETAILS, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
 export async function getRole(params) {
   try {
     const response = await fetcher('GET', process.env.ROLE_DATA, params);
@@ -103,6 +110,32 @@ export async function getEarnings(params) {
 export async function getWithdrawnRequests(params) {
   try {
     const response = await fetcher('GET', process.env.WITHDRAWN_REQUESTS_OF_USER_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function getCurrentUserDetails(params) {
+  try {
+    const response = await fetcher('GET', process.env.CURRENT_USER, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function stateListData(params) {
+  try {
+    const response = await fetcher('GET', process.env.STATE_LIST, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function cityListData(id)
+ {
+  try {
+    const url = `${process.env.CITY_BY_STATE}/${id}`;
+    const response = await fetcher('GET', url);
     return response;
   } catch (err) {
     return null;

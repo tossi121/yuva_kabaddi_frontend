@@ -295,7 +295,7 @@ function CustomDataTable(props) {
 
   return (
     <div className="position-relative">
-      {rows.length >= 1 && entity && (
+      {rows?.length >= 1 && entity && (
         <>
           {entity?.search && (
             <div className="search-input-box position-relative mb-2">

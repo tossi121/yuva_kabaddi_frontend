@@ -35,6 +35,9 @@ const requestTypes = [
 ];
 
 function Dashboard() {
+  const [totalAmount, setTotalAmount] = useState('');
+  const [matchFeeEarnings, setMatchFeeEarnings] = useState('');
+  const [awardEarnings, setAwardEarnings] = useState('');
   const [expanded, setExpanded] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -120,6 +123,29 @@ function Dashboard() {
     setEndDate(null);
   };
 
+  useEffect(()=>{
+    handleWithdrawnRequest()
+    handlePriceMoney()
+  },[])
+  async function handleWithdrawnRequest() {
+    const resw = await getWithdrawnRequests();
+    if (resw?.status) {
+      setDataRequests(resw?.data)
+    }
+  }
+  async function handlePriceMoney() {
+    const res = await getPriceMoney();
+    if (res?.status) {
+      console.log('res?.result', res?.data?.Earninig)
+      // setTableFilter(res?.data?.Earninig)
+      setTotalAmount(res?.data?.Total_Earninig)
+      setMatchFeeEarnings(res?.data?.sumplayerEarningFee)
+      setAwardEarnings(res?.data?.sumPlayerOfAwards)
+      // toast.success(res?.message);
+    } else {
+      // toast.error(res?.message);
+    }
+  }
   const getRequest = (label) => {
     if (label === 'Total Withdrawals') {
       return dataRequests.length;

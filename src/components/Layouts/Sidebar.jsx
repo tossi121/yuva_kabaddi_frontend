@@ -22,7 +22,7 @@ const sidebarLinks = {
     { href: '/super-admin/account-approval', label: 'Account Approval', iconSrc: faUserCheck },
   ],
   COACH: [...commonLinks],
-};
+};  
 
 function SidebarLink({ href, label, iconSrc }) {
   const router = useRouter();

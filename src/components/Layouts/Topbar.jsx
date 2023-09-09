@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Col, Dropdown } from 'react-bootstrap';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
+import { getCurrentUserDetails } from '@/_services/services_api';
 
 function Topbar(props) {
   const { ToggleFun } = props;
+  const [currentUser , setCurrentUser] = useState([]);
   const router = useRouter();
 
   function logout() {
@@ -19,7 +21,18 @@ function Topbar(props) {
       history.go(1);
     };
   }
-
+  useEffect(() =>{
+    handleWithdrawnRequest()
+  },[])
+  async function handleWithdrawnRequest() {
+    const resw = await getCurrentUserDetails();
+    if (resw?.status) {
+      setCurrentUser(resw?.data);
+      // toast.success(resw?.message);
+    } else {
+      // toast.error(resw?.message);
+    }
+  }
   return (
     <>
       <div className="w-100 top-bar position-sticky top-0 bg-white">
@@ -52,7 +65,7 @@ function Topbar(props) {
                         className="img-fluid rounded-circle"
                       />
                       <div className="info-member ms-2">
-                        <span className="base-color fw-700 fs-14">Rajendra</span>
+                        <span className="base-color fw-700 fs-14">{currentUser.user_name}</span>
                         <div className="Profile">
                           <Dropdown className="px-0 py-0 rounded-2">
                             <Dropdown.Toggle

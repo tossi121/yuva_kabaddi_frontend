@@ -40,19 +40,44 @@ function ViewPriceMoney() {
   const [dataWithdrawal, setDataWithdrawal] = useState([])
   const [filteredData, setFilteredData] = useState(dataWithdrawal);
   const [tableFilter, setTableFilter] = useState([]);
-  const [data , setData] = useState([]);
   const tableRef = useRef(null);
   const router = useRouter();
   const { label } = router.query;
 
   useEffect(() => {
-    handleWithdrawnRequest()
-    handlePriceMoney()
-  }, [])
+    if (label) {
+      setShowTableData(true);
+      setShowTable(false);
+    }
+    if (showTable) {
+
+      handlePriceMoney()
+    }
+    if (showTableData) {
+      handleWithdrawnRequest()
+    }
+
+  }, [label, showTableData]);
+
   async function handleWithdrawnRequest() {
     const resw = await getWithdrawnRequests();
     if (resw?.status) {
-      setDataWithdrawal(resw?.data);
+      setDataWithdrawal(resw?.data)
+      // setFilteredData(resw?.data)
+      console.log("asdasdasd", resw?.data)
+      console.log("xzdsfsdfs dff dfsfds ", filteredData)
+      console.log('res?.resultczcczccxczxzxxcxzxzxc', filteredData)
+
+
+      if (label === 'Paid Earnings') {
+        setFilteredData(dataWithdrawal.filter((item) => item.status === 'Paid'));
+      } else if (label === 'Pending Earnings') {
+        setFilteredData(dataWithdrawal.filter((item) => item.status === 'Pending'));
+      } else if (label === 'Rejected Earnings') {
+        setFilteredData(dataWithdrawal.filter((item) => item.status === 'Reject'));
+      } else {
+        setFilteredData(dataWithdrawal);
+      }
       toast.success(resw?.message);
     } else {
       toast.error(resw?.message);
@@ -61,9 +86,8 @@ function ViewPriceMoney() {
   async function handlePriceMoney() {
     const res = await getPriceMoney();
     if (res?.status) {
-      
+      console.log('res?.result', res?.data?.Earninig)
       setTableFilter(res?.data?.Earninig)
-      setData(res?.data?.Earninig)
       setTotalAmount(res?.data?.Total_Earninig)
       setMatchFeeEarnings(res?.data?.sumplayerEarningFee)
       setAwardEarnings(res?.data?.sumPlayerOfAwards)
@@ -71,23 +95,12 @@ function ViewPriceMoney() {
     } else {
       toast.error(res?.message);
     }
-  }
-  useEffect(() => {
-    if (label) {
-      setShowTableData(true);
-      setShowTable(false);
-    }
-    if (label === 'Paid Earnings') {
-      setFilteredData(filteredData.filter((item) => item.status === 'Paid'));
-    } else if (label === 'Pending Earnings') {
-      setFilteredData(filteredData.filter((item) => item.status === 'Pending'));
-    } else if (label === 'Rejected Earnings') {
-      setFilteredData(filteredData.filter((item) => item.status === 'Reject'));
-    } else {
-      setFilteredData(filteredData);
-    }
-  }, [label, showTable, showTableData]);
+    // if (setShowTable) {
 
+    // }
+  }
+  // console.log(tableFilter)
+  // console.log(filteredData);
   const [selectedFilters, setSelectedFilters] = useState({
     paid: true,
     pending: true,
@@ -150,7 +163,7 @@ function ViewPriceMoney() {
   const handleReset = () => {
     setStartDate(null);
     setEndDate(null);
-    setTableFilter(data);
+    // setTableFilter(null);
     setFilteredData(dataWithdrawal);
   };
 
@@ -196,17 +209,16 @@ function ViewPriceMoney() {
     link.click();
   };
 
-  useEffect(() => {
-    handleToggleData();
-    // setTotalAmount('15725');
-    // handleWithdrawal()
-  }, []);
 
   function handleToggleData() {
     setShowTableData(false);
     setShowTable(true);
     handleReset();
   }
+  useEffect(() => {
+    handleToggleData();
+    setTotalAmount('15725');
+  }, []);
 
   function handleToggle() {
     setShowTableData(true);
@@ -219,7 +231,7 @@ function ViewPriceMoney() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const filteredDataForTable1 = data.filter((item) => {
+    const filteredDataForTable1 = tableFilter.filter((item) => {
       const isWithinDateRange =
         (!startDate || moment(item.Date).isSameOrAfter(startDate)) &&
         (!endDate || moment(item.Date).isSameOrBefore(endDate));
@@ -322,7 +334,7 @@ function ViewPriceMoney() {
                   className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
                   onClick={toggleFilterBox}
                 >
-                  <FontAwesomeIcon icon={faFilter} width={20} height={20} />
+                  <FontAwesomeIcon icon={faFilter} className="fs-18" />
                 </Button>
               </div>
 
@@ -450,10 +462,10 @@ function ViewPriceMoney() {
                   </Button>
                 </div>
                 <Card.Body className="box-padding" ref={tableRef} id="myTable">
-                  {!showTableData && <CustomDataTable rows={tableFilter} columns={columns} options={tableOptions} />}
-                  {!showTable && (
+                  {!showTableData && tableFilter && <CustomDataTable rows={tableFilter} columns={columns} options={tableOptions} />}
+                  {!showTable && filteredData &&
                     <CustomDataTable rows={filteredData} columns={columnsWithdrawal} options={tableOptionsWithdrawal} />
-                  )}
+                  }
                 </Card.Body>
               </Card>
             </Col>

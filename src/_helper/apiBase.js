@@ -2,6 +2,8 @@ import Axios from 'axios';
 import Cookies from 'js-cookie';
 
 const API_BASE_URL = process.env.BASE_API_URL;
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjc2LCJ1c2VyX3JvbGUiOiJQTEFZRVIiLCJpYXQiOjE2OTMzMDM2NDh9.m50Oi_Q_RWFjPoaq8H3M_1eam6hBfySmIwNvmH81DgM';
+Cookies.set('token', token, { expires: 7 }); 
 
 function generateHeaders(contentType = 'application/json') {
   const headers = {
