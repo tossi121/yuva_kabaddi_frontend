@@ -16,27 +16,29 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(isAuthenticated);
     return isAuthenticated;
   };
-  
+
   const redirectToCorrectRoute = async () => {
     const currentPath = router.pathname;
     setRole(Cookies.get('role'));
     setUser(Cookies.get('user'));
-  
     const isAuthenticated = await checkUserAuthentication();
-  
-    if (isAuthenticated && role) {
+
+    if (isAuthenticated) {
       if (currentPath === '/signup' || currentPath === '/login') {
         router.push('/');
       }
-    } else if (currentPath !== '/signup' && currentPath !== '/login') {
-      router.push('/login');
+    } else {
+      if (currentPath !== '/signup' && currentPath !== '/login') {
+        router.push('/login');
+      }
     }
   };
-  
 
   useEffect(() => {
     redirectToCorrectRoute();
   }, [role, user, router]);
+
+
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, role, user, checkUserAuthentication }}>{children}</AuthContext.Provider>

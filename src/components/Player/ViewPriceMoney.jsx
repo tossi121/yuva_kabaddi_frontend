@@ -8,210 +8,24 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/router';
+import UserEarnings from './UserEarnings';
+import { getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
 
 const WithdrawalModal = dynamic(import('./WithdrawalModal'));
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function ViewPriceMoney() {
-  const dataWithdrawal = [
-    {
-      id: 1,
-      amount: 30000,
-      status: 'Reject',
-      withdrawal_date: '2023-08-10',
-    },
-    {
-      id: 2,
-      amount: 150.0,
-      status: 'Reject',
-      withdrawal_date: '2023-08-11',
-    },
-    {
-      id: 3,
-      amount: 15000,
-      status: 'Reject',
-      withdrawal_date: '2023-08-12',
-    },
-    {
-      id: 4,
-      amount: 1500.0,
-      status: 'Reject',
-      withdrawal_date: '2023-08-12',
-    },
-    {
-      id: 5,
-      amount: 30000,
-      status: 'Pending',
-      withdrawal_date: '2023-08-15',
-    },
-    {
-      id: 6,
-      amount: 150.0,
-      status: 'Paid',
-      withdrawal_date: '2023-08-17',
-    },
-    {
-      id: 7,
-      amount: 150000,
-      status: 'Reject',
-      withdrawal_date: '2023-08-17',
-    },
-    {
-      id: 8,
-      amount: 300.0,
-      status: 'Paid',
-      withdrawal_date: '2023-08-20',
-    },
-    {
-      id: 9,
-      amount: 215000,
-      status: 'Pending',
-      withdrawal_date: '2023-08-24',
-    },
-    {
-      id: 10,
-      amount: 225.0,
-      status: 'Reject',
-      withdrawal_date: '2023-08-25',
-    },
-    {
-      id: 11,
-      amount: 330000,
-      status: 'Paid',
-      withdrawal_date: '2023-08-28',
-    },
-    {
-      id: 12,
-      amount: 150.0,
-      status: 'Pending',
-      withdrawal_date: '2023-08-30',
-    },
-    {
-      id: 13,
-      amount: 30000,
-      status: 'Paid',
-      withdrawal_date: '2023-09-02',
-    },
-    {
-      id: 14,
-      amount: 30000,
-      status: 'Pending',
-      withdrawal_date: '2023-09-05',
-    },
-  ];
-
-  const data = [
-    {
-      id: 1,
-      pricing_category: 'SURVIVAL ROUND-WINNING TEAM, STARTING 7',
-      match_number: 'Match 2',
-      amount: 30000,
-      winning_date: '2023-08-10',
-    },
-    {
-      id: 2,
-      pricing_category: 'SURVIVAL ROUND-LOSING TEAM, STARTING 7',
-      match_number: 'Match 6',
-      amount: 150.0,
-      winning_date: '2023-08-11',
-    },
-    {
-      id: 3,
-      pricing_category: 'SURVIVAL ROUND-LOSING TEAM, STARTING 7',
-      match_number: 'Match 8',
-      amount: 15000,
-      winning_date: '2023-08-12',
-    },
-    {
-      id: 4,
-      pricing_category: 'BEST DEFENDER OF THE MATCH',
-      match_number: 'Match 8',
-      amount: 1500.0,
-      winning_date: '2023-08-12',
-    },
-    {
-      id: 5,
-      pricing_category: 'SURVIVAL ROUND-WINNING TEAM, STARTING 7',
-      match_number: 'Match 19',
-      amount: 30000,
-      winning_date: '2023-08-15',
-    },
-    {
-      id: 6,
-      pricing_category: 'SURVIVAL ROUND-LOSING TEAM, STARTING 7',
-      match_number: 'Match 23',
-      amount: 150.0,
-      winning_date: '2023-08-17',
-    },
-    {
-      id: 7,
-      pricing_category: 'BEST DEFENDER OF THE MATCH',
-      match_number: 'Match 23',
-      amount: 150000,
-      winning_date: '2023-08-17',
-    },
-    {
-      id: 8,
-      pricing_category: 'SURVIVAL ROUND-WINNING TEAM, STARTING 7',
-      match_number: 'Match 28',
-      amount: 300.0,
-      winning_date: '2023-08-20',
-    },
-    {
-      id: 9,
-      pricing_category: 'SURVIVAL ROUND-LOSING TEAM, STARTING 7',
-      match_number: 'Match 35',
-      amount: 215000,
-      winning_date: '2023-08-24',
-    },
-    {
-      id: 10,
-      pricing_category: 'SURVIVAL ROUND-TIE, STARTING 7',
-      match_number: 'Match 37',
-      amount: 225.0,
-      winning_date: '2023-08-25',
-    },
-    {
-      id: 11,
-      pricing_category: 'SURVIVAL ROUND-WINNING TEAM, STARTING 7',
-      match_number: 'Match 41',
-      amount: 330000,
-      winning_date: '2023-08-28',
-    },
-    {
-      id: 12,
-      pricing_category: 'SURVIVAL ROUND-LOSING TEAM, STARTING 7',
-      match_number: 'Match 43',
-      amount: 150.0,
-      winning_date: '2023-08-30',
-    },
-    {
-      id: 13,
-      pricing_category: 'SURVIVAL ROUND-WINNING TEAM, STARTING 7',
-      match_number: 'Match 49',
-      amount: 30000,
-      winning_date: '2023-09-02',
-    },
-    {
-      id: 14,
-      pricing_category: 'SURVIVAL ROUND-WINNING TEAM, STARTING 7',
-      match_number: 'Match 53',
-      amount: 30000,
-      winning_date: '2023-09-05',
-    },
-  ];
-
   const columnsWithdrawal = [
-    { heading: 'Withdrawal Date', field: 'withdrawal_date' },
+    { heading: 'Withdrawal Date', field: 'createdAt' },
     { heading: 'Withdrawal Amount', field: 'amount' },
     { heading: 'Status', field: 'status' },
   ];
 
   const columns = [
-    { heading: 'Pricing Category', field: 'pricing_category' },
-    { heading: 'Match Number', field: 'match_number' },
-    { heading: 'Winning Date', field: 'winning_date' },
-    { heading: 'Amount', field: 'amount' },
+    { heading: 'Pricing Category', field: 'priceType' },
+    { heading: 'Match Number', field: 'match_no' },
+    { heading: 'Winning Date', field: 'Date' },
+    { heading: 'Amount', field: 'priceAmount' },
   ];
 
   const [totalAmount, setTotalAmount] = useState('');
@@ -219,29 +33,14 @@ function ViewPriceMoney() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [expanded, setExpanded] = useState(false);
+  const [earningsData, setEarningsData] = useState([]);
+  const [withdrawalsData, setWithdrawalsData] = useState([]);
   const [showTable, setShowTable] = useState(true);
-  const [showTableData, setShowTableData] = useState(true);
-  const [filteredData, setFilteredData] = useState(dataWithdrawal);
-  const [tableFilter, setTableFilter] = useState(data);
+  const [filterData, setFilterData] = useState([]);
+  const [checkedFilter, setCheckedFilter] = useState(false);
   const tableRef = useRef(null);
   const router = useRouter();
   const { label } = router.query;
-
-  useEffect(() => {
-    if (label) {
-      setShowTableData(true);
-      setShowTable(false);
-    }
-    if (label === 'Paid Earnings') {
-      setFilteredData(dataWithdrawal.filter((item) => item.status === 'Paid'));
-    } else if (label === 'Pending Earnings') {
-      setFilteredData(dataWithdrawal.filter((item) => item.status === 'Pending'));
-    } else if (label === 'Rejected Earnings') {
-      setFilteredData(dataWithdrawal.filter((item) => item.status === 'Reject'));
-    } else {
-      setFilteredData(dataWithdrawal);
-    }
-  }, [label, showTable, showTableData]);
 
   const [selectedFilters, setSelectedFilters] = useState({
     paid: true,
@@ -249,29 +48,94 @@ function ViewPriceMoney() {
     reject: true,
   });
 
+  const setSelectedFiltersByLabel = (newLabel) => {
+    const updatedFilters = {
+      paid: newLabel === 'Paid Withdrawals',
+      pending: newLabel === 'Pending Withdrawals',
+      reject: newLabel === 'Rejected Withdrawals',
+    };
+
+    setSelectedFilters(updatedFilters);
+  };
+
+  useEffect(() => {
+    if (!showTable || showTable) {
+      setStartDate(null);
+      setEndDate(null);
+      setSelectedFilters({
+        paid: true,
+        pending: true,
+        reject: true,
+      });
+      setCheckedFilter(false);
+    }
+  }, [showTable]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [priceMoneyResponse, withdrawnRequestsResponse] = await Promise.all([
+          getPriceMoney(),
+          getWithdrawnRequests(),
+        ]);
+
+        if (priceMoneyResponse?.status) {
+          setEarningsData(priceMoneyResponse.data);
+        }
+
+        if (withdrawnRequestsResponse?.status) {
+          setWithdrawalsData(withdrawnRequestsResponse.data);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    fetchData();
+  }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (withdrawalsData && !checkedFilter && label != undefined) {
+      setSelectedFiltersByLabel(label);
+      if (label === 'Paid Withdrawals') {
+        setShowTable(false);
+        setFilterData(withdrawalsData.filter((item) => item.status === 'Paid'));
+      } else if (label === 'Pending Withdrawals') {
+        setShowTable(false);
+        setFilterData(withdrawalsData.filter((item) => item.status === 'Pending'));
+      } else if (label === 'Rejected Withdrawals') {
+        setShowTable(false);
+        setFilterData(withdrawalsData.filter((item) => item.status === 'Reject'));
+      } else {
+        setFilterData(withdrawalsData);
+        setShowTable(true);
+      }
+    }
+  }, [label, withdrawalsData]);
+
   const tableOptions = {
     columns: {
       render: {
-        winning_date: renderMatchDate,
+        Date: renderMatchDate,
       },
     },
   };
 
   function renderMatchDate(value, row) {
-    return <span>{moment(row.winning_date).format('DD-MMMM-YYYY')} </span>;
+    return <span>{moment(row.Date).format('DD-MMMM-YYYY')} </span>;
   }
 
   const tableOptionsWithdrawal = {
     columns: {
       render: {
-        withdrawal_date: renderWithdrawalDate,
+        createdAt: renderWithdrawalDate,
         status: renderSatus,
       },
     },
   };
 
   function renderWithdrawalDate(value, row) {
-    return <span>{moment(row.withdrawal_date).format('DD-MMMM-YYYY')} </span>;
+    return <span>{moment(row.createdAt).format('DD-MMMM-YYYY')} </span>;
   }
 
   function renderSatus(value, row) {
@@ -291,10 +155,29 @@ function ViewPriceMoney() {
   }
 
   const handleFilterChange = (filterName) => {
+    if (label === 'Paid Withdrawals' && filterName !== 'paid') {
+      return;
+    }
+    if (label === 'Pending Withdrawals' && filterName !== 'pending') {
+      return;
+    }
+    if (label === 'Rejected Withdrawals' && filterName !== 'reject') {
+      return;
+    }
+
+    const isFilterSelected = selectedFilters[filterName];
+    const numberOfSelectedFilters = Object.values(selectedFilters).filter(Boolean).length;
+
+    if (numberOfSelectedFilters === 1 && isFilterSelected) {
+      return;
+    }
+
     setSelectedFilters((prevFilters) => ({
       ...prevFilters,
-      [filterName]: !prevFilters[filterName],
+      [filterName]: !isFilterSelected,
     }));
+
+    setCheckedFilter(true);
   };
 
   const toggleFilterBox = () => {
@@ -305,8 +188,14 @@ function ViewPriceMoney() {
   const handleReset = () => {
     setStartDate(null);
     setEndDate(null);
-    setTableFilter(data);
-    setFilteredData(dataWithdrawal);
+    setEarningsData(earningsData);
+    setFilterData(withdrawalsData);
+    setCheckedFilter(false);
+    setSelectedFilters({
+      paid: true,
+      pending: true,
+      reject: true,
+    });
   };
 
   const handleDownload = () => {
@@ -351,63 +240,38 @@ function ViewPriceMoney() {
     link.click();
   };
 
-  useEffect(() => {
-    handleToggleData();
-    setTotalAmount('15725');
-  }, []);
-
-  function handleToggleData() {
-    setShowTableData(false);
-    setShowTable(true);
-    handleReset();
-  }
-
-  function handleToggle() {
-    setShowTableData(true);
-    setShowTable(false);
-    if (!label) {
-      handleReset();
-    }
-  }
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const filteredDataForTable1 = data.filter((item) => {
+    const filteredEarnings = earningsData.filter((item) => {
       const isWithinDateRange =
-        (!startDate || moment(item.winning_date).isSameOrAfter(startDate)) &&
-        (!endDate || moment(item.winning_date).isSameOrBefore(endDate));
+        (!startDate || moment(item.Date).isSameOrAfter(startDate)) &&
+        (!endDate || moment(item.Date).isSameOrBefore(endDate));
 
-      if (!isWithinDateRange) {
-        return false;
-      }
-
-      return true;
+      return isWithinDateRange;
     });
 
-    const filteredDataForTable2 = dataWithdrawal.filter((item) => {
+    const filteredWithdrawals = withdrawalsData.filter((item) => {
       const isWithinDateRange =
-        (!startDate || moment(item.withdrawal_date).isSameOrAfter(startDate)) &&
-        (!endDate || moment(item.withdrawal_date).isSameOrBefore(endDate));
+        (!startDate || moment(item.createdAt).isSameOrAfter(startDate)) &&
+        (!endDate || moment(item.createdAt).isSameOrBefore(endDate));
 
-      if (!isWithinDateRange) {
-        return false;
-      }
+      const isSelectedStatus =
+        (selectedFilters.paid && item.status === 'Paid') ||
+        (selectedFilters.pending && item.status === 'Pending') ||
+        (selectedFilters.reject && item.status === 'Reject');
 
-      if (selectedFilters.paid && item.status === 'Paid') {
-        return true;
-      }
-      if (selectedFilters.pending && item.status === 'Pending') {
-        return true;
-      }
-      if (selectedFilters.reject && item.status === 'Reject') {
-        return true;
-      }
-      return false;
+      return isWithinDateRange && isSelectedStatus;
     });
 
-    setTableFilter(filteredDataForTable1);
-    setFilteredData(filteredDataForTable2);
+    setEarningsData(filteredEarnings);
+    setFilterData(filteredWithdrawals);
+    setCheckedFilter(false);
+  };
+
+  const handleChangeStartDate = (date) => {
+    setStartDate(date);
+    setEndDate(null);
   };
 
   return (
@@ -421,56 +285,11 @@ function ViewPriceMoney() {
       />
       <section className="dashboard-section">
         <Container fluid>
-          <Row className="my-4">
+          <Row className="mt-4">
             <Col lg={12}>
-              <div className="mb-4">
-                <DashboardBreadcrumb breadcrumbTitle="View Price Money" data={'Dashboard'} />
-              </div>
-              <Card className="bg-white rounded-4 card-border">
-                <Card.Body className="box-padding">
-                  <div className="d-flex justify-content-between">
-                    <div>
-                      <h5 className="common-heading">Rajendra Bhakar</h5>
-                      <div className="d-flex align-items-center">
-                        <div>
-                          <h6 className="section-subtitle">Total Earning:</h6>
-                          <h6 className="section-subtitle">Match Fee Earnings:</h6>
-                          <h6 className="section-subtitle">Award Earnings:</h6>
-                        </div>
-                        <div className="ms-4">
-                          <h6 className="section-subtitle">&#8377;15,725.00</h6>
-                          <h6 className="section-subtitle">&#8377;6,725.00</h6>
-                          <h6 className="section-subtitle">&#8377;9,000.00</h6>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <Button className="common-btn" onClick={() => setShow(true)}>
-                        Withdraw Amount
-                      </Button>
-                    </div>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col>
               <div className="d-flex justify-content-between">
-                <div className="d-flex align-items-center mb-4">
-                  <Button
-                    className={`rounded-2 me-3 ${(showTable && 'common-btn') || 'common-outline-btn'}`}
-                    onClick={handleToggleData}
-                  >
-                    Earnings
-                  </Button>
-                  <Button
-                    className={`rounded-2 me-3 ${(showTableData && 'common-btn') || 'common-outline-btn'}`}
-                    onClick={handleToggle}
-                  >
-                    Withdrawals
-                  </Button>
+                <div className="mb-4">
+                  <DashboardBreadcrumb data={'Dashboard'} />
                 </div>
                 <Button
                   className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
@@ -484,7 +303,7 @@ function ViewPriceMoney() {
                 className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">Withdrawal Requests Filter</h4>
+                  <h4 className="common-heading mb-0">Price Money Filter</h4>
                 </div>
 
                 <Card.Body className="box-padding">
@@ -499,10 +318,10 @@ function ViewPriceMoney() {
                             showYearDropdown
                             dropdownMode="select"
                             selected={startDate}
-                            onChange={(date) => setStartDate(date)}
+                            maxDate={new Date()}
+                            onChange={handleChangeStartDate}
                             placeholderText="Select Start Date"
                             showTimeSelect={false}
-                            minDate={startDate}
                             dateFormat="dd-MMM-yyyy"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                           />
@@ -521,6 +340,8 @@ function ViewPriceMoney() {
                               onChange={(date) => setEndDate(date)}
                               placeholderText="Select End Date"
                               showTimeSelect={false}
+                              minDate={startDate}
+                              maxDate={new Date()}
                               dateFormat="dd-MMM-yyyy"
                               className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                             />
@@ -576,13 +397,22 @@ function ViewPriceMoney() {
                       )}
                       <Col xl={3} lg={4} md={6}>
                         <div className="d-flex align-items-center filters-dropdown-btn">
-                          <Button className="common-btn px-3 text-nowrap" type="Submit">
+                          <Button
+                            className="common-btn px-3 text-nowrap"
+                            type="Submit"
+                            disabled={!startDate && !endDate && !checkedFilter}
+                          >
                             <span className="me-2">
                               <FontAwesomeIcon icon={faSearch} width={18} height={18} />
                             </span>
                             Search
                           </Button>
-                          <Button className="common-outline-btn px-4 ms-2" onClick={handleReset} type="reset">
+                          <Button
+                            className="common-outline-btn px-4 ms-2"
+                            onClick={handleReset}
+                            type="reset"
+                            disabled={!startDate && !endDate && !checkedFilter}
+                          >
                             Reset
                           </Button>
                         </div>
@@ -594,19 +424,48 @@ function ViewPriceMoney() {
             </Col>
           </Row>
 
+          <UserEarnings setShow={setShow} />
+
+          <Row>
+            <Col>
+              <div className="d-flex align-items-center my-4">
+                <Button
+                  className={`rounded-2 me-3 ${(showTable && 'common-btn') || 'common-outline-btn'}`}
+                  onClick={() => {
+                    if (label === undefined) {
+                      setShowTable(true);
+                    }
+                  }}
+                >
+                  Earnings
+                </Button>
+                <Button
+                  className={`rounded-2 ${(!showTable && 'common-btn') || 'common-outline-btn'}`}
+                  onClick={() => {
+                    setShowTable(false);
+                  }}
+                >
+                  Withdrawals
+                </Button>
+              </div>
+            </Col>
+          </Row>
+
           <Row>
             <Col>
               <Card className="bg-white common-card-box">
                 <div className="card-head card-head-padding border-bottom d-flex justify-content-between">
                   <h4 className="common-heading mb-0">View Price Money</h4>
-                  <Button className="common-btn p-1 px-2">
-                    <FontAwesomeIcon icon={faDownload} onClick={handleDownload} className="text-white" width={15} />
+                  <Button className="common-btn p-1 px-2" onClick={handleDownload}>
+                    <FontAwesomeIcon icon={faDownload} className="text-white" width={15} />
                   </Button>
                 </div>
                 <Card.Body className="box-padding" ref={tableRef} id="myTable">
-                  {!showTableData && <CustomDataTable rows={tableFilter} columns={columns} options={tableOptions} />}
-                  {!showTable && (
-                    <CustomDataTable rows={filteredData} columns={columnsWithdrawal} options={tableOptionsWithdrawal} />
+                  {earningsData.length > 0 && showTable && (
+                    <CustomDataTable rows={earningsData} columns={columns} options={tableOptions} />
+                  )}
+                  {filterData.length > 0 && !showTable && (
+                    <CustomDataTable rows={filterData} columns={columnsWithdrawal} options={tableOptionsWithdrawal} />
                   )}
                 </Card.Body>
               </Card>

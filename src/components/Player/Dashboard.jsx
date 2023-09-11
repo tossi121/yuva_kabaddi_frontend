@@ -6,8 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { getEarnings, getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
-import { useAuth } from '@/_context/authContext';
+import { getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
 import WithdrawalsChart from './Chart/WithdrawalsChart';
 import EarningChart from './Chart/EarningChart';
 
@@ -20,88 +19,41 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { faMoneyBill1 } from '@fortawesome/free-regular-svg-icons';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
+import UserEarnings from './UserEarnings';
 
 const DashboardBreadcrumbComponent = dynamic(import('../Layouts/DashboardBreadcrumbar'));
-
-const requestTypes = [
-  { label: 'Paid Withdrawals', icon: faMoneyBills },
-  { label: 'Pending Withdrawals', icon: faMoneyBillAlt },
-  { label: 'Rejected Withdrawals', icon: faMoneyBill1 },
-  { label: 'Total Withdrawals', icon: faMoneyBillTransfer },
-];
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 function Dashboard() {
   const [expanded, setExpanded] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [playerData, setPlayerData] = useState(null);
-  const [dataRequests, setDataRequests] = useState([]);
   const [earningsData, setEarningsData] = useState([]);
-  const [withdrawalsChartData, setWithdrawalsChartData] = useState([]);
+  const [withdrawalsData, setWithdrawalsData] = useState([]);
+  const [filterChart, setFilterChart] = useState([]);
+  const [chart, setChart] = useState(false);
 
-  const { user } = useAuth();
+  const requestTypes = [
+    { label: 'Paid Withdrawals', icon: faMoneyBills },
+    { label: 'Pending Withdrawals', icon: faMoneyBillAlt },
+    { label: 'Rejected Withdrawals', icon: faMoneyBill1 },
+    { label: 'Total Withdrawals', icon: faMoneyBillTransfer },
+  ];
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [earningsResponse, priceMoneyResponse, withdrawnRequestsResponse] = await Promise.all([
-          getEarnings(),
+        const [priceMoneyResponse, withdrawnRequestsResponse] = await Promise.all([
           getPriceMoney(),
           getWithdrawnRequests(),
         ]);
-
-        if (earningsResponse?.status) {
-          setPlayerData(earningsResponse.data);
-        }
 
         if (priceMoneyResponse?.status) {
           setEarningsData(priceMoneyResponse.data);
         }
 
         if (withdrawnRequestsResponse?.status) {
-          const data = withdrawnRequestsResponse.data;
-
-          const requestCountsByDate = data.reduce((counts, request) => {
-            const { createdAt, status } = request;
-            const date = new Date(createdAt).toISOString().split('T')[0];
-            if (!counts[date]) {
-              counts[date] = { pending: 0, paid: 0, rejected: 0 };
-            }
-
-            if (status === 'Pending') {
-              counts[date].pending++;
-            } else if (status === 'Paid') {
-              counts[date].paid++;
-            } else if (status === 'Reject') {
-              counts[date].rejected++;
-            }
-
-            return counts;
-          }, {});
-
-          const colorsWithdrawals = ['#508AA8', '#56BFE9', '#7DDFE2', '#FAA69A'];
-
-          const filteredRequestTypes = requestTypes.filter((type) => type.label !== 'Total Withdrawals');
-
-          const updatedChartData = {
-            labels: Object.keys(requestCountsByDate),
-            datasets: filteredRequestTypes.map((type, index) => ({
-              label: type.label,
-              data: Object.values(requestCountsByDate).map(
-                (counts) => counts[type.label.toLowerCase().split(' ')[0]] || 0
-              ),
-              backgroundColor: colorsWithdrawals[index % colorsWithdrawals.length],
-              barThickness: 60,
-              maxBarThickness: 40,
-            })),
-          };
-
-          setWithdrawalsChartData(updatedChartData);
-          setDataRequests(data);
+          setWithdrawalsData(withdrawnRequestsResponse.data);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -109,7 +61,7 @@ function Dashboard() {
     }
 
     fetchData();
-  }, [startDate, endDate]);
+  }, [startDate, endDate, filterChart]);
 
   const handleChangeStartDate = (date) => {
     setStartDate(date);
@@ -118,7 +70,7 @@ function Dashboard() {
 
   const getRequest = (label) => {
     if (label === 'Total Withdrawals') {
-      return dataRequests.length;
+      return withdrawalsData.length;
     }
     const statusMapping = {
       'Paid Withdrawals': 'Paid',
@@ -128,27 +80,13 @@ function Dashboard() {
 
     const status = statusMapping[label];
     if (status) {
-      return dataRequests.filter((request) => request.status === status).length;
+      return withdrawalsData.filter((request) => request.status === status).length;
     }
     return 0;
   };
 
   const colorsWithdrawals = ['#508AA8', '#56BFE9', '#7DDFE2', '#FAA69A'];
-
-  const filteredRequestTypes = requestTypes.filter((type) => type.label !== 'Total Withdrawals');
-
-  const chartOptions = {
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-      },
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
+  const filteredRequestTypes = requestTypes.filter((type) => type.label);
 
   const toggleFilterBox = () => {
     setExpanded(!expanded);
@@ -157,6 +95,7 @@ function Dashboard() {
   const handleReset = () => {
     setStartDate(null);
     setEndDate(null);
+    setChart(false);
   };
 
   const filterEarningsData = (startDate, endDate) => {
@@ -180,12 +119,13 @@ function Dashboard() {
 
     const filteredEarningsData = filterEarningsData(startDate, endDate);
     setEarningsData(filteredEarningsData);
-    const filteredData = dataRequests.filter((request) => {
+
+    const filteredData = withdrawalsData.filter((request) => {
       const createdAt = new Date(request.createdAt);
       return startDate <= createdAt && createdAt < nextDay;
     });
 
-    const requestCountsByDateFiltered = filteredData.reduce((counts, request) => {
+    const requestCountsByDate = filteredData.reduce((counts, request) => {
       const { createdAt, status } = request;
       const date = new Date(createdAt).toISOString().split('T')[0];
       if (!counts[date]) {
@@ -203,20 +143,19 @@ function Dashboard() {
       return counts;
     }, {});
 
-    const filteredChartData = {
-      labels: Object.keys(requestCountsByDateFiltered),
+    const updatedChartData = {
+      labels: Object.keys(requestCountsByDate),
       datasets: filteredRequestTypes.map((type, index) => ({
         label: type.label,
-        data: Object.values(requestCountsByDateFiltered).map(
-          (counts) => counts[type.label.toLowerCase().split(' ')[0]] || 0
-        ),
+        data: Object.values(requestCountsByDate).map((counts) => counts[type.label.toLowerCase().split(' ')[0]] || 0),
         backgroundColor: colorsWithdrawals[index % colorsWithdrawals.length],
         barThickness: 60,
         maxBarThickness: 40,
       })),
     };
 
-    setWithdrawalsChartData(filteredChartData);
+    setFilterChart(updatedChartData);
+    setChart(true);
   };
 
   return (
@@ -288,13 +227,18 @@ function Dashboard() {
 
                     <Col xl={3} lg={4} md={6}>
                       <div className="d-flex align-items-center filters-dropdown-btn">
-                        <Button className="common-btn px-3 text-nowrap" type="Submit">
+                        <Button className="common-btn px-3 text-nowrap" type="Submit" disabled={!startDate && !endDate}>
                           <span className="me-2">
                             <FontAwesomeIcon icon={faSearch} width={18} height={18} />
                           </span>
                           Search
                         </Button>
-                        <Button className="common-outline-btn px-4 ms-2" onClick={handleReset} type="reset">
+                        <Button
+                          className="common-outline-btn px-4 ms-2"
+                          onClick={handleReset}
+                          type="reset"
+                          disabled={!startDate && !endDate}
+                        >
                           Reset
                         </Button>
                       </div>
@@ -305,34 +249,7 @@ function Dashboard() {
             </Card>
           </Col>
         </Row>
-
-        <Row>
-          <Col>
-            <Card className="bg-white rounded-4 card-border">
-              <Card.Body className="box-padding">
-                <h5 className="common-heading text-capitalize">{user}</h5>
-                <div className="d-flex align-items-baseline">
-                  <div>
-                    <h6 className="section-subtitle">Total Earnings:</h6>
-                    <h6 className="section-subtitle">Match Fee Earnings:</h6>
-                    <h6 className="section-subtitle">Award Earnings:</h6>
-                    <h6 className="section-subtitle">Total Approved Withdrawals:</h6>
-                    <h6 className="section-subtitle">Total Amount Left:</h6>
-                  </div>
-                  <div className="ms-4">
-                    <h6 className="section-subtitle">&#8377;{playerData?.Total_Earninig}</h6>
-                    <h6 className="section-subtitle">&#8377;{playerData?.sumplayerEarningFee}</h6>
-                    <h6 className="section-subtitle">&#8377;{playerData?.sumPlayerOfAwards}</h6>
-                    <h6 className="section-subtitle">&#8377;{playerData?.sumAprovedEarning}</h6>
-                    <h6 className="section-subtitle">
-                      &#8377;{playerData?.Total_Earninig - playerData?.sumAprovedEarning}
-                    </h6>
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+        <UserEarnings />
         <Row className="my-4">
           {requestTypes.map((type, index) => (
             <Col key={type.label}>
@@ -341,17 +258,10 @@ function Dashboard() {
           ))}
         </Row>
         <Row>
-          {withdrawalsChartData.length > 0 && (
-            <WithdrawalsChart
-              withdrawalsChartData={withdrawalsChartData}
-              chartOptions={chartOptions}
-              getRequest={getRequest}
-              colorsWithdrawals={colorsWithdrawals}
-            />
+          {withdrawalsData.length > 0 && (
+            <WithdrawalsChart withdrawalsData={withdrawalsData} filterChart={filterChart} chart={chart} />
           )}
-          {earningsData.length > 0 && (
-            <EarningChart earningsData={earningsData} chartOptions={chartOptions} playerData={playerData} />
-          )}
+          {earningsData.length > 0 && <EarningChart earningsData={earningsData} />}
         </Row>
       </Container>
     </div>
