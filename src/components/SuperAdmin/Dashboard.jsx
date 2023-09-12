@@ -40,13 +40,13 @@ function Dashboard() {
   const [playerData, setPlayerData] = useState(null);
   const [dataRequests, setDataRequests] = useState([]);
   const [earningsData, setEarningsData] = useState([]);
-  const [earningsChartData, setEarningsChartData] = useState([]);
   const [withdrawalsChartData, setWithdrawalsChartData] = useState({
     labels: [],
     datasets: [],
   });
 
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
+  const user = currentUser?.user_name
 
   useEffect(() => {
     async function fetchData() {

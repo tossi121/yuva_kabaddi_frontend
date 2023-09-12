@@ -4,10 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
+import { useAuth } from '@/_context/authContext';
 
 function Topbar(props) {
   const { ToggleFun } = props;
   const router = useRouter();
+  const { currentUser } = useAuth();
+  const user = currentUser?.user_name
+  const userRole = currentUser?.user_role
 
   function logout() {
     Cookies.remove('token');
@@ -52,16 +56,15 @@ function Topbar(props) {
                         className="img-fluid rounded-circle"
                       />
                       <div className="info-member ms-2">
-                        <span className="base-color fw-700 fs-14">Rajendra</span>
+                        <span className="base-color fw-700 fs-14 text-capitalize">{user}</span>
                         <div className="Profile">
                           <Dropdown className="px-0 py-0 rounded-2">
                             <Dropdown.Toggle
                               variant="none"
-                              className="text-start Profile-box-dropdown base-color-3 bg-white p-0 border-0
-                 d-flex align-items-center fs-12 fw-400 base-color-9"
+                              className="text-start Profile-box-dropdown base-color-3 bg-white p-0 border-0 d-flex align-items-center fs-12 fw-400 base-color-9"
                               id="dropdown-basic"
                             >
-                              <span className="pe-3">Player</span>
+                              <span className="pe-3">{userRole}</span>
                             </Dropdown.Toggle>
                             <Dropdown.Menu className="w-100 rounded-4">
                               <Dropdown.Item className="py-2 fs-14 base-color-3">

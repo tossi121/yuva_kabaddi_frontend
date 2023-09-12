@@ -146,7 +146,7 @@ function Signup() {
     if (Object.keys(errors).length === 0) {
       try {
         setLoading(true);
-        await handleLogin();
+        await handleSignup();
       } catch (error) {
         console.error('Error during login:', error);
       } finally {
@@ -175,6 +175,40 @@ function Signup() {
     }
   };
 
+  const validate = () => {
+    const errors = {};
+    if (!formValues.email) {
+      errors.email = 'Please enter an email address';
+    } else if (!validEmail(formValues.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    if (!formValues.user) {
+      errors.user = 'Please enter a full name';
+    } else if (!validName(formValues.user)) {
+      errors.user = 'Please enter a valid name';
+    }
+
+    if (!formValues.mobile) {
+      errors.mobile = 'Please enter a mobile number';
+    } else if (!validMobile(formValues.mobile)) {
+      errors.mobile = 'Please enter a valid 10-digit mobile number';
+    }
+
+    if (!selectedRole.role_name) {
+      errors.role_name = 'Please select a role';
+    }
+    if (!selectedSeries.series_name) {
+      errors.series_name = 'Please select a series';
+    }
+    if (!selectedMatch.match_number) {
+      errors.match_number = 'Please select a match';
+    }
+    if (!selectedPlayer.player_name) {
+      errors.player_name = 'Please select a player';
+    }
+
+    return errors;
+  };
   const handleCheckUser = async () => {
     if (formValues.mobile) {
       const params = {
@@ -207,42 +241,6 @@ function Signup() {
         router.push('/signup');
       }
     }
-  };
-
-  const validate = (values) => {
-    const errors = {};
-
-    if (!values.email) {
-      errors.email = 'Please enter an email address';
-    } else if (!validEmail(values.email)) {
-      errors.email = 'Please enter a valid email address';
-    }
-    if (!values.user) {
-      errors.user = 'Please enter a full name';
-    } else if (!validName(values.user)) {
-      errors.user = 'Please enter a valid name';
-    }
-
-    if (!values.mobile) {
-      errors.mobile = 'Please enter a mobile number';
-    } else if (!validMobile(values.mobile)) {
-      errors.mobile = 'Please enter a valid 10-digit mobile number';
-    }
-
-    if (!selectedRole.role_name) {
-      errors.role_name = 'Please select a role';
-    }
-    if (!selectedSeries.series_name) {
-      errors.series_name = 'Please select a series';
-    }
-    if (!selectedMatch.match_number) {
-      errors.match_number = 'Please select a match';
-    }
-    if (!selectedPlayer.player_name) {
-      errors.player_name = 'Please select a player';
-    }
-
-    return errors;
   };
 
   return (

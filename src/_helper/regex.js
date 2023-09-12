@@ -5,7 +5,7 @@ const NAME_REGEX = /^[a-zA-Z ]+$/;
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 const MOBILE_REGEX = /^\d{10}$/;
 const WITHDRAWAL_AMOUNT_REGEX = /^\d+(\.\d{1,2})?$/;
-const BANK_IFSC_REGEX = /^\d+(\.\d{1,2})?$/;
+const BANK_IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 const BANK_ACCOUNT_REGEX = /^\d+(\.\d{1,2})?$/;
 
 export function maxLengthCheck(object) {

@@ -23,6 +23,10 @@ const nextConfig = {
     PRICE_MONEY_DATA: 'pricedetail',
     PRICE_MONEY_ALL_DATA: 'pricedetailtotal',
     WITHDRAWN_REQUESTS_OF_USER_DATA: 'getplayerwithdrawnrequestslistforuser',
+    CURRENT_USER_DATA: 'getcurrentuserdetails',
+    CITY_BY_STATE_DATA: 'citiesbystate',
+    STATE_LIST_DATA: 'states',
+    UPDATE_USER_DETAILS_DATA: 'updateuserdetails',
     // super admin
     ADMIN_PRICE_MONEY_DATA: 'admin/pricedetailalltotal',
     ADMIN_WITHDRAWN_REQUESTS_OF_USER_DATA: 'admin/getplayerwithdrawnrequestslist',

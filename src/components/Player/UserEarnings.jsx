@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Row } from 'react-bootstrap';
 
 function UserEarnings({setShow}) {
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
+  const user = currentUser?.user_name
   const [playerData, setPlayerData] = useState(null);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ function UserEarnings({setShow}) {
             <Card.Body className="box-padding">
               <div className="d-flex justify-content-between">
                 <div>
-                  <h5 className="common-heading">{user}</h5>
+                  <h5 className="common-heading text-capitalize">{user}</h5>
                   <div className="d-flex align-items-center">
                     <div>
                       <h6 className="section-subtitle">Total Earnings:</h6>

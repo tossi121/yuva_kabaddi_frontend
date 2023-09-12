@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
+import { Button, Card, Col, Container, Dropdown, Form, Row, Spinner } from 'react-bootstrap';
 import Image from 'next/image';
-import { Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCloudUpload } from '@fortawesome/free-solid-svg-icons';
-import toast from 'react-hot-toast';
-import { useAuth } from '@/_context/authContext';
-import ReusableDropdown from './ReusableDropdown';
+import dynamic from 'next/dynamic';
+
 import {
   maxLengthCheck,
   validAccountNumber,
@@ -16,16 +12,19 @@ import {
   validName,
   validPAN,
 } from '@/_helper/regex';
-import { cityListData, stateListData, updateUserDetails } from '@/_services/services_api';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCloudUpload } from '@fortawesome/free-solid-svg-icons';
+import { cityListData, getCurrentUserDetails, stateListData, updateUserDetails } from '@/_services/services_api';
+import { toast } from 'react-hot-toast';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function MyProfile() {
-  // Initial form values
   const initialFormValues = {
     user_name: '',
     email: '',
     mobile: '',
+    state: '',
     city: '',
     address: '',
     pancard: '',
@@ -33,109 +32,158 @@ function MyProfile() {
     bankName: '',
     acNumber: '',
     bankBranch: '',
-    name: '',
   };
 
   const [formValues, setFormValues] = useState(initialFormValues);
   const [formErrors, setFormErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [imageFileData, setImageFileData] = useState(null);
+  const [profileImage, setProfileImage] = useState();
+  const [profileImages, setProfileImages] = useState();
+  const [getAllStatesList, setGetAllStatesList] = useState([]);
+  const [selectState, setSelectState] = useState('Select State');
+  const [selectStateId, setSelectStateId] = useState('');
+  const [searchState, setSearchState] = useState('');
+  const [getAllCityList, setGetAllCityList] = useState([]);
+  const [selectCity, setSelectCity] = useState('Select City');
+  const [selectCityId, setSelectCityId] = useState('');
+  const [searchCity, setSearchCity] = useState('');
+  const [panFileData, setPanFileData] = useState(null);
+  const [passbookFileData, setPassbookFileData] = useState(null);
   const [profileFileData, setProfileFileData] = useState(null);
-  const [selectedCity, setSelectedCity] = useState('');
-  const [selectedState, setSelectedState] = useState('');
-  const [cityData, setCityData] = useState([]);
-  const [stateData, setStateData] = useState([]);
   const [profileImagePreview, setProfileImagePreview] = useState(null);
   const [panImagePreview, setPanImagePreview] = useState(null);
   const [passbookImagePreview, setPassbookImagePreview] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [panFileData, setPanFileData] = useState(null);
-  const [passbookFileData, setPassbookFileData] = useState(null);
-  const [checkData, setCheckData] = useState(false);
-  // Get the current user from the authentication context
-  const { currentUser } = useAuth();
-
   useEffect(() => {
-    if (currentUser) {
-      const values = {
-        user_name: currentUser.user_name || '',
-        email: currentUser.email || '',
-        mobile: currentUser.contactno || '',
-        name: currentUser.state_id || '',
-        city: currentUser.city_id || '',
-        address: currentUser.address || '',
-        pancard: currentUser.pan_no || '',
-        bankIfsc: currentUser.ifsc_code || '',
-        bankName: currentUser.bank_name || '',
-        acNumber: currentUser.account_number || '',
-        bankBranch: currentUser.branch_name || '',
-      };
-      setFormValues(values);
-      setPanImagePreview(currentUser.pan_image);
-      setPassbookImagePreview(currentUser.passbook_image);
-      setProfileImagePreview(currentUser.profile_image);
-    }
-  }, [currentUser]);
-
-  useEffect(() => {
-    handleState();
-    const selectedStateId = stateData.find((item) => item.id === formValues.name);
-    setSelectedState(selectedStateId);
-    setCheckData(true);
+    handleWithdrawnRequest();
+    getStateList();
   }, []);
 
-  console.log(selectedState);
+  async function getStateList() {
+    try {
+      const response = await stateListData();
+      console.log('API Response:', response);
 
-  useEffect(() => {
-    if (checkData && selectedState) {
-      handleCity(selectedState.id);
-      const selectedCityId = cityData.find((item) => item.id === formValues.city);
-      console.log(selectedCityId, 'Ids');
-    }
-  }, [selectedState]);
-
-  console.log(selectedState, '-', selectedCity);
-
-  useEffect(() => {
-    const selectedStateId = stateData.find((item) => item.id === formValues.name);
-    setSelectedState(selectedStateId);
-    // const selectedCityId = cityData.find((item) => item.id === formValues.city);
-    // setSelectedCity(selectedCityId);
-  }, [formValues]);
-
-  async function handleState() {
-    const stateRes = await stateListData();
-    if (stateRes?.status) {
-      setStateData(stateRes.data);
-    }
+      if (response.status) {
+        setGetAllStatesList(response.data);
+        // No need to set selectState or call getCityList here.
+      }
+    } catch (error) {
+      console.error('Error fetching state list:', error);
+    } 
   }
-
-  async function handleCity() {
-    if (selectedState) {
-      const res = await cityListData(selectedState.id);
-      if (res?.status) {
-        setCityData(res.data);
+  useEffect(() => {
+    // This useEffect runs whenever getAllStatesList, selectStateId, or selectCityId changes.
+    // Place the logic that depends on these states here.
+    if (getAllStatesList.length > 0 && selectStateId) {
+      const selectedState = getAllStatesList.find((item) => item.id === selectStateId);
+      if (selectedState) {
+        console.log('Selected State:', selectedState.name);
+        setSelectState(selectedState.name);
+        getCityList(selectedState.id);
       }
     }
+  }, [getAllStatesList, selectStateId, selectCityId]);
+  useEffect(() => {
+    if (getAllCityList.length > 0 && selectCityId != null) {
+      const selectedCity = getAllCityList.find((item) => item.id === selectCityId);
+      if (selectedCity) {
+        console.log('Selected City:', selectedCity.city);
+        setSelectCity(selectedCity.city);
+      }
+    }
+  }, [getAllCityList, selectCityId]);
+  // useEffect(()=>{
+  //   getAllStatesList.map((items, key) => {
+  //     // console.log('this is item',items.id)
+  //     // console.log(selectStateId)
+  //     if(items.id===selectStateId){
+  //       console.log('this is item',items)
+  //       setSelectState(items.name)
+  //       getCityList(items.id)
+  //       return items.name
+
+  //     }
+  //   })
+  // })
+  async function handleWithdrawnRequest() {
+    const resw = await getCurrentUserDetails();
+    const userData = resw?.data;
+    if (resw?.status) {
+      setFormValues({
+        user_name: userData.user_name || '',
+        email: userData.email || '',
+        mobile: userData.contactno || '',
+        state: userData.state_id || '',
+        city: userData.city_id || '',
+        address: userData.address || '',
+        pancard: userData.pan_no || '',
+        bankIfsc: userData.ifsc_code || '',
+        bankName: userData.bank_name || '',
+        acNumber: userData.account_number || '',
+        bankBranch: userData.branch_name || '',
+      });
+      setPanImagePreview(userData.pan_image);
+      setPassbookImagePreview(userData.passbook_image);
+      setProfileImagePreview(userData.profile_image);
+      setSelectStateId(userData.state_id || '');
+      setSelectCityId(userData.city_id || '');
+      // setPassbookFileData(userData.passbook_image)
+
+      // toast.success(resw?.message);
+    } else {
+      // toast.error(resw?.message);
+    }
   }
-
-  const handleProfileFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProfileFileData(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImagePreview(e.target.result);
-      };
-
-      reader.readAsDataURL(file);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'role') {
+      setRoleName(value);
+    } else {
+      setFormValues((prevData) => ({ ...prevData, [name]: value }));
+      setFormErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
     }
   };
 
+  const handleKeyPress = (e) => {
+    const key = e.key;
+    if (key === 'e' || key === '+' || key === '-') {
+      e.preventDefault();
+    }
+  };
+  // console.log('sdjkdhaf dffhjk ak v fdvfd jkdfh ===', getAllStatesList)
+  const stateSearchItem = getAllStatesList.filter((item) => {
+    if (searchState == '') {
+      return item;
+    } else if (item.name.toLowerCase().includes(searchState.toLowerCase())) {
+      return item;
+    }
+  });
+
+  async function getCityList(id) {
+    // const state_id: selectStateId
+    const response = await cityListData(id);
+    if (response.status) {
+      setGetAllCityList(response?.data);
+    }
+  }
+
+  function handleSelectCity(id, name) {
+    setSelectCity(name);
+    setSelectCityId(id);
+  }
+  function handleSelectState(id, name) {
+    setSelectState(name);
+    setSelectStateId(id);
+    getCityList(id);
+  }
   const handlePanFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setPanFileData(file);
 
       const reader = new FileReader();
+      console.log(file, panFileData);
       reader.onload = (e) => {
         setPanImagePreview(e.target.result);
       };
@@ -143,11 +191,25 @@ function MyProfile() {
       reader.readAsDataURL(file);
     }
   };
+  const handleProfileFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileFileData(file);
 
+      const reader = new FileReader();
+      console.log(file, panFileData);
+      reader.onload = (e) => {
+        setProfileImagePreview(e.target.result);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
   const handlePassbookFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setPassbookFileData(file);
+      console.log(file);
       const reader = new FileReader();
 
       reader.onload = (e) => {
@@ -157,19 +219,18 @@ function MyProfile() {
       reader.readAsDataURL(file);
     }
   };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues((prevData) => ({ ...prevData, [name]: value }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
-  };
-
-  const handleKeyPress = (e) => {
-    const key = e.key;
-    if (key === 'e' || key === '+' || key === '-') {
-      e.preventDefault();
+  const citySearchItem = getAllCityList.filter((item) => {
+    if (searchCity == '') {
+      return item;
+    } else if (item.name.toLowerCase().includes(searchCity.toLowerCase())) {
+      return item;
     }
-  };
+  });
+
+  function getImagePreviewURL(image) {
+    if (typeof image === 'string') return image;
+    return URL.createObjectURL(image);
+  }
 
   const validate = (values) => {
     const errors = {};
@@ -230,13 +291,19 @@ function MyProfile() {
       pan_image: panFileData,
       passbook_image: passbookFileData,
       profile_image: profileFileData,
-      state_id: selectedState.id,
-      city_id: selectedCity.id,
+      state_id: selectStateId,
+      city_id: selectCityId,
     };
+    console.log('this is params', params.state_id, params.city_id);
+    // updateUserDetails()
     const res = await updateUserDetails(params);
+    // handleApiResponse(res);
+    console.log(res, "Rs")
     if (res?.status) {
+      console.log('responce is', res);
       toast.success(res.message);
     }
+    // console.log(data)
   };
 
   return (
@@ -251,17 +318,18 @@ function MyProfile() {
               <div className="card-head card-head-padding border-bottom">
                 <h4 className="common-heading mb-0">My profile</h4>
               </div>
-              <Card.Body>
+              <Card.Body className="box-padding">
                 <Form>
-                  <div className="box-profile-image mb-4 d-flex align-items-center circular-image-container">
+                  <div className="box-profile-image mb-4 d-flex align-items-center">
+                    <div className="img-profile me-3"></div>
                     <Image
-                      src={profileImagePreview || '/images/user.png'}
+                      src={(profileImagePreview && profileImagePreview) || '/images/team-roster/user-details.png'}
                       alt="image"
                       width={100}
                       height={100}
-                      className="rounded-circle me-4 circular-image"
+                      className="img-fluid rounded-3 me-4"
                     />
-                    <div>
+                    <div className="info-profile d-flex align-items-center">
                       <Form.Control
                         type="file"
                         id="uploadImage"
@@ -269,13 +337,19 @@ function MyProfile() {
                         accept="image/png, image/jpeg, image/jpg, image/svg+xml"
                         className="d-none"
                         name="imageFileData"
+                        // value={imageFileData}
+                        aria-describedby="passwordHelpBlock"
                       />
-                      <label className="common-btn py-2 px-3 fs-14 cursor-pointer text-nowrap" htmlFor="uploadImage">
-                        Upload Avatar
+                      <label
+                        className="common-btn py-2 px-3 fs-14 me-2 cursor-pointer"
+                        htmlFor="uploadImage"
+                        title="Upload Image"
+                      >
+                        <span className="d-inline-flex align-middle">Upload Avatar</span>
                       </label>
+                      {/* <span className="text-decoration-underline fs-14  base-color"> Delete</span> */}
                     </div>
                   </div>
-
                   <Row>
                     <Col lg={6}>
                       <div className="mb-4">
@@ -332,34 +406,47 @@ function MyProfile() {
                         </Form.Group>
                       </div>
                     </Col>
-                    <Col lg={6}>
-                      <Form.Group className="position-relative">
-                        <Form.Label className="fs-16 fw-400 base-color">State</Form.Label>
-                        <ReusableDropdown
-                          options={stateData}
-                          selectedValue={selectedState?.name || 'Select State'}
-                          onSelect={setSelectedState}
-                          placeholder="State"
-                          displayKey="name"
-                          valueKey="id"
-                        />
-                        {formErrors.name && <p className="text-danger fs-14 error-message">{formErrors.name}</p>}
-                      </Form.Group>
-                    </Col>
-                    <Col lg={6}>
-                      <div className="mb-3">
-                        <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color">City</Form.Label>
 
-                          <ReusableDropdown
-                            options={cityData}
-                            selectedValue={selectedCity ? selectedCity.city : 'Select City'}
-                            onSelect={setSelectedCity}
-                            placeholder="City"
-                            displayKey="city"
-                            valueKey="id"
-                          />
-                          {formErrors.city && <p className="text-danger fs-14 error-message">{formErrors.city}</p>}
+                    <Col lg={6}>
+                      <div className="mb-4">
+                        <Form.Group className="position-relative">
+                          <Form.Label className="fs-14 fw-500 base-color-2">City</Form.Label>
+                          <div className="form-select-catgory">
+                            <Dropdown className="form-control px-0 py-0 card-border">
+                              <Dropdown.Toggle
+                                variant="none"
+                                className="w-100 hight-50 text-start filter-box-dropdown base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
+                                id="dropdown-basic"
+                              >
+                                <span className="text-truncate pe-3">
+                                  {(selectCity && selectCity) || 'Select City'}
+                                </span>
+                              </Dropdown.Toggle>
+                              <Dropdown.Menu className="w-100 card-border ">
+                                <div className="px-2 mb-2">
+                                  <input
+                                    type="search"
+                                    placeholder="Search City"
+                                    onChange={(e) => setSearchCity(e.target.value)}
+                                    className="form-control shadow-none card-border fs-14 hight-50"
+                                  />
+                                </div>
+                                {getAllCityList &&
+                                  citySearchItem.map((items, key) => {
+                                    return (
+                                      <Dropdown.Item
+                                        key={key}
+                                        className="py-2 fs-14 base-color"
+                                        value={items.id}
+                                        onClick={() => handleSelectCity(items.id, items.city)}
+                                      >
+                                        <span>{items.city}</span>
+                                      </Dropdown.Item>
+                                    );
+                                  })}
+                              </Dropdown.Menu>
+                            </Dropdown>
+                          </div>
                         </Form.Group>
                       </div>
                     </Col>
@@ -367,7 +454,51 @@ function MyProfile() {
                     <Col lg={6}>
                       <div className="mb-4">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-14 fw-500 base-color">Add Address</Form.Label>
+                          <Form.Label className="fs-14 fw-500 base-color-2">State</Form.Label>
+                          <div className="form-select-catgory">
+                            <Dropdown className="form-control px-0 py-0 card-border">
+                              <Dropdown.Toggle
+                                variant="none"
+                                className="w-100 hight-50 text-start filter-box-dropdown base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
+                                id="dropdown-basic"
+                              >
+                                <span className="text-truncate pe-3">{selectState || 'Select State'}</span>
+                              </Dropdown.Toggle>
+                              <Dropdown.Menu className="w-100 card-border ">
+                                <div className="px-2 mb-2">
+                                  <input
+                                    type="search"
+                                    placeholder="Search State"
+                                    onChange={(e) => setSearchState(e.target.value)}
+                                    className="form-control shadow-none card-border fs-14 hight-50"
+                                  />
+                                </div>
+                                {getAllStatesList &&
+                                  stateSearchItem.map((items, key) => {
+                                    return (
+                                      <Dropdown.Item
+                                        key={key}
+                                        className="py-2 fs-14 base-color"
+                                        value={items.id}
+                                        defaultValue={selectStateId}
+                                        defaultChecked={selectStateId}
+                                        onClick={() => handleSelectState(items.id, items.name)}
+                                      >
+                                        <span>{items.name}</span>
+                                      </Dropdown.Item>
+                                    );
+                                  })}
+                              </Dropdown.Menu>
+                            </Dropdown>
+                          </div>
+                        </Form.Group>
+                      </div>
+                    </Col>
+
+                    <Col lg={6}>
+                      <div className="mb-4">
+                        <Form.Group className="position-relative">
+                          <Form.Label className="fs-14 fw-500 base-color-2">Add Address</Form.Label>
                           <Form.Control
                             type="text"
                             as="textarea"
@@ -375,6 +506,7 @@ function MyProfile() {
                             placeholder="Enter Your Address"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3 card-border rounded-1 text-area"
                             value={formValues.address}
+                            // defaultValue={userAllDetails?.address}
                             onChange={handleChange}
                           />
                         </Form.Group>

@@ -54,21 +54,14 @@
   opacity: 0.7 !important;
 }
 
-.img-profile {
-  img {
-    width: 100px;
-    height: 100px;
-    min-width: 100px;
-    min-height: 100px;
-  }
+.circular-image-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
 }
 
-@media (max-width: 991px) {
-  .timeline-box {
-    .timeline-year {
-      &::after {
-        width: 0px;
-      }
-    }
-  }
+.circular-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
