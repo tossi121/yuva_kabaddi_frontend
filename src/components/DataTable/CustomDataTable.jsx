@@ -99,7 +99,7 @@ function CustomDataTable(props) {
         return Object.keys(item).some((key) => {
           const value = item[key];
           if (typeof value === 'number') {
-            const formattedValue = value.toFixed(2);
+            const formattedValue = value?.toFixed(2);
             return formattedValue.toString().toLowerCase().includes(searchInput?.replaceAll(',', '').toLowerCase());
           }
           return value?.toString().toLowerCase().includes(searchInput?.replaceAll(',', '').toLowerCase());

@@ -75,7 +75,7 @@ function WithdrawalModal(props) {
   };
 
   const total = parseFloat(formValues.totalAmount);
-  const formattedAmount = total.toFixed(2).toLocaleString('en-IN');
+  const formattedAmount = total?.toFixed(2).toLocaleString('en-IN');
   const tdsRate = 0.07;
   const tdsAmount = formValues.withdrawalAmount * tdsRate;
 
@@ -126,7 +126,7 @@ function WithdrawalModal(props) {
                   Paid
                 </Badge>
                 <p className="fs-14 fw-500 base-color mb-0">
-                  {parseFloat(formValues.withdrawalAmount - tdsAmount).toFixed(2)}
+                  {parseFloat(formValues.withdrawalAmount - tdsAmount)?.toFixed(2)}
                 </p>
               </div>
               <div className="d-flex align-items-center my-2">
@@ -134,14 +134,14 @@ function WithdrawalModal(props) {
                   Remaining
                 </Badge>
                 <p className="fs-14 fw-500 base-color mb-0">
-                  {(totalAmount - parseFloat(formValues.withdrawalAmount)).toFixed(2)}
+                  {(totalAmount - parseFloat(formValues.withdrawalAmount))?.toFixed(2)}
                 </p>
               </div>
               <div className="d-flex align-items-center my-2">
                 <Badge pill bg={'danger'} className="fs-12 me-2">
                   TDS
                 </Badge>
-                <p className="fs-14 fw-500 base-color mb-0"> {tdsAmount.toFixed(2)}</p>
+                <p className="fs-14 fw-500 base-color mb-0"> {tdsAmount?.toFixed(2)}</p>
               </div>
             </div>
           )}

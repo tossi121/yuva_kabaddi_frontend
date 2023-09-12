@@ -26,11 +26,11 @@ function UserEarnings({ setShow, withdrawalShow }) {
                       <h6 className="section-subtitle">Total Amount Left:</h6>
                     </div>
                     <div className="ms-4">
-                      <h6 className="section-subtitle">&#8377;{currentUser?.Total_Earninig.toFixed(2)}</h6>
-                      <h6 className="section-subtitle">&#8377;{currentUser?.sumplayerEarningFee.toFixed(2)}</h6>
-                      <h6 className="section-subtitle">&#8377;{currentUser?.sumPlayerOfAwards.toFixed(2)}</h6>
-                      <h6 className="section-subtitle">&#8377;{currentUser?.sumAprovedEarning.toFixed(2)}</h6>
-                      <h6 className="section-subtitle">&#8377; {amountLeft.toFixed(2)}</h6>
+                      <h6 className="section-subtitle">&#8377;{currentUser?.Total_Earninig?.toFixed(2)}</h6>
+                      <h6 className="section-subtitle">&#8377;{currentUser?.sumplayerEarningFee?.toFixed(2)}</h6>
+                      <h6 className="section-subtitle">&#8377;{currentUser?.sumPlayerOfAwards?.toFixed(2)}</h6>
+                      <h6 className="section-subtitle">&#8377;{currentUser?.sumAprovedEarning?.toFixed(2)}</h6>
+                      <h6 className="section-subtitle">&#8377; {amountLeft?.toFixed(2)}</h6>
                     </div>
                   </div>
                 </div>
