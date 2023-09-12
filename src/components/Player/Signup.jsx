@@ -122,7 +122,6 @@ function Signup() {
         const token = res.data;
         Cookies.set('token', token.access_token, { expires: 30, path: '/' });
         Cookies.set('role', token.user_role, { expires: 30, path: '/' });
-        Cookies.set('user', token.user_name, { expires: 30, path: '/' });
         router.push('/');
         toast.success(res.message);
       } else {

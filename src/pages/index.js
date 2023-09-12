@@ -12,7 +12,7 @@ export default function Home() {
     } else {
       router.push('/dashboard');
     }
-  }, [role]);
+  }, [role, router]);
 
   return <></>;
 }

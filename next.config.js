@@ -21,7 +21,6 @@ const nextConfig = {
     MATCH_DATA: 'series/matchdetails',
     MATCH_PLAYERS_DATA: 'match/players',
     PRICE_MONEY_DATA: 'pricedetail',
-    PRICE_MONEY_ALL_DATA: 'pricedetailtotal',
     WITHDRAWN_REQUESTS_OF_USER_DATA: 'getplayerwithdrawnrequestslistforuser',
     CURRENT_USER_DATA: 'getcurrentuserdetails',
     CITY_BY_STATE_DATA: 'citiesbystate',

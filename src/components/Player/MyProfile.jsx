@@ -49,12 +49,11 @@ function MyProfile() {
   const [loading, setLoading] = useState(false);
   const [panFileData, setPanFileData] = useState(null);
   const [passbookFileData, setPassbookFileData] = useState(null);
-  const [checkData, setCheckData] = useState(false);
-  // Get the current user from the authentication context
+  const [updatedUser, setUpdatedUser] = useState(false);
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    if (currentUser) {
+    if (currentUser || updatedUser) {
       const values = {
         user_name: currentUser.user_name || '',
         email: currentUser.email || '',
@@ -73,47 +72,45 @@ function MyProfile() {
       setPassbookImagePreview(currentUser.passbook_image);
       setProfileImagePreview(currentUser.profile_image);
     }
-  }, [currentUser]);
+  }, [currentUser, updatedUser]);
 
   useEffect(() => {
     handleState();
-    const selectedStateId = stateData.find((item) => item.id === formValues.name);
-    setSelectedState(selectedStateId);
-    setCheckData(true);
   }, []);
 
-  console.log(selectedState);
-
-  useEffect(() => {
-    if (checkData && selectedState) {
-      handleCity(selectedState.id);
-      const selectedCityId = cityData.find((item) => item.id === formValues.city);
-      console.log(selectedCityId, 'Ids');
-    }
-  }, [selectedState]);
-
-  console.log(selectedState, '-', selectedCity);
-
   useEffect(() => {
     const selectedStateId = stateData.find((item) => item.id === formValues.name);
     setSelectedState(selectedStateId);
-    // const selectedCityId = cityData.find((item) => item.id === formValues.city);
-    // setSelectedCity(selectedCityId);
-  }, [formValues]);
+  }, [formValues.name]);
+
+  useEffect(() => {
+    if (selectedState) {
+      handleCity(selectedState.id);
+
+      const selectedCityId = cityData.find((item) => item.id === formValues.city);
+      setSelectedCity(selectedCityId);
+    }
+  }, [selectedState, formValues.city, JSON.stringify(cityData)]);
 
   async function handleState() {
-    const stateRes = await stateListData();
-    if (stateRes?.status) {
-      setStateData(stateRes.data);
+    try {
+      const stateRes = await stateListData();
+      if (stateRes?.status) {
+        setStateData(stateRes.data);
+      }
+    } catch (error) {
+      console.error('Error fetching state data:', error);
     }
   }
 
-  async function handleCity() {
-    if (selectedState) {
-      const res = await cityListData(selectedState.id);
+  async function handleCity(stateId) {
+    try {
+      const res = await cityListData(stateId);
       if (res?.status) {
         setCityData(res.data);
       }
+    } catch (error) {
+      console.error('Error fetching city data:', error);
     }
   }
 
@@ -171,52 +168,55 @@ function MyProfile() {
     }
   };
 
-  const validate = (values) => {
+  const validate = () => {
     const errors = {};
 
-    if (!values.email) {
+    if (!formValues.email) {
       errors.email = 'Please enter an email address';
-    } else if (!validEmail(values.email)) {
+    } else if (!validEmail(formValues.email)) {
       errors.email = 'Please enter a valid email address';
     }
-    if (!values.user_name) {
+    if (!formValues.user_name) {
       errors.user_name = 'Please enter a full name';
-    } else if (!validName(values.user_name)) {
+    } else if (!validName(formValues.user_name)) {
       errors.user_name = 'Please enter a valid name';
     }
 
-    if (!values.mobile) {
+    if (!formValues.mobile) {
       errors.mobile = 'Please enter a mobile number';
-    } else if (!validMobile(values.mobile)) {
+    } else if (!validMobile(formValues.mobile)) {
       errors.mobile = 'Please enter a valid 10-digit mobile number';
     }
 
-    if (!values.pancard) {
+    if (!formValues.pancard) {
       errors.pancard = 'Please enter a PAN number';
-    } else if (!validPAN(values.pancard)) {
+    } else if (!validPAN(formValues.pancard)) {
       errors.pancard = 'Please enter valid PAN number';
     }
 
-    if (!values.bankIfsc) {
+    if (!formValues.bankIfsc) {
       errors.bankIfsc = 'Please enter a bank IFSC code';
-    } else if (!validBankIFSC(values.bankIfsc)) {
+    } else if (!validBankIFSC(formValues.bankIfsc)) {
       errors.bankIfsc = 'Please enter a valid bank IFSC code';
     }
 
-    if (!values.acNumber) {
+    if (!formValues.acNumber) {
       errors.acNumber = 'Please enter an account number';
-    } else if (!validAccountNumber(values.acNumber)) {
+    } else if (!validAccountNumber(formValues.acNumber)) {
       errors.acNumber = 'Please enter a valid account number';
     }
 
-    if (!values.bankBranch) {
+    if (!formValues.bankBranch) {
       errors.bankBranch = 'Please enter a bank branch name';
     }
-    if (!values.bankName) {
+    if (!formValues.bankName) {
       errors.bankName = 'Please enter a bank name';
     }
-    if (!values.imageFileData) {
-      errors.imageFileData = 'Please upload PAN card  ';
+    if (!panFileData && !panImagePreview) {
+      errors.panFileData = 'Please upload PAN card  ';
+    }
+    if (!passbookFileData && !passbookImagePreview) {
+      errors.passbookFileData = 'Please passbook card  ';
     }
     return errors;
   };
@@ -230,14 +230,34 @@ function MyProfile() {
       pan_image: panFileData,
       passbook_image: passbookFileData,
       profile_image: profileFileData,
-      state_id: selectedState.id,
-      city_id: selectedCity.id,
     };
     const res = await updateUserDetails(params);
     if (res?.status) {
       toast.success(res.message);
+      setUpdatedUser(true);
     }
   };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const errors = validate();
+  //   setFormErrors(errors);
+  //   console.log(errors);
+  //   if (Object.keys(errors).length === 0) {
+  //     try {
+  //       setLoading(true);
+  //       const res = await updateUserDetails(params);
+  //       if (res?.status) {
+  //         toast.success(res.message);
+  //         setUpdatedUser(true);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error during login:', error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+  // };
 
   return (
     <section className="dashboard-section">
@@ -268,7 +288,6 @@ function MyProfile() {
                         onChange={handleProfileFileChange}
                         accept="image/png, image/jpeg, image/jpg, image/svg+xml"
                         className="d-none"
-                        name="imageFileData"
                       />
                       <label className="common-btn py-2 px-3 fs-14 cursor-pointer text-nowrap" htmlFor="uploadImage">
                         Upload Avatar
@@ -410,7 +429,6 @@ function MyProfile() {
                               onChange={handlePanFileChange}
                               accept="image/png, image/jpeg, image/jpg, image/svg+xml"
                               className="d-none"
-                              name="imageFileData"
                               aria-describedby="passwordHelpBlock"
                             />
                             <label className="common-btn py-2 px-3 fs-14 me-2 cursor-pointer" htmlFor="pan">
@@ -418,6 +436,9 @@ function MyProfile() {
                             </label>
                           </div>
                         </div>
+                        {formErrors.panFileData && (
+                          <p className="text-danger fs-14 error-message">{formErrors.panFileData}</p>
+                        )}
                       </div>
                     </Col>
                     <Col lg={6}>
@@ -441,7 +462,6 @@ function MyProfile() {
                               onChange={handlePassbookFileChange}
                               accept="image/png, image/jpeg, image/jpg, image/svg+xml"
                               className="d-none"
-                              name="imageFileData"
                               aria-describedby="passwordHelpBlock"
                             />
                             <label className="common-btn py-2 px-3 fs-14 me-2 cursor-pointer" htmlFor="passbook">
@@ -449,6 +469,9 @@ function MyProfile() {
                             </label>
                           </div>
                         </div>
+                        {formErrors.passbookFileData && (
+                          <p className="text-danger fs-14 error-message">{formErrors.passbookFileData}</p>
+                        )}
                       </div>
                     </Col>
                     <Col lg={6}>

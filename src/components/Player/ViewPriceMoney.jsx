@@ -10,24 +10,12 @@ import { faDownload, faFilter, faSearch } from '@fortawesome/free-solid-svg-icon
 import { useRouter } from 'next/router';
 import UserEarnings from './UserEarnings';
 import { getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
+import { useAuth } from '@/_context/authContext';
 
 const WithdrawalModal = dynamic(import('./WithdrawalModal'));
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function ViewPriceMoney() {
-  const columnsWithdrawal = [
-    { heading: 'Withdrawal Date', field: 'createdAt' },
-    { heading: 'Withdrawal Amount', field: 'amount' },
-    { heading: 'Status', field: 'status' },
-  ];
-
-  const columns = [
-    { heading: 'Pricing Category', field: 'priceType' },
-    { heading: 'Match Number', field: 'match_no' },
-    { heading: 'Winning Date', field: 'Date' },
-    { heading: 'Amount', field: 'priceAmount' },
-  ];
-
   const [totalAmount, setTotalAmount] = useState('');
   const [show, setShow] = useState(false);
   const [startDate, setStartDate] = useState(null);
@@ -42,6 +30,21 @@ function ViewPriceMoney() {
   const router = useRouter();
   const { label } = router.query;
 
+  const { currentUser } = useAuth();
+  const amountLeft = currentUser?.Total_Earninig - currentUser?.sumAprovedEarning;
+
+  const columnsWithdrawal = [
+    { heading: 'Withdrawal Date', field: 'createdAt' },
+    { heading: 'Withdrawal Amount', field: 'amount' },
+    { heading: 'Status', field: 'status' },
+  ];
+
+  const columns = [
+    { heading: 'Pricing Category', field: 'priceType' },
+    { heading: 'Match Number', field: 'match_no' },
+    { heading: 'Winning Date', field: 'Date' },
+    { heading: 'Amount', field: 'priceAmount' },
+  ];
   const [selectedFilters, setSelectedFilters] = useState({
     paid: true,
     pending: true,
@@ -71,6 +74,7 @@ function ViewPriceMoney() {
     }
   }, [showTable]);
 
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -90,12 +94,13 @@ function ViewPriceMoney() {
         console.error('Error fetching data:', error);
       }
     }
-
     fetchData();
+
+    setTotalAmount(amountLeft);
   }, [startDate, endDate]);
 
   useEffect(() => {
-    if (withdrawalsData && !checkedFilter && label != undefined) {
+    if (withdrawalsData && label != undefined) {
       setSelectedFiltersByLabel(label);
       if (label === 'Paid Withdrawals') {
         setShowTable(false);
@@ -110,6 +115,10 @@ function ViewPriceMoney() {
         setFilterData(withdrawalsData);
         setShowTable(true);
       }
+    }
+    if (label === undefined) {
+      setShowTable(true);
+      setFilterData(withdrawalsData);
     }
   }, [label, withdrawalsData]);
 
@@ -424,7 +433,7 @@ function ViewPriceMoney() {
             </Col>
           </Row>
 
-          <UserEarnings setShow={setShow} />
+          <UserEarnings setShow={setShow} withdrawalShow={1} />
 
           <Row>
             <Col>
@@ -464,7 +473,8 @@ function ViewPriceMoney() {
                   {earningsData.length > 0 && showTable && (
                     <CustomDataTable rows={earningsData} columns={columns} options={tableOptions} />
                   )}
-                  {filterData.length > 0 && !showTable && (
+
+                  {!showTable && (
                     <CustomDataTable rows={filterData} columns={columnsWithdrawal} options={tableOptionsWithdrawal} />
                   )}
                 </Card.Body>

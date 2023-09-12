@@ -91,15 +91,6 @@ export async function getPriceMoney(params) {
   }
 }
 
-export async function getEarnings(params) {
-  try {
-    const response = await fetcher('GET', process.env.PRICE_MONEY_ALL_DATA, params);
-    return response;
-  } catch (err) {
-    return null;
-  }
-}
-
 export async function getWithdrawnRequests(params) {
   try {
     const response = await fetcher('GET', process.env.WITHDRAWN_REQUESTS_OF_USER_DATA, params);

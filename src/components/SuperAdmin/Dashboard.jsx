@@ -46,7 +46,7 @@ function Dashboard() {
   });
 
   const { currentUser } = useAuth();
-  const user = currentUser?.user_name
+  const user = currentUser?.user_name;
 
   useEffect(() => {
     async function fetchData() {
@@ -308,7 +308,7 @@ function Dashboard() {
           <Col>
             <Card className="bg-white rounded-4 card-border">
               <Card.Body className="box-padding">
-                <h5 className="common-heading text-capitalize">{user}</h5>
+                <h5 className="common-heading text-capitalize">Super Admin</h5>
                 <div className="d-flex align-items-baseline">
                   <div>
                     <h6 className="section-subtitle">Total Money Spent:</h6>
