@@ -1,6 +1,7 @@
 import { validWithdrawalAmount } from '@/_helper/regex';
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Modal, Spinner } from 'react-bootstrap';
+import { Badge, Button, Form, Modal, Spinner } from 'react-bootstrap';
+import toast from 'react-hot-toast';
 
 function WithdrawalModal(props) {
   const { setShow, show, totalAmount } = props;
@@ -60,7 +61,8 @@ function WithdrawalModal(props) {
         setShow(false);
         setFormValues((prevValues) => ({ ...prevValues, withdrawalAmount: '' }));
         setFormErrors({});
-      }, 1500);
+        toast.success('withdrawal successfully');
+      }, 200);
     } else {
       setFormErrors(errors);
     }
@@ -114,21 +116,42 @@ function WithdrawalModal(props) {
             </Form.Group>
           </div>
           {formValues.withdrawalAmount.length > 0 && (
-            <div className="d-flex align-items-center">
-              <p className="fs-16 fw-semibold base-color">Summary:- &nbsp;</p>
-              <p className="fs-14 fw-400 base-color">
-                Paid: {parseFloat(formValues.withdrawalAmount - tdsAmount).toFixed(2)} Remaining:
-                {totalAmount - parseFloat(formValues.withdrawalAmount).toFixed(2)} TDS: {tdsAmount.toFixed(2)}
-              </p>
+            <div>
+              <Badge pill bg={'info'} className="fs-12">
+                Summary
+              </Badge>
+
+              <div className="d-flex align-items-center my-2">
+                <Badge pill bg={'success'} className="fs-12 me-2">
+                  Paid
+                </Badge>
+                <p className="fs-14 fw-500 base-color mb-0">
+                  {parseFloat(formValues.withdrawalAmount - tdsAmount).toFixed(2)}
+                </p>
+              </div>
+              <div className="d-flex align-items-center my-2">
+                <Badge pill bg={'warning'} className="fs-12 me-2">
+                  Remaining
+                </Badge>
+                <p className="fs-14 fw-500 base-color mb-0">
+                  {(totalAmount - parseFloat(formValues.withdrawalAmount)).toFixed(2)}
+                </p>
+              </div>
+              <div className="d-flex align-items-center my-2">
+                <Badge pill bg={'danger'} className="fs-12 me-2">
+                  TDS
+                </Badge>
+                <p className="fs-14 fw-500 base-color mb-0"> {tdsAmount.toFixed(2)}</p>
+              </div>
             </div>
           )}
 
           <div className="text-center">
             <Button
               variant="white"
-              
               className="my-3 mt-4 w-50 mx-auto fw-400 fs-18 text-white common-btn shadow-none py-2"
               disabled={loading}
+              onClick={handleSubmit}
             >
               Withdrawal
               {loading && <Spinner animation="border" variant="white" size="sm" className="ms-1 spinner" />}

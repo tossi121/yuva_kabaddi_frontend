@@ -1,4 +1,4 @@
-import { fetcher } from '@/_helper/apiBase';
+import { fetcher, filesFetch } from '@/_helper/apiBase';
 
 export async function getOtp(params) {
   try {
@@ -91,18 +91,63 @@ export async function getPriceMoney(params) {
   }
 }
 
-export async function getEarnings(params) {
+export async function getWithdrawnRequests(params) {
   try {
-    const response = await fetcher('GET', process.env.PRICE_MONEY_ALL_DATA, params);
+    const response = await fetcher('GET', process.env.WITHDRAWN_REQUESTS_OF_USER_DATA, params);
     return response;
   } catch (err) {
     return null;
   }
 }
 
-export async function getWithdrawnRequests(params) {
+export async function getCurrentUserDetails(params) {
   try {
-    const response = await fetcher('GET', process.env.WITHDRAWN_REQUESTS_OF_USER_DATA, params);
+    const response = await fetcher('GET', process.env.CURRENT_USER_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function updateUserDetails(params) {
+  try {
+    const response = await filesFetch('POST', process.env.UPDATE_USER_DETAILS_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function stateListData(params) {
+  try {
+    const response = await fetcher('GET', process.env.STATE_LIST_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function cityListData(id) {
+  try {
+    const url = `${process.env.CITY_BY_STATE_DATA}/${id}`;
+    const response = await fetcher('GET', url);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+// super admin
+export async function getSpent(params) {
+  try {
+    const response = await fetcher('GET', process.env.ADMIN_PRICE_MONEY_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function getWithdrawnRequestsList(params) {
+  try {
+    const response = await fetcher('GET', process.env.ADMIN_WITHDRAWN_REQUESTS_OF_USER_DATA, params);
     return response;
   } catch (err) {
     return null;

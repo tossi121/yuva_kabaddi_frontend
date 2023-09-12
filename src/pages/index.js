@@ -7,12 +7,12 @@ export default function Home() {
   const { role } = useAuth();
 
   useEffect(() => {
-    if (role === 'SUPER_ADMIN') {
+    if (role == 'SUPER_ADMIN') {
       router.push('/super-admin/dashboard');
     } else {
       router.push('/dashboard');
     }
-  }, [router, role]);
+  }, [role, router]);
 
   return <></>;
 }

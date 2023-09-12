@@ -133,8 +133,8 @@ a {
   color: var(--base-color-9);
 }
 
-.base-color1 {
-  color: var(--base-border-color);
+.base-color-1 {
+  color: var(--base-color-1);
 }
 
 .cursor-pointer {
@@ -336,7 +336,7 @@ input[type='number'] {
 input[type='checkbox'] {
   cursor: pointer;
   border: 1px solid #ebebeb !important;
-  &:focus-visible{
+  &:focus-visible {
     outline-offset: unset !important;
   }
 }

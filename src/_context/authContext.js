@@ -1,14 +1,26 @@
 import Cookies from 'js-cookie';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { getCurrentUserDetails } from '@/_services/services_api';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState('');
-  const [user, setUser] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
   const router = useRouter();
+
+  useEffect(() => {
+    handleUser();
+  }, []);
+
+  async function handleUser() {
+    const res = await getCurrentUserDetails();
+    if (res?.status) {
+      setCurrentUser(res?.data);
+    }
+  }
 
   const checkUserAuthentication = async () => {
     const token = Cookies.get('token');
@@ -20,7 +32,6 @@ export const AuthProvider = ({ children }) => {
   const redirectToCorrectRoute = async () => {
     const currentPath = router.pathname;
     setRole(Cookies.get('role'));
-    setUser(Cookies.get('user'));
     const isAuthenticated = await checkUserAuthentication();
 
     if (isAuthenticated) {
@@ -36,12 +47,12 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     redirectToCorrectRoute();
-  }, [role, user, router]);
-
-
+  }, [role, router, currentUser]);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, role, user, checkUserAuthentication }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ isLoggedIn, role, currentUser, checkUserAuthentication }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 
