@@ -62,14 +62,12 @@ function WithdrawalsChart({ withdrawalsData, filterChart, chart }) {
     })),
   };
   return (
-    <Col lg={6}>
-      <Card className="common-card-box common-card-shadow transition w-100">
-        <Card.Body>
-          <h5 className="card-heading text-center">Withdrawals Chart</h5>
-          <Bar data={(chart && filterChart) || updatedChartData} options={chartOptions} />
-        </Card.Body>
-      </Card>
-    </Col>
+    <Card className="common-card-box common-card-shadow transition w-100">
+      <Card.Body>
+        <h5 className="card-heading text-center">Withdrawals Chart</h5>
+        <Bar data={(chart && filterChart) || updatedChartData} options={chartOptions} />
+      </Card.Body>
+    </Card>
   );
 }
 

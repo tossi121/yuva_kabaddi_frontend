@@ -18,7 +18,6 @@ function AddTds() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormValues((prevData) => ({ ...prevData, [name]: value }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
   };
 
   const handleKeyPress = (e) => {

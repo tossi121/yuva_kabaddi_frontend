@@ -258,10 +258,14 @@ function Dashboard() {
           ))}
         </Row>
         <Row>
-          {withdrawalsData.length > 0 && (
-            <WithdrawalsChart withdrawalsData={withdrawalsData} filterChart={filterChart} chart={chart} />
-          )}
-          {earningsData.length > 0 && <EarningChart earningsData={earningsData} />}
+          <Col lg={earningsData.length > 0 ? 6 : 12}>
+            {withdrawalsData.length > 0 && (
+              <WithdrawalsChart withdrawalsData={withdrawalsData} filterChart={filterChart} chart={chart} />
+            )}
+          </Col>
+          <Col lg={withdrawalsData.length > 0 ? 6 : 12}>
+            {earningsData.length > 0 && <EarningChart earningsData={earningsData} />}
+          </Col>
         </Row>
       </Container>
     </div>

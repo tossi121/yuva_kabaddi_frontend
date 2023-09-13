@@ -18,7 +18,6 @@ const CommentModal = (props) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormValues((prevValues) => ({ ...prevValues, [name]: value }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
 
     if (name === 'status') {
       setFormValues((prevValues) => ({ ...prevValues, comment: '' }));

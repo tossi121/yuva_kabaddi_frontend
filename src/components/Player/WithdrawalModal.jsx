@@ -23,7 +23,6 @@ function WithdrawalModal(props) {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormValues((prevValues) => ({ ...prevValues, [name]: value }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
   };
 
   const handleKeyPress = (e) => {

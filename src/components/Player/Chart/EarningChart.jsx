@@ -72,14 +72,12 @@ function EarningChart(props) {
   const chartDataFinal = generateChartData(earningsData);
 
   return (
-    <Col lg={6}>
-      <Card className="common-card-box common-card-shadow transition w-100">
-        <Card.Body>
-          <h4 className="card-heading text-center">Earning Chart</h4>
-          <Bar data={chartDataFinal} options={chartOptions} />
-        </Card.Body>
-      </Card>
-    </Col>
+    <Card className="common-card-box common-card-shadow transition w-100">
+      <Card.Body>
+        <h4 className="card-heading text-center">Earning Chart</h4>
+        <Bar data={chartDataFinal} options={chartOptions} />
+      </Card.Body>
+    </Card>
   );
 }
 
