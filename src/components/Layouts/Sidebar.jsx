@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBank, faUserCheck, faUserEdit, faUsersGear } from '@fortawesome/free-solid-svg-icons';
+import { faBank, faGear, faUserCheck, faUserCog, faUserEdit, faUsersGear } from '@fortawesome/free-solid-svg-icons';
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import { useAuth } from '@/_context/authContext';
 
@@ -17,9 +17,10 @@ const sidebarLinks = {
   PLAYER: [...commonLinks],
   SUPER_ADMIN: [
     { href: '/super-admin/dashboard', label: 'Dashboard', iconSrc: faUsersGear },
-    { href: '/super-admin/users', label: 'Users Approval', iconSrc: faUsersGear },
+    { href: '/super-admin/configuration', label: 'Configuration', iconSrc: faGear },
+    { href: '/super-admin/users', label: 'Users Approval', iconSrc: faUserCheck},
     { href: '/super-admin/withdrawal-approval', label: 'Withdrawal Approval', iconSrc: faBank },
-    { href: '/super-admin/account-approval', label: 'Account Approval', iconSrc: faUserCheck },
+    { href: '/super-admin/account-approval', label: 'Account Approval', iconSrc: faUserCog },
   ],
   COACH: [...commonLinks],
 };

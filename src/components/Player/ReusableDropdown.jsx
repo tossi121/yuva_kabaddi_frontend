@@ -44,7 +44,7 @@ function ReusableDropdown(props) {
             key={option[valueKey]}
             className={`py-2 fs-14 base-color ${selectedValue === option[displayKey] ? 'active' : ''}`}
             onClick={() => handleOptionSelect(option)}
-          >
+            >
             {option[displayKey]}
           </Dropdown.Item>
         ))}

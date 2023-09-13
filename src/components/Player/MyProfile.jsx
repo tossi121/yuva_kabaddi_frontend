@@ -50,7 +50,16 @@ function MyProfile() {
   const [panFileData, setPanFileData] = useState(null);
   const [passbookFileData, setPassbookFileData] = useState(null);
   const [updatedUser, setUpdatedUser] = useState(false);
-  const { currentUser } = useAuth();
+  const { handleUser, currentUser } = useAuth();
+
+  useEffect(() => {
+    if (updatedUser) {
+      handleUser();
+      setUpdatedUser(false);
+    } else {
+      setUpdatedUser(false);
+    }
+  }, [updatedUser]);
 
   useEffect(() => {
     if (currentUser || updatedUser) {
@@ -158,7 +167,6 @@ function MyProfile() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormValues((prevData) => ({ ...prevData, [name]: value }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
   };
 
   const handleKeyPress = (e) => {
@@ -180,6 +188,9 @@ function MyProfile() {
       errors.user_name = 'Please enter a full name';
     } else if (!validName(formValues.user_name)) {
       errors.user_name = 'Please enter a valid name';
+    }
+    if (!formValues.address) {
+      errors.address = 'Please enter a full address';
     }
 
     if (!formValues.mobile) {
@@ -221,43 +232,35 @@ function MyProfile() {
     return errors;
   };
 
+  console.log(selectedCity, selectedState);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errors = validate(formValues);
+    const errors = validate();
     setFormErrors(errors);
     const params = {
       ...formValues,
       pan_image: panFileData,
       passbook_image: passbookFileData,
       profile_image: profileFileData,
+      state_id: selectedCity?.id,
+      city_id: selectedState?.id,
     };
-    const res = await updateUserDetails(params);
-    if (res?.status) {
-      toast.success(res.message);
-      setUpdatedUser(true);
+    if (Object.keys(errors).length === 0) {
+      try {
+        setLoading(true);
+        const res = await updateUserDetails(params);
+        console.log(params);
+        if (res?.status) {
+          toast.success(res.message);
+          setUpdatedUser(true);
+        }
+      } catch (error) {
+        console.error('Error during login:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   const errors = validate();
-  //   setFormErrors(errors);
-  //   console.log(errors);
-  //   if (Object.keys(errors).length === 0) {
-  //     try {
-  //       setLoading(true);
-  //       const res = await updateUserDetails(params);
-  //       if (res?.status) {
-  //         toast.success(res.message);
-  //         setUpdatedUser(true);
-  //       }
-  //     } catch (error) {
-  //       console.error('Error during login:', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-  // };
 
   return (
     <section className="dashboard-section">
@@ -386,7 +389,7 @@ function MyProfile() {
                     <Col lg={6}>
                       <div className="mb-4">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-14 fw-500 base-color">Add Address</Form.Label>
+                          <Form.Label className="fs-14 fw-400 base-color">Add Address</Form.Label>
                           <Form.Control
                             type="text"
                             as="textarea"
@@ -396,6 +399,9 @@ function MyProfile() {
                             value={formValues.address}
                             onChange={handleChange}
                           />
+                          {formErrors.address && (
+                            <p className="text-danger fs-14 error-message">{formErrors.address}</p>
+                          )}
                         </Form.Group>
                       </div>
                     </Col>
@@ -570,7 +576,7 @@ function MyProfile() {
                     </Col>
                   </Row>
 
-                  <Button className="common-btn py-2 px-3 mt-3 fs-14" onClick={handleSubmit}>
+                  <Button className="common-btn py-2 px-3 mt-3 fs-14 d-flex align-items-center" onClick={handleSubmit}>
                     <Image
                       src="/images/team-roster/apply.svg"
                       alt="Save Change"
@@ -578,8 +584,8 @@ function MyProfile() {
                       height={18}
                       className="me-1 img-fluid"
                     />
-                    <span className="d-inline-flex align-middle">Save Change</span>
-                    {loading && <Spinner animation="border" variant="white" className="ms-1 spinner" />}
+                    Save Change
+                    {loading && <Spinner animation="border" size="sm" variant="white" className="ms-1 spinner" />}
                   </Button>
                 </Form>
               </Card.Body>

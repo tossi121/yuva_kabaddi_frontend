@@ -13,12 +13,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     handleUser();
-  }, []);
+  }, [isLoggedIn]);
 
   async function handleUser() {
-    const res = await getCurrentUserDetails();
-    if (res?.status) {
-      setCurrentUser(res?.data);
+    if (role == 'PLAYER' || role == 'COACH') {
+      const res = await getCurrentUserDetails();
+      if (res?.status) {
+        setCurrentUser(res?.data);
+      }
     }
   }
 
@@ -50,7 +52,7 @@ export const AuthProvider = ({ children }) => {
   }, [role, router, currentUser]);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, role, currentUser, checkUserAuthentication }}>
+    <AuthContext.Provider value={{ isLoggedIn, role, currentUser, handleUser, checkUserAuthentication }}>
       {children}
     </AuthContext.Provider>
   );

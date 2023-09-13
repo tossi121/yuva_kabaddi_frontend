@@ -26,7 +26,6 @@ function AddUser() {
       setRoleName(value);
     } else {
       setFormValues((prevData) => ({ ...prevData, [name]: value }));
-      setFormErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
     }
   };
 
