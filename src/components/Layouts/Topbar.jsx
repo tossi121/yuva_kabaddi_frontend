@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
 import { useAuth } from '@/_context/authContext';
-import { useEffect } from 'react';
 
 function Topbar(props) {
   const { ToggleFun } = props;
@@ -57,11 +56,11 @@ function Topbar(props) {
                       />
                       <div className="info-member ms-2">
                         <span className="base-color fw-700 fs-14 text-capitalize">{user || 'Super Admin'}</span>
-                        <div className="Profile">
+                        <div className="profile">
                           <Dropdown className="px-0 py-0 rounded-2">
                             <Dropdown.Toggle
                               variant="none"
-                              className="text-start Profile-box-dropdown base-color-3 bg-white p-0 border-0 d-flex align-items-center fs-12 fw-400 base-color-9"
+                              className="text-start profile-box-dropdown base-color-3 bg-white p-0 border-0 d-flex align-items-center fs-12 fw-400 base-color-9"
                               id="dropdown-basic"
                             >
                               <span className="pe-3">{userRole || 'Super Admin'}</span>

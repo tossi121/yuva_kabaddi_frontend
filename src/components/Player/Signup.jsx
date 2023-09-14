@@ -109,7 +109,7 @@ function Signup() {
       contactno: formValues.mobile,
       email: formValues.email,
       user_name: formValues.user,
-      user_role: selectedRole.role_name,
+      user_role: selectedRole.user_role,
       player_id: selectedPlayer.player_id,
       otp: oneTimePassword,
     };
@@ -192,8 +192,8 @@ function Signup() {
       errors.mobile = 'Please enter a valid 10-digit mobile number';
     }
 
-    if (!selectedRole.role_name) {
-      errors.role_name = 'Please select a role';
+    if (!selectedRole.user_role) {
+      errors.user_role = 'Please select a role';
     }
     if (!selectedSeries.series_name) {
       errors.series_name = 'Please select a series';
@@ -276,14 +276,14 @@ function Signup() {
                                 <Form.Label className="fs-16 fw-400 base-color">Select Role</Form.Label>
                                 <ReusableDropdown
                                   options={roleData}
-                                  selectedValue={selectedRole.role_name || 'Select Role'}
+                                  selectedValue={selectedRole.user_role || 'Select Role'}
                                   onSelect={setSelectedRole}
                                   placeholder="Role"
-                                  displayKey="role_name"
+                                  displayKey="user_role"
                                   valueKey="id"
                                 />
-                                {formErrors.role_name && (
-                                  <p className="text-danger fs-14 error-message">{formErrors.role_name}</p>
+                                {formErrors.user_role && (
+                                  <p className="text-danger fs-14 error-message">{formErrors.user_role}</p>
                                 )}
                               </Form.Group>
                             </div>

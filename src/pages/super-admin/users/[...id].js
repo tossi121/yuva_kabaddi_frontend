@@ -7,7 +7,6 @@ const EditUser = dynamic(import('@/components/SuperAdmin/EditUser'));
 function DefaultPage() {
   const router = useRouter();
   const id = router.query.id;
-
   return (
     <>
       <EditUser id={id?.[0]} />

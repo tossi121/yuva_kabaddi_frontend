@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic';
 
 const MyProfile = dynamic(import('@/components/Player/MyProfile'));
 
-
 function DefaultPage() {
   return (
     <>

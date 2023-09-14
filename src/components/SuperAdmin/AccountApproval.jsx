@@ -229,7 +229,7 @@ function AccountApproval() {
                       className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
                       onClick={toggleFilterBox}
                     >
-                       <FontAwesomeIcon icon={faFilter} width={20} height={20} />
+                      <FontAwesomeIcon icon={faFilter} width={20} height={20} />
                     </Button>
                   </div>
                 </div>
@@ -348,7 +348,7 @@ function AccountApproval() {
                       </Col>
                       <Col xl={3} lg={4} md={6}>
                         <div className="d-flex align-items-center  filters-dropdown-btn">
-                          <Button className="common-btn px-3 text-nowrap" >
+                          <Button className="common-btn px-3 text-nowrap">
                             <span className="me-2">
                               <FontAwesomeIcon icon={faSearch} width={18} height={18} />
                             </span>

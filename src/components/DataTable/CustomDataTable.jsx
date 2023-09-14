@@ -198,13 +198,17 @@ function CustomDataTable(props) {
               return (
                 <th
                   key={key}
-                  className={`${(entity?.sorting && 'cursor-pointer') || ''}   
-                    ${(col?.align && cellClasses[col.align]) || 'text-left'}
-                  `}
-                  onClick={() => handleSorting(col.field)}
+                  className={`${entity?.sorting && col.heading !== 'Action' ? 'cursor-pointer' : ''}   
+                  ${(col?.align && cellClasses[col.align]) || 'text-left'}
+                    `}
+                  onClick={() => {
+                    if (col.heading !== 'Action') {
+                      handleSorting(col.field);
+                    }
+                  }}
                 >
                   {col.heading}
-                  {entity?.sorting && (
+                  {entity?.sorting && col.heading !== 'Action' && (
                     <button className="ps-1 pe-0 bg-transparent border-0 text-white outline-0 shadow-none ms-auto">
                       {sortingBy == col.field && sortType == 'asc' && (
                         <FontAwesomeIcon icon={faLongArrowAltUp} width={5} className="mb-1 ms-1" />

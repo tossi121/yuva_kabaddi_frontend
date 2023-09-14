@@ -1,234 +1,89 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faFilter, faPlus, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
+import { Badge, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import Link from 'next/link';
 import CustomDataTable from '../DataTable/CustomDataTable';
-import { maxLengthCheck } from '@/_helper/regex';
 import dynamic from 'next/dynamic';
 import CommentModal from './CommentlModal';
 import DeleteModal from './DeleteModal';
+import ReusableDropdown from '../Player/ReusableDropdown';
+import { deleteUser, getRole, getUsersList, verifyUser } from '@/_services/services_api';
+import toast from 'react-hot-toast';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function Users() {
   const columns = [
-    { heading: 'Name', field: 'name' },
+    { heading: 'Name', field: 'user_name' },
     { heading: 'Email Address', field: 'email' },
-    { heading: 'Mobile Number', field: 'mobile_number' },
-    { heading: 'User Type', field: 'user_type' },
-    { heading: 'Status', field: 'status' },
-    { heading: 'Action', field: 'Action' },
+    { heading: 'Mobile Number', field: 'contactno' },
+    { heading: 'User Type', field: 'user_role' },
+    { heading: 'Status', field: 'verify_status' },
+    { heading: 'Action', field: 'action', align: 'center' },
   ];
 
-  const data = [
-    {
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com',
-      mobile_number: '1234567890',
-      status: 'Reject',
-      user_type: 'Player',
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      mobile_number: '9876543210',
-      status: 'Approved',
-      user_type: 'Player',
-    },
-    {
-      id: 3,
-      name: 'Coach Johnson',
-      email: 'coach@example.com',
-      mobile_number: '5551234567',
-      status: 'Approved',
-      user_type: 'Coach',
-    },
-    {
-      id: 4,
-      name: 'Coach Ramirez',
-      email: 'ramirez@example.com',
-      mobile_number: '4445678901',
-      status: 'Approved',
-      user_type: 'Coach',
-    },
-    {
-      id: 5,
-      name: 'Michael Jordan',
-      email: 'mj@example.com',
-      mobile_number: '1112223333',
-      status: 'Reject',
-      user_type: 'Player',
-    },
-    {
-      id: 6,
-      name: 'Serena Williams',
-      email: 'serena@example.com',
-      mobile_number: '5555555555',
-      status: 'Approved',
-      user_type: 'Player',
-    },
-    {
-      id: 7,
-      name: 'Coach Smith',
-      email: 'smith@example.com',
-      mobile_number: '6667778888',
-      status: 'Reject',
-      user_type: 'Coach',
-    },
-    {
-      id: 8,
-      name: 'LeBron James',
-      email: 'lebron@example.com',
-      mobile_number: '7778889999',
-      status: 'Reject',
-      user_type: 'Player',
-    },
-    {
-      id: 9,
-      name: 'Coach Brown',
-      email: 'brown@example.com',
-      mobile_number: '5554443333',
-      status: 'Pending',
-      user_type: 'Coach',
-    },
-    {
-      id: 10,
-      name: 'Maria Sharapova',
-      email: 'maria@example.com',
-      mobile_number: '8889990000',
-      status: 'Pending',
-      user_type: 'Player',
-    },
-    {
-      id: 11,
-      name: 'Chris Paul',
-      email: 'chris@example.com',
-      mobile_number: '3332221111',
-      status: 'Reject',
-      user_type: 'Player',
-    },
-    {
-      id: 12,
-      name: 'Coach White',
-      email: 'white@example.com',
-      mobile_number: '4445556666',
-      status: 'Approved',
-      user_type: 'Coach',
-    },
-    {
-      id: 13,
-      name: 'Lionel Messi',
-      email: 'messi@example.com',
-      mobile_number: '7776665555',
-      status: 'Approved',
-      user_type: 'Player',
-    },
-    {
-      id: 14,
-      name: 'Simone Biles',
-      email: 'simone@example.com',
-      mobile_number: '2223334444',
-      status: 'Reject',
-      user_type: 'Player',
-    },
-    {
-      id: 15,
-      name: 'Coach Anderson',
-      email: 'anderson@example.com',
-      mobile_number: '5556667777',
-      status: 'Pending',
-      user_type: 'Coach',
-    },
-    {
-      id: 16,
-      name: 'Kobe Bryant',
-      email: 'kobe@example.com',
-      mobile_number: '1119998888',
-      status: 'Pending',
-      user_type: 'Player',
-    },
-    {
-      id: 17,
-      name: 'Coach Martinez',
-      email: 'martinez@example.com',
-      mobile_number: '3335557777',
-      status: 'Pending',
-      user_type: 'Coach',
-    },
-    {
-      id: 18,
-      name: 'Venus Williams',
-      email: 'venus@example.com',
-      mobile_number: '7778881111',
-      status: 'Approved',
-      user_type: 'Player',
-    },
-    {
-      id: 19,
-      name: 'Kevin Durant',
-      email: 'kd@example.com',
-      mobile_number: '4443335555',
-      status: 'Approved',
-      user_type: 'Player',
-    },
-    {
-      id: 20,
-      name: 'Coach Taylor',
-      email: 'taylor@example.com',
-      mobile_number: '6667779999',
-      status: 'Pending',
-      user_type: 'Coach',
-    },
-  ];
-
-  const initialFormValues = {
-    email: '',
-    mobile: '',
-    role: '',
-  };
-
-  const [formValues, setFormValues] = useState(initialFormValues);
-  const [formErrors, setFormErrors] = useState({});
   const [expanded, setExpanded] = useState(false);
-  const [userSelect, setUserSelect] = useState([]);
-  const [roleName, setRoleName] = useState('Select Role');
-  const [searchRole, setSearchRole] = useState('');
-  const [show, setShow] = useState(false);
+  const [roleData, setRoleData] = useState([]);
   const [selectedRole, setSelectedRole] = useState('');
+  const [show, setShow] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  const [filteredData, setFilteredData] = useState(data);
+  const [tableData, setTableData] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [filterData, setFilterData] = useState([]);
+  const [reviewId, setReviewId] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
-    reject: true,
+    rejected: true,
   });
+
+  useEffect(() => {
+    handleRole();
+    handleUser();
+    setFilterData(tableData);
+  }, [JSON.stringify(tableData)]);
+
+  async function handleRole() {
+    const res = await getRole();
+    if (res?.status) {
+      const data = res.data;
+      setRoleData(data);
+    }
+  }
+
+  async function handleUser() {
+    const res = await getUsersList();
+    if (res?.status) {
+      const data = res.data;
+      setTableData(data);
+    }
+  }
 
   const tableOptions = {
     columns: {
       render: {
-        Action: (value, row) => renderWithdrawalModal(row.id),
-        status: renderSatus,
+        action: renderWithdrawalModal,
+        verify_status: renderSatus,
       },
     },
   };
 
-  function renderWithdrawalModal(id) {
+  function renderWithdrawalModal(value, row) {
     const handleClick = () => {
       setShow(true);
+      setReviewId(row);
     };
-    const handleDelete = (id) => {
-      setDeleteId(id);
+    const handleDelete = () => {
+      setDeleteId(row);
       setShowModal(true);
     };
 
     return (
       <div className="d-flex justify-content-center">
-        <Link href={`users/${id}`}>
+        <Link href={`users/${row.id}`}>
+          {console.log(row.id, 'row.id')}
           <Button variant="success" className="py-1 px-2 me-3" title="Edit User">
             <FontAwesomeIcon icon={faEdit} width={15} height={15} />
           </Button>
@@ -246,13 +101,14 @@ function Users() {
   function renderSatus(value, row) {
     const statusColors = {
       Approved: 'success',
-      Reject: 'danger',
+      Rejected: 'danger',
       Pending: 'warning',
     };
+
     return (
       <>
-        <Badge pill bg={statusColors[row.status]} className="fs-12">
-          {row.status}
+        <Badge pill bg={statusColors[row.verify_status]} className="fs-12">
+          {row.verify_status}
         </Badge>
       </>
     );
@@ -266,75 +122,32 @@ function Users() {
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Filter the data based on the selected criteria
-    const filteredData = data.filter((user) => {
-      // Role Filtering
-      if (selectedRole && user.user_type.toLowerCase() !== selectedRole.toLowerCase()) {
+    const filteredData = tableData.filter((user) => {
+      if (selectedRole && user.user_role.toLowerCase() !== selectedRole.user_role.toLowerCase()) {
         return false;
       }
-
-      // Email Filtering
-      if (formValues.email && !user.email.toLowerCase().includes(formValues.email.toLowerCase())) {
-        return false;
-      }
-
-      // Mobile Filtering
-      if (formValues.mobile && !user.mobile_number.includes(formValues.mobile)) {
-        return false;
-      }
-
-      // Status Filtering (checkboxes)
       if (
-        (selectedFilters.approved && user.status === 'Approved') ||
-        (selectedFilters.pending && user.status === 'Pending') ||
-        (selectedFilters.reject && user.status === 'Reject')
+        (selectedFilters.approved && user.verify_status === 'Approved') ||
+        (selectedFilters.pending && user.verify_status === 'Pending') ||
+        (selectedFilters.rejected && user.verify_status === 'Rejected')
       ) {
         return true;
       }
 
       return false;
     });
-
-    setFilteredData(filteredData);
+    setFilterData(filteredData);
   };
 
   const handleReset = () => {
-    setFormValues(initialFormValues);
-    setFormErrors({});
-    setRoleName('Select Role');
     setSelectedRole('');
-    setSearchRole('');
     setSelectedFilters({
       approved: true,
       pending: true,
-      reject: true,
+      rejected: true,
     });
 
-    setFilteredData(data);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'role') {
-      setRoleName(value);
-    } else {
-      setFormValues((prevData) => ({ ...prevData, [name]: value }));
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    const key = e.key;
-    if (key === 'e' || key === '+' || key === '-') {
-      e.preventDefault();
-    }
-  };
-
-  const handleRoleSelect = (selectedRole) => {
-    setSelectedRole(selectedRole);
-    setSearchRole('');
-    setFormValues((prevData) => ({ ...prevData, role: selectedRole }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, role: '' }));
+    setFilterData(tableData);
   };
 
   const handleFilterChange = (filterName) => {
@@ -343,11 +156,27 @@ function Users() {
       [filterName]: !prevFilters[filterName],
     }));
   };
+
+  async function handleDeleteUser() {
+    const params = {
+      userId: deleteId.id,
+    };
+
+    const response = await deleteUser(params);
+    if (response?.status) {
+      toast.success(response?.message);
+      setShowModal(false);
+      handleUser();
+    } else {
+      toast.error(response?.message);
+    }
+  }
+
   return (
     <>
-      {show && <CommentModal show={show} setShow={setShow} modalText={'User Approval'} />}
+      {show && <CommentModal show={show} setShow={setShow} modalText={'User Approval'} reviewId={reviewId} />}
       {showModal && (
-        <DeleteModal showModal={showModal} setShowModal={setShowModal} handleDelete={deleteId} text="User" />
+        <DeleteModal showModal={showModal} setShowModal={setShowModal} handleDelete={handleDeleteUser} text="user" />
       )}
       <section className="dashboard-section">
         <Container fluid>
@@ -361,13 +190,8 @@ function Users() {
                       className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
                       onClick={toggleFilterBox}
                     >
-                       <FontAwesomeIcon icon={faFilter} width={20} height={20} />
+                      <FontAwesomeIcon icon={faFilter} width={20} height={20} />
                     </Button>
-                    <Link href={'/super-admin/users/add-user'}>
-                      <Button className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center">
-                        <FontAwesomeIcon icon={faPlus}  width={20} height={20} />
-                      </Button>
-                    </Link>
                   </div>
                 </div>
               </div>
@@ -381,82 +205,18 @@ function Users() {
                 <Card.Body className="box-padding">
                   <Form onSubmit={handleSubmit}>
                     <Row>
-                      <Col>
-                        <div className="mb-4">
+                      <Col lg={4}>
+                        <div className="mb-3">
                           <Form.Group className="position-relative">
                             <Form.Label className="fs-16 fw-400 base-color">Select Role</Form.Label>
-                            <div className="form-select-catgory">
-                              <Dropdown className="form-control px-0 py-0 card-border">
-                                <Dropdown.Toggle
-                                  variant="none"
-                                  className="w-100 hight-50 text-start filter-box-dropdown base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
-                                  id="dropdown-basic"
-                                >
-                                  <span className="text-truncate pe-3">{selectedRole || 'Select Role'}</span>
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu className="w-100 card-border ">
-                                  <div className="px-2 mb-2">
-                                    <input
-                                      type="search"
-                                      placeholder="Search Role"
-                                      onChange={(e) => setSearchRole(e.target.value)}
-                                      className="form-control shadow-none card-border fs-14 hight-50"
-                                    />
-                                  </div>
-
-                                  {['Player', 'Coach']
-                                    .filter((role) => role.toLowerCase().includes(searchRole.toLowerCase()))
-                                    .map((role) => (
-                                      <Dropdown.Item
-                                        key={role}
-                                        className={`py-2 fs-14 base-color ${selectedRole === role ? 'active' : ''}`}
-                                        onClick={() => handleRoleSelect(role)}
-                                      >
-                                        {role}
-                                      </Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                              </Dropdown>
-                            </div>
-                            {formErrors.role && <p className="text-danger fs-14 error-message">{formErrors.role}</p>}
-                          </Form.Group>
-                        </div>
-                      </Col>
-                      <Col>
-                        <div className="mb-4">
-                          <Form.Group className="position-relative">
-                            <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="Enter Your Email Address"
-                              name="email"
-                              className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                              value={formValues.email}
-                              onChange={handleChange}
+                            <ReusableDropdown
+                              options={roleData}
+                              selectedValue={selectedRole.user_role || 'Select Role'}
+                              onSelect={setSelectedRole}
+                              placeholder="Role"
+                              displayKey="user_role"
+                              valueKey="id"
                             />
-                            {formErrors.email && <p className="text-danger fs-14 error-message">{formErrors.email}</p>}
-                          </Form.Group>
-                        </div>
-                      </Col>
-                      <Col>
-                        <div className="mb-4">
-                          <Form.Group className="position-relative">
-                            <Form.Label className="fs-16 fw-400 base-color">Enter Mobile Number</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="Enter Your Mobile Number"
-                              name="mobile"
-                              className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                              id="mobile"
-                              value={formValues.mobile}
-                              onChange={handleChange}
-                              maxLength="10"
-                              onKeyPress={handleKeyPress}
-                              onInput={maxLengthCheck}
-                            />
-                            {formErrors.mobile && (
-                              <p className="text-danger fs-14 error-message">{formErrors.mobile}</p>
-                            )}
                           </Form.Group>
                         </div>
                       </Col>
@@ -497,10 +257,10 @@ function Users() {
                                   name="reject"
                                   id="reject"
                                   className="me-2"
-                                  checked={selectedFilters.reject}
+                                  checked={selectedFilters.rejected}
                                   onChange={() => handleFilterChange('reject')}
                                 />
-                                Reject
+                                Rejected
                               </Form.Label>
                             </div>
                           </Form.Group>
@@ -508,7 +268,7 @@ function Users() {
                       </Col>
                       <Col>
                         <div className="d-flex align-items-center  filters-dropdown-btn">
-                          <Button className="common-btn px-3 text-nowrap" >
+                          <Button className="common-btn px-3 text-nowrap" type="submit">
                             <span className="me-2">
                               <FontAwesomeIcon icon={faSearch} width={18} height={18} />
                             </span>
@@ -546,7 +306,7 @@ function Users() {
                     </Button>
                   </div>
                   <CustomDataTable
-                    rows={filteredData}
+                    rows={filterData}
                     columns={columns}
                     options={tableOptions}
                     showCheckboxes={true}

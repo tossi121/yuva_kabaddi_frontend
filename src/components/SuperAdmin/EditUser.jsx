@@ -1,32 +1,57 @@
-import React, { useState } from 'react';
-import { Button, Card, Col, Container, Dropdown, Form, Row, Spinner } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { maxLengthCheck, validEmail, validMobile, validName } from '@/_helper/regex';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import { getCurrentUsers, getRole, updateUser } from '@/_services/services_api';
+import ReusableDropdown from '../Player/ReusableDropdown';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/router';
 
-const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
+const DashboardBreadcrumb = dynamic(() => import('../Layouts/DashboardBreadcrumbar'));
 
-function EditUser() {
+function EditUser({ id }) {
+  const userId = id;
   const initialFormValues = {
-    user: '',
+    user_name: '',
     email: '',
-    mobile: '',
-    role: '',
+    contactno: '',
   };
 
   const [formValues, setFormValues] = useState(initialFormValues);
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [mobileNumber, setMobileNumber] = useState('');
+  const [roleData, setRoleData] = useState([]);
   const [selectedRole, setSelectedRole] = useState('');
+  const [user, setUser] = useState([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (userId) {
+        await handleRole();
+        await handleUsers();
+      }
+    };
+
+    fetchData();
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId && user) {
+      const values = {
+        user_name: user.user_name || '',
+        email: user.email || '',
+        contactno: user.contactno || '',
+      };
+      setFormValues(values);
+      setSelectedRole(user || '');
+    }
+  }, [userId, user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'role') {
-      setRoleName(value);
-    } else {
-      setFormValues((prevData) => ({ ...prevData, [name]: value }));
-    }
+    setFormValues((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleKeyPress = (e) => {
@@ -36,47 +61,72 @@ function EditUser() {
     }
   };
 
-  const handleRoleSelect = (selectedRole) => {
-    setSelectedRole(selectedRole);
-    setFormValues((prevData) => ({ ...prevData, role: selectedRole }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, role: '' }));
-  };
-
-  const validate = (values) => {
+  const validate = () => {
     const errors = {};
 
-    if (!values.email) {
+    if (!formValues.email) {
       errors.email = 'Please enter an email address';
-    } else if (!validEmail(values.email)) {
+    } else if (!validEmail(formValues.email)) {
       errors.email = 'Please enter a valid email address';
     }
-    if (!values.user) {
-      errors.user = 'Please enter a full name';
-    } else if (!validName(values.user)) {
-      errors.user = 'Please enter a valid name';
+    if (!formValues.user_name) {
+      errors.user_name = 'Please enter a full name';
+    } else if (!validName(formValues.user_name)) {
+      errors.user_name = 'Please enter a valid name';
     }
 
-    if (!values.mobile) {
-      errors.mobile = 'Please enter a mobile number';
-    } else if (!validMobile(values.mobile)) {
-      errors.mobile = 'Please enter a valid 10-digit mobile number';
+    if (!formValues.contactno) {
+      errors.contactno = 'Please enter a mobile number';
+    } else if (!validMobile(formValues.contactno)) {
+      errors.contactno = 'Please enter a valid 10-digit mobile number';
     }
 
-    if (!values.role) {
-      errors.role = 'Please select a role';
+    if (!selectedRole) {
+      errors.user_role = 'Please select a role';
     }
 
     return errors;
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errors = validate(formValues);
+    const errors = validate();
     setFormErrors(errors);
     if (Object.keys(errors).length === 0) {
-      setLoading(true);
-      const phoneNumber = `+91 ${formValues.mobile}`;
-      setMobileNumber(phoneNumber);
+      try {
+        const params = {
+          ...formValues,
+          userId: userId,
+          user_role: selectedRole.user_role,
+        };
+        setLoading(true);
+        const res = await updateUser(params);
+        if (res?.status) {
+          toast.success(res.message);
+          router.push('/super-admin/users');
+        }
+      } catch (error) {
+        console.error('Error during login:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleRole = async () => {
+    const res = await getRole();
+    if (res?.status) {
+      const data = res.data;
+      setRoleData(data);
+    }
+  };
+
+  const handleUsers = async () => {
+    const res = await getCurrentUsers(id);
+    if (res?.status) {
+      const data = res.data;
+      setUser(data);
     }
   };
 
@@ -84,7 +134,7 @@ function EditUser() {
     <section className="dashboard-section">
       <Container fluid>
         <div className="d-flex justify-content-between align-items-center">
-        <DashboardBreadcrumb breadcrumbTitle="Edit User" data={'Dashboard'} />
+          <DashboardBreadcrumb breadcrumbTitle="Edit User" data={'Dashboard'} />
         </div>
         <Row className="py-4 ">
           <Col lg={12}>
@@ -99,40 +149,17 @@ function EditUser() {
                       <div className="mb-3">
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Select Role</Form.Label>
-                          <div className="form-select-catgory">
-                            <Dropdown className="form-control px-0 py-0 card-border">
-                              <Dropdown.Toggle
-                                variant="none"
-                                className="w-100 hight-50 text-start filter-box-dropdown base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
-                                id="dropdown-basic"
-                              >
-                                <span className="text-truncate pe-3">{selectedRole || 'Select Role'}</span>
-                              </Dropdown.Toggle>
-                              <Dropdown.Menu className="w-100 card-border ">
-                                <div className="px-2 mb-2">
-                                  <input
-                                    type="search"
-                                    placeholder="Search Role"
-                                    onChange={(e) => setSearchRole(e.target.value)}
-                                    className="form-control shadow-none card-border fs-14 hight-50"
-                                  />
-                                </div>
-                                <Dropdown.Item
-                                  className={`py-2 fs-14 base-color ${selectedRole === 'Player' ? 'active' : ''}`}
-                                  onClick={() => handleRoleSelect('Player')}
-                                >
-                                  Player
-                                </Dropdown.Item>
-                                <Dropdown.Item
-                                  className={`py-2 fs-14 base-color ${selectedRole === 'Coach' ? 'active' : ''}`}
-                                  onClick={() => handleRoleSelect('Coach')}
-                                >
-                                  Coach
-                                </Dropdown.Item>
-                              </Dropdown.Menu>
-                            </Dropdown>
-                          </div>
-                          {formErrors.role && <p className="text-danger fs-14 error-message">{formErrors.role}</p>}
+                          <ReusableDropdown
+                            options={roleData}
+                            selectedValue={selectedRole.user_role || 'Select Role'}
+                            onSelect={setSelectedRole}
+                            placeholder="Role"
+                            displayKey="user_role"
+                            valueKey="id"
+                          />
+                          {formErrors.user_role && (
+                            <p className="text-danger fs-14 error-message">{formErrors.user_role}</p>
+                          )}
                         </Form.Group>
                       </div>
 
@@ -142,12 +169,14 @@ function EditUser() {
                           <Form.Control
                             type="text"
                             placeholder="Enter Your Full Name"
-                            name="user"
+                            name="user_name"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                            value={formValues.user}
+                            value={formValues.user_name}
                             onChange={handleChange}
                           />
-                          {formErrors.user && <p className="text-danger fs-14 error-message">{formErrors.user}</p>}
+                          {formErrors.user_name && (
+                            <p className="text-danger fs-14 error-message">{formErrors.user_name}</p>
+                          )}
                         </Form.Group>
                       </div>
 
@@ -171,29 +200,35 @@ function EditUser() {
                           <Form.Control
                             type="text"
                             placeholder="Enter Your Mobile Number"
-                            name="mobile"
+                            name="contactno"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                            id="mobile"
-                            value={formValues.mobile}
+                            id="contactno"
+                            value={formValues.contactno}
                             onChange={handleChange}
                             maxLength="10"
                             onKeyPress={handleKeyPress}
                             onInput={maxLengthCheck}
                           />
-                          {formErrors.mobile && <p className="text-danger fs-14 error-message">{formErrors.mobile}</p>}
+                          {formErrors.contactno && (
+                            <p className="text-danger fs-14 error-message">{formErrors.contactno}</p>
+                          )}
                         </Form.Group>
                       </div>
 
-                      <Button className="common-btn py-2 px-3 mt-4 fs-14 d-flex align-items-center" >
+                      <Button
+                        className="common-btn py-2 px-3 mt-4 fs-14 d-flex align-items-center"
+                        type="submit"
+                        disabled={loading}
+                      >
                         <Image
                           src="/images/team-roster/apply.svg"
-                          alt="Post New Job"
+                          alt="Update User"
                           width={18}
                           height={18}
                           className="me-1 img-fluid"
                         />
                         Update User
-                        {loading && <Spinner animation="border" variant="white" className="ms-1 spinner" />}
+                        {loading && <Spinner animation="border" size="sm" variant="white" className="ms-1 spinner" />}
                       </Button>
                     </Form>
                   </Col>

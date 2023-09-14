@@ -153,3 +153,47 @@ export async function getWithdrawnRequestsList(params) {
     return null;
   }
 }
+
+export async function getUsersList(params) {
+  try {
+    const response = await fetcher('GET', process.env.ADMIN_ALL_USER_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function deleteUser(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_USER_DELETE_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function updateUser(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_UPDATE_USER_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function getCurrentUsers(id) {
+  try {
+    const url = `${process.env.ADMIN_CURRENT_USER_DATA}/${id}`;
+    const response = await fetcher('GET', url);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function verifyUser(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_VERIFY_USER_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}

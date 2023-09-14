@@ -1,8 +1,9 @@
+import { verifyUser } from '@/_services/services_api';
 import React, { useState } from 'react';
 import { Button, Col, Dropdown, Form, Modal, Row, Spinner } from 'react-bootstrap';
 
 const CommentModal = (props) => {
-  const { modalText, setShow, show } = props;
+  const { modalText, setShow, show, reviewId } = props;
   const [selectedSquad, setSelectedSquad] = useState('');
   const [searchSquad, setSearchSquad] = useState('');
 
@@ -34,14 +35,31 @@ const CommentModal = (props) => {
     return errors;
   };
 
+  console.log(reviewId, "id")
+  async function handleVerifyUser() {
+    const params = {
+      users: [
+        {
+          id: id,
+          status: 'Rejected',
+          playerId: player_id,
+        },
+      ],
+    };
+    const res = await verifyUser(params);
+    if (res?.status) {
+      toast.success(res.message);
+    } else {
+      toast.error(res.message);
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validate(formValues);
 
     if (Object.keys(errors).length === 0) {
       setLoading(true);
-
-      // Simulate API call delay
       setTimeout(() => {
         setLoading(false);
         setShow(false);
@@ -169,7 +187,6 @@ const CommentModal = (props) => {
               <div className="text-center">
                 <Button
                   variant="white"
-                  
                   className="my-3 mt-4 w-50 mx-auto fw-400 fs-18 text-white common-btn shadow-none py-2"
                   disabled={loading}
                 >
