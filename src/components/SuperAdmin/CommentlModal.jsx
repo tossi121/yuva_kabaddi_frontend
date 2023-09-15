@@ -1,20 +1,21 @@
-import { verifyUser } from '@/_services/services_api';
-import React, { useState } from 'react';
+import { getMatchPlayers, verifyUser } from '@/_services/services_api';
+import React, { useEffect, useState } from 'react';
 import { Button, Col, Dropdown, Form, Modal, Row, Spinner } from 'react-bootstrap';
+import toast from 'react-hot-toast';
+import ReusableDropdown from '../Player/ReusableDropdown';
 
 const CommentModal = (props) => {
-  const { modalText, setShow, show, reviewId } = props;
-  const [selectedSquad, setSelectedSquad] = useState('');
-  const [searchSquad, setSearchSquad] = useState('');
-
+  const { modalText, setShow, show, reviewId, handleUser, selectedIds } = props;
   const [formValues, setFormValues] = useState({
     comment: '',
-    status: 'approved',
+    status: 'Approved',
     squad: '',
   });
 
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [playerData, setPlayerData] = useState([]);
+  const [selectedPlayer, setSelectedPlayer] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,27 +29,51 @@ const CommentModal = (props) => {
   const validate = (values) => {
     const errors = {};
 
-    if (!values.comment) {
+    if (values.status === 'rejected' && !values.comment) {
       errors.comment = 'Please enter a comment';
     }
 
     return errors;
   };
 
-  console.log(reviewId, "id")
+  useEffect(() => {
+    if (reviewId?.match_id) {
+      handleMatchPlayers();
+    }
+  }, []);
+
+  useEffect(() => {
+    const selectedPlayerData = playerData.find((i) => i.player_id === reviewId.player_id);
+    if (selectedPlayerData) {
+      setSelectedPlayer(selectedPlayerData);
+    }
+  }, [playerData]);
+
+  async function handleMatchPlayers() {
+    if (reviewId.match_id) {
+      const res = await getMatchPlayers(reviewId.match_id);
+      if (res?.status) {
+        const data = res.data;
+        setPlayerData(data);
+      }
+    }
+  }
+
   async function handleVerifyUser() {
     const params = {
       users: [
         {
-          id: id,
-          status: 'Rejected',
-          playerId: player_id,
+          id: reviewId.id,
+          status: formValues.status,
+          playerId: selectedPlayer.player_id,
+          comment: formValues.comment,
         },
       ],
     };
     const res = await verifyUser(params);
     if (res?.status) {
       toast.success(res.message);
+      handleUser();
     } else {
       toast.error(res.message);
     }
@@ -57,13 +82,11 @@ const CommentModal = (props) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validate(formValues);
-
     if (Object.keys(errors).length === 0) {
       setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        setShow(false);
-      }, 1500);
+      handleVerifyUser();
+      setLoading(false);
+      setShow(false);
     } else {
       setFormErrors(errors);
     }
@@ -71,16 +94,12 @@ const CommentModal = (props) => {
 
   const handleCloseModal = () => {
     setShow(false);
-    setFormValues({ comment: '', status: 'approved' });
+    setFormValues({ comment: '', status: 'Approved' });
     setFormErrors({});
+    setSelectedPlayer('');
+    setPlayerData([]);
   };
 
-  const handleSquadSelect = (selectedSquad) => {
-    setSelectedSquad(selectedSquad);
-    setSearchSquad('');
-    setFormValues((prevData) => ({ ...prevData, squad: selectedSquad }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, squad: '' }));
-  };
   return (
     <Modal show={show} onHide={handleCloseModal} centered>
       <Modal.Header closeButton>
@@ -90,57 +109,24 @@ const CommentModal = (props) => {
         <Row>
           <Col lg={12}>
             <Form onSubmit={handleSubmit} autoComplete="off">
-              <div className="mb-3">
-                <Form.Group className="position-relative">
-                  <Form.Label className="fs-16 fw-400 base-color-2">Select Squad</Form.Label>
-                  <div className="form-select-catgory">
-                    <Dropdown className="form-control px-0 py-0 card-border">
-                      <Dropdown.Toggle
-                        variant="none"
-                        className="w-100 hight-50 text-start filter-box-dropdown base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
-                        id="dropdown-basic"
-                      >
-                        <span className="text-truncate pe-3">{selectedSquad || 'Select Squad'}</span>
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu className="w-100 card-border overflow-auto dropdown-height">
-                        <div className="px-2 mb-2">
-                          <input
-                            type="search"
-                            placeholder="Search Squad"
-                            onChange={(e) => setSearchSquad(e.target.value)}
-                            className="form-control shadow-none card-border fs-14 hight-50"
-                          />
-                        </div>
-
-                        {[
-                          'Velavan Muruganantham',
-                          'Kesavan Raja',
-                          'S Manikandan Sudalaimani',
-                          'S Marimuthu Selvam',
-                          'Manikandan Nesamani',
-                          'Surya Selvam',
-                          'S Santhosh Srinivasan',
-                          'Ajainandha Krishna',
-                          'Balaganapathi Manikam',
-                          'S Abikumar',
-                          'Ezhumalai Moorthy',
-                        ]
-                          .filter((squad) => squad.toLowerCase().includes(searchSquad.toLowerCase()))
-                          .map((squad) => (
-                            <Dropdown.Item
-                              key={squad}
-                              className={`py-2 fs-14 base-color ${selectedSquad === squad ? 'active' : ''}`}
-                              onClick={() => handleSquadSelect(squad)}
-                            >
-                              {squad}
-                            </Dropdown.Item>
-                          ))}
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </div>
-                  {formErrors.squad && <p className="text-danger fs-14 error-message">{formErrors.squad}</p>}
-                </Form.Group>
-              </div>
+              {selectedPlayer.player_name && (
+                <div className="mb-3">
+                  <Form.Group className="position-relative">
+                    <Form.Label className="fs-16 fw-400 base-color">Select Player</Form.Label>
+                    <ReusableDropdown
+                      options={playerData}
+                      selectedValue={selectedPlayer.player_name || 'Select Player'}
+                      onSelect={setSelectedPlayer}
+                      placeholder="Player"
+                      displayKey="player_name"
+                      valueKey="player_id"
+                    />
+                    {formErrors.player_name && (
+                      <p className="text-danger fs-14 error-message">{formErrors.player_name}</p>
+                    )}
+                  </Form.Group>
+                </div>
+              )}
 
               <div className="mb-3">
                 <Form.Check
@@ -149,8 +135,8 @@ const CommentModal = (props) => {
                   label="Approved"
                   type="radio"
                   id="approve"
-                  value="approved"
-                  checked={formValues.status === 'approved'}
+                  value="Approved"
+                  checked={formValues.status === 'Approved'}
                   onChange={handleChange}
                   name="status"
                 />
@@ -160,8 +146,8 @@ const CommentModal = (props) => {
                   label="Reject"
                   type="radio"
                   id="rejected"
-                  value="rejected"
-                  checked={formValues.status === 'rejected'}
+                  value="Rejected"
+                  checked={formValues.status === 'Rejected'}
                   onChange={handleChange}
                   name="status"
                 />
@@ -177,10 +163,10 @@ const CommentModal = (props) => {
                     value={formValues.comment}
                     placeholder="Enter Comment"
                     onChange={handleChange}
-                    disabled={formValues.status !== 'rejected'}
+                    disabled={formValues.status !== 'Rejected'}
                   />
                 </Form.Group>
-                {formErrors.comment && formValues.status === 'rejected' && (
+                {formErrors.comment && formValues.status === 'Rejected' && (
                   <p className="text-danger fs-14 error-message">{formErrors.comment}</p>
                 )}
               </div>
@@ -189,6 +175,7 @@ const CommentModal = (props) => {
                   variant="white"
                   className="my-3 mt-4 w-50 mx-auto fw-400 fs-18 text-white common-btn shadow-none py-2"
                   disabled={loading}
+                  type="submit"
                 >
                   Save
                   {loading && <Spinner animation="border" variant="white" size="sm" className="ms-2 spinner" />}

@@ -8,7 +8,7 @@ function generateHeaders(contentType = 'application/json') {
     'Content-Type': contentType,
   };
 
-  const token = Cookies.get('token');
+  const token = Cookies.get('yuva_kabaddi_token');
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }

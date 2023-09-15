@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faFilter, faPlus, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faEdit, faFilter, faPlus, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import Link from 'next/link';
 import CustomDataTable from '../DataTable/CustomDataTable';
@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 import CommentModal from './CommentlModal';
 import DeleteModal from './DeleteModal';
 import ReusableDropdown from '../Player/ReusableDropdown';
-import { deleteUser, getRole, getUsersList, verifyUser } from '@/_services/services_api';
+import { deleteUser, getRole, getUsersList } from '@/_services/services_api';
 import toast from 'react-hot-toast';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
@@ -82,18 +82,25 @@ function Users() {
 
     return (
       <div className="d-flex justify-content-center">
-        <Link href={`users/${row.id}`}>
-          {console.log(row.id, 'row.id')}
-          <Button variant="success" className="py-1 px-2 me-3" title="Edit User">
-            <FontAwesomeIcon icon={faEdit} width={15} height={15} />
+        <div>
+          <Link href={`users/${row.id}`} className="text-white">
+            <Button variant="success" className="py-1 px-2 me-3" title="Edit User">
+              <FontAwesomeIcon icon={faEdit} width={15} height={15} />
+            </Button>
+          </Link>
+          <Button variant="danger" className="py-1 px-2 me-3" title="Delete User" onClick={handleDelete}>
+            <FontAwesomeIcon icon={faTrash} width={15} height={15} />
           </Button>
-        </Link>
-        <Button variant="danger" className="py-1 px-2 me-3" title="Delete User" onClick={handleDelete}>
-          <FontAwesomeIcon icon={faTrash} width={15} height={15} />
-        </Button>
-        <Button className="common-btn fs-14" onClick={handleClick}>
-          Review
-        </Button>
+        </div>
+        {(row.verify_status != 'Approved' && (
+          <Button className="common-btn fs-14" onClick={handleClick}>
+            Review
+          </Button>
+        )) || (
+          <div className="text-success">
+            <FontAwesomeIcon icon={faCheckCircle} width={33} height={33} />
+          </div>
+        )}
       </div>
     );
   }
@@ -174,7 +181,17 @@ function Users() {
 
   return (
     <>
-      {show && <CommentModal show={show} setShow={setShow} modalText={'User Approval'} reviewId={reviewId} />}
+      {show && (
+        <CommentModal
+          show={show}
+          setShow={setShow}
+          modalText={'User Approval'}
+          reviewId={reviewId}
+          selectedIds={selectedIds}
+          handleUser={handleUser}
+        />
+      )}
+
       {showModal && (
         <DeleteModal showModal={showModal} setShowModal={setShowModal} handleDelete={handleDeleteUser} text="user" />
       )}
@@ -289,22 +306,6 @@ function Users() {
                   <h4 className="common-heading mb-0">Users Approval</h4>
                 </div>
                 <Card.Body className="box-padding position-relative">
-                  <div className="position-absolute end-0 me-4 review-btn mt-2 d-flex">
-                    <Button
-                      className="common-btn fs-14 me-2"
-                      disabled={selectedIds.length === 0}
-                      onClick={() => setShow(true)}
-                    >
-                      Bulk Review
-                    </Button>
-                    <Button
-                      className="common-btn fs-14 me-2"
-                      disabled={selectedIds.length === 0}
-                      onClick={() => setShowModal(true)}
-                    >
-                      Bulk Delete
-                    </Button>
-                  </div>
                   <CustomDataTable
                     rows={filterData}
                     columns={columns}
@@ -312,6 +313,7 @@ function Users() {
                     showCheckboxes={true}
                     selectedIds={selectedIds}
                     setSelectedIds={setSelectedIds}
+                    setShow={setShow}
                   />
                 </Card.Body>
               </Card>

@@ -14,8 +14,8 @@ function Topbar(props) {
   const userRole = currentUser?.user_role;
 
   function logout() {
-    Cookies.remove('token');
-    Cookies.remove('role');
+    Cookies.remove('yuva_kabaddi_token');
+    Cookies.remove('yuva_kabaddi_role');
     router.push('/login');
     history.pushState(null, null, location.href);
     window.onpopstate = function () {
@@ -66,11 +66,14 @@ function Topbar(props) {
                               <span className="pe-3">{userRole || 'Super Admin'}</span>
                             </Dropdown.Toggle>
                             <Dropdown.Menu className="w-100 rounded-4">
-                              <Dropdown.Item className="py-2 fs-14 base-color-3">
-                                <Link href={'/dashboard/profile'}>
-                                  <span className="base-color-3 d-block">Profile</span>
-                                </Link>
-                              </Dropdown.Item>
+                              {userRole == 'PLAYER' ||
+                                (userRole == 'COACH' && (
+                                  <Dropdown.Item className="py-2 fs-14 base-color-3">
+                                    <Link href={'/dashboard/profile'}>
+                                      <span className="base-color-3 d-block">Profile</span>
+                                    </Link>
+                                  </Dropdown.Item>
+                                ))}
                               <Dropdown.Item className="py-2 fs-14 base-color-3" onClick={logout}>
                                 Logout
                               </Dropdown.Item>

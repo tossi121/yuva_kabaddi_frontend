@@ -111,6 +111,8 @@ function Signup() {
       user_name: formValues.user,
       user_role: selectedRole.user_role,
       player_id: selectedPlayer.player_id,
+      match_id: selectedMatch.match_id,
+      series_id: selectedSeries.series_id,
       otp: oneTimePassword,
     };
     const isMobileAlreadyRegistered = await handleCheckUser();
@@ -119,8 +121,8 @@ function Signup() {
       const res = await getSignup(params);
       if (res?.status) {
         const token = res.data;
-        Cookies.set('token', token.access_token, { expires: 30, path: '/' });
-        Cookies.set('role', token.user_role, { expires: 30, path: '/' });
+        Cookies.set('yuva_kabaddi_token', token.access_token, { expires: 30, path: '/' });
+        Cookies.set('yuva_kabaddi_role', token.user_role, { expires: 30, path: '/' });
         router.push('/');
         toast.success(res.message);
       } else {

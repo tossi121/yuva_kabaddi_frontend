@@ -45,9 +45,6 @@ function Dashboard() {
     datasets: [],
   });
 
-  const { currentUser } = useAuth();
-  const user = currentUser?.user_name;
-
   useEffect(() => {
     async function fetchData() {
       try {

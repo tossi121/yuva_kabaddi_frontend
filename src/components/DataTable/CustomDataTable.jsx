@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
-import { Form } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 
 const CustomPagination = dynamic(import('./CustomPagination'));
 
@@ -17,7 +17,7 @@ const defaultProps = {
   sorting: true,
 };
 function CustomDataTable(props) {
-  const { rows, columns, options, showCheckboxes, selectedIds, setSelectedIds } = props;
+  const { rows, columns, options, showCheckboxes, selectedIds, setSelectedIds, setShow } = props;
   const [cols, setCols] = useState(null);
   const [currentData, setCurrentData] = useState([]);
   const [currentPageSize, setCurrentPageSize] = useState(10);
@@ -43,31 +43,52 @@ function CustomDataTable(props) {
   function handleSelectAll() {
     const newSelectAll = !selectAll;
     setSelectAll(newSelectAll);
-
+  
     // Update the selectedRows state for all rows.
     const newSelectedRows = {};
-    rows.forEach((_, rowIndex) => {
-      newSelectedRows[rowIndex] = newSelectAll;
+    const newSelectedIds = [];
+  
+    rows.forEach((row, rowIndex) => {
+      // Check if the row's status is "Approved" and if it's being selected
+      const isApproved = row.verify_status === 'Approved';
+  
+      if (!isApproved || newSelectAll) {
+        newSelectedRows[rowIndex] = newSelectAll;
+  
+        // Add the ID to the selectedIds if it's not an "Approved" row or if it's being selected
+        if (!isApproved) {
+          newSelectedIds.push(row.player_id);
+        }
+      }
     });
+  
     setSelectedRows(newSelectedRows);
-
-    // Extract the selected IDs and update the selectedIds state.
-    const newSelectedIds = newSelectAll ? rows.map((row) => row.id) : [];
     setSelectedIds(newSelectedIds);
   }
+  
 
   function handleRowSelection(rowIndex) {
-    // Toggle the selected state for the clicked row.
     const updatedSelectedRows = { ...selectedRows };
     updatedSelectedRows[rowIndex] = !updatedSelectedRows[rowIndex];
-    setSelectedRows(updatedSelectedRows);
-
-    // Get the IDs of selected rows and update the selectedIds state.
-    const updatedSelectedIds = Object.keys(updatedSelectedRows)
-      .filter((key) => updatedSelectedRows[key])
-      .map((key) => rows[parseInt(key, 10)].id);
-    setSelectedIds(updatedSelectedIds);
+  
+    const row = rows[rowIndex];
+    const isApproved = row.verify_status === 'Approved';
+  
+    console.log(`Row ${rowIndex} Status: ${row.verify_status}`);
+    console.log(`Is Approved: ${isApproved}`);
+  
+    if (!isApproved) {
+      setSelectedRows(updatedSelectedRows);
+  
+      const updatedSelectedIds = Object.keys(updatedSelectedRows)
+        .filter((key) => updatedSelectedRows[key])
+        .map((key) => rows[parseInt(key, 10)].id);
+  
+      setSelectedIds(updatedSelectedIds);
+      console.log(`Selected IDs: ${updatedSelectedIds}`);
+    }
   }
+  
 
   useEffect(() => {
     if (entity) {
@@ -239,11 +260,12 @@ function CustomDataTable(props) {
           const isSelected = selectedRows[key];
           return (
             <tr key={key}>
-              {showCheckboxes && (
+              {(row.verify_status != 'Approved' && showCheckboxes && (
                 <td className="text-center">
                   <input type="checkbox" checked={isSelected} onChange={() => handleRowSelection(key)} />
                 </td>
-              )}
+              )) || <td className="text-center">-</td>}
+
               {cols &&
                 cols.map((col, index) => {
                   const colMethod = eval(entity?.columns?.render?.[col['field']]);
@@ -299,30 +321,43 @@ function CustomDataTable(props) {
 
   return (
     <div className="position-relative">
-      {rows.length >= 1 && entity && (
-        <>
-          {entity?.search && (
-            <div className="search-input-box position-relative mb-2">
-              {(!searchInput && (
-                <FontAwesomeIcon icon={faSearch} className="base-link-color position-absolute search-icon" />
-              )) || (
-                <FontAwesomeIcon
-                  icon={faTimes}
-                  className="base-link-color position-absolute search-icon"
-                  onClick={() => setSearchInput('')}
+      <div className="d-flex justify-content-between">
+        {rows.length >= 1 && entity && (
+          <>
+            {entity?.search && (
+              <div className="search-input-box position-relative mb-2">
+                {(!searchInput && (
+                  <FontAwesomeIcon icon={faSearch} className="base-link-color position-absolute search-icon" />
+                )) || (
+                  <FontAwesomeIcon
+                    icon={faTimes}
+                    className="base-link-color position-absolute search-icon"
+                    onClick={() => setSearchInput('')}
+                  />
+                )}
+                <Form.Control
+                  type="text"
+                  className="form-control fs-14 shadow-none p-1 bg-transparent form-search-input"
+                  placeholder="Search"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                 />
-              )}
-              <Form.Control
-                type="text"
-                className="form-control fs-14 shadow-none p-1 bg-transparent form-search-input"
-                placeholder="Search"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-              />
-            </div>
-          )}
-        </>
-      )}
+              </div>
+            )}
+            {showCheckboxes && (
+              <div>
+                <Button
+                  className="common-btn fs-14 me-2"
+                  disabled={selectedIds?.length === 0}
+                  onClick={() => setShow(true)}
+                >
+                  Bulk Review
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
       <div className="table-responsive overview-table">
         <table className="w-100 nifty-table">
           {cols?.length > 0 && entity && renderTableColumns()}

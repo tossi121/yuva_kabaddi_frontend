@@ -127,8 +127,8 @@ function Login() {
     handleApiResponse(res);
     if (res.status) {
       const token = res.data;
-      Cookies.set('token', token.access_token, { expires: 30, path: '/' });
-      Cookies.set('role', token.user_role, { expires: 30, path: '/' });
+      Cookies.set('yuva_kabaddi_token', token.access_token, { expires: 30, path: '/' });
+      Cookies.set('yuva_kabaddi_role', token.user_role, { expires: 30, path: '/' });
       router.push('/');
     }
   };
