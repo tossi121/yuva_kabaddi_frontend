@@ -43,52 +43,45 @@ function CustomDataTable(props) {
   function handleSelectAll() {
     const newSelectAll = !selectAll;
     setSelectAll(newSelectAll);
-  
+
     // Update the selectedRows state for all rows.
     const newSelectedRows = {};
     const newSelectedIds = [];
-  
+
     rows.forEach((row, rowIndex) => {
       // Check if the row's status is "Approved" and if it's being selected
       const isApproved = row.verify_status === 'Approved';
-  
+
       if (!isApproved || newSelectAll) {
         newSelectedRows[rowIndex] = newSelectAll;
-  
+
         // Add the ID to the selectedIds if it's not an "Approved" row or if it's being selected
         if (!isApproved) {
           newSelectedIds.push(row.player_id);
         }
       }
     });
-  
+
     setSelectedRows(newSelectedRows);
     setSelectedIds(newSelectedIds);
   }
-  
 
   function handleRowSelection(rowIndex) {
     const updatedSelectedRows = { ...selectedRows };
     updatedSelectedRows[rowIndex] = !updatedSelectedRows[rowIndex];
-  
+
     const row = rows[rowIndex];
     const isApproved = row.verify_status === 'Approved';
-  
-    console.log(`Row ${rowIndex} Status: ${row.verify_status}`);
-    console.log(`Is Approved: ${isApproved}`);
-  
     if (!isApproved) {
       setSelectedRows(updatedSelectedRows);
-  
+
       const updatedSelectedIds = Object.keys(updatedSelectedRows)
         .filter((key) => updatedSelectedRows[key])
         .map((key) => rows[parseInt(key, 10)].id);
-  
+
       setSelectedIds(updatedSelectedIds);
-      console.log(`Selected IDs: ${updatedSelectedIds}`);
     }
   }
-  
 
   useEffect(() => {
     if (entity) {
