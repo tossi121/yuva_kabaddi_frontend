@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { Button, Form } from 'react-bootstrap';
+import TableLoader from './TableLoader';
 
 const CustomPagination = dynamic(import('./CustomPagination'));
 
@@ -17,7 +18,7 @@ const defaultProps = {
   sorting: true,
 };
 function CustomDataTable(props) {
-  const { rows, columns, options, showCheckboxes, selectedIds, setSelectedIds, setShow } = props;
+  const { rows, columns, options, showCheckboxes, selectedIds, setSelectedIds, setShow, checkBulk } = props;
   const [cols, setCols] = useState(null);
   const [currentData, setCurrentData] = useState([]);
   const [currentPageSize, setCurrentPageSize] = useState(10);
@@ -29,7 +30,7 @@ function CustomDataTable(props) {
   const [searchInput, setSearchInput] = useState('');
   const [sortingBy, setSortingBy] = useState('');
   const [sortType, setSortType] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [entity, setEntities] = useState(Object.assign({}, defaultProps, options));
   const [selectedRows, setSelectedRows] = useState({});
   const [selectAll, setSelectAll] = useState(false);
@@ -40,48 +41,20 @@ function CustomDataTable(props) {
     right: 'text-end',
   };
 
-  function handleSelectAll() {
-    const newSelectAll = !selectAll;
-    setSelectAll(newSelectAll);
-
-    // Update the selectedRows state for all rows.
-    const newSelectedRows = {};
-    const newSelectedIds = [];
-
-    rows.forEach((row, rowIndex) => {
-      // Check if the row's status is "Approved" and if it's being selected
-      const isApproved = row.verify_status === 'Approved';
-
-      if (!isApproved || newSelectAll) {
-        newSelectedRows[rowIndex] = newSelectAll;
-
-        // Add the ID to the selectedIds if it's not an "Approved" row or if it's being selected
-        if (!isApproved) {
-          newSelectedIds.push(row.player_id);
-        }
-      }
-    });
-
-    setSelectedRows(newSelectedRows);
-    setSelectedIds(newSelectedIds);
-  }
-
-  function handleRowSelection(rowIndex) {
-    const updatedSelectedRows = { ...selectedRows };
-    updatedSelectedRows[rowIndex] = !updatedSelectedRows[rowIndex];
-
-    const row = rows[rowIndex];
-    const isApproved = row.verify_status === 'Approved';
-    if (!isApproved) {
-      setSelectedRows(updatedSelectedRows);
-
-      const updatedSelectedIds = Object.keys(updatedSelectedRows)
-        .filter((key) => updatedSelectedRows[key])
-        .map((key) => rows[parseInt(key, 10)].id);
-
-      setSelectedIds(updatedSelectedIds);
+  useEffect(() => {
+    if (rows.length == 0) {
+      setLoading(true);
+    } else {
+      setLoading(false);
     }
-  }
+  }, [loading, rows]);
+
+  useEffect(() => {
+    if (checkBulk) {
+      setSelectedRows([]);
+      setSelectAll([]);
+    }
+  }, [checkBulk]);
 
   useEffect(() => {
     if (entity) {
@@ -198,6 +171,54 @@ function CustomDataTable(props) {
     }
   }
 
+  function handleSelectAll() {
+    const newSelectAll = !selectAll;
+    setSelectAll(newSelectAll);
+
+    // Update the selectedRows state for all rows.
+    const newSelectedRows = {};
+    const newSelectedIds = [];
+
+    rows.forEach((row, rowIndex) => {
+      // Check if the row's status is "Approved" and if it's being selected
+      const isApproved = row.verify_status === 'Approved';
+
+      if (!isApproved || newSelectAll) {
+        newSelectedRows[rowIndex] = newSelectAll;
+
+        if (!isApproved) {
+          newSelectedIds.push(row);
+        }
+      }
+    });
+
+    // Set the selected state and selectedIds
+    setSelectedRows(newSelectedRows);
+    setSelectedIds(newSelectedIds);
+
+    // If unchecking all, also clear the selected state
+    if (!newSelectAll) {
+      setSelectedRows({});
+      setSelectedIds([]);
+    }
+  }
+
+  function handleRowSelection(rowIndex) {
+    const updatedSelectedRows = { ...selectedRows };
+    updatedSelectedRows[rowIndex] = !updatedSelectedRows[rowIndex];
+    const row = rows[rowIndex];
+    const isApproved = row.verify_status === 'Approved';
+    if (!isApproved) {
+      setSelectedRows(updatedSelectedRows);
+
+      const updatedSelectedIds = Object.keys(updatedSelectedRows)
+        .filter((key) => updatedSelectedRows[key])
+        .map((key) => rows[parseInt(key, 10)]);
+
+      setSelectedIds(updatedSelectedIds);
+    }
+  }
+
   function renderTableColumns() {
     return (
       <thead>
@@ -257,7 +278,11 @@ function CustomDataTable(props) {
                 <td className="text-center">
                   <input type="checkbox" checked={isSelected} onChange={() => handleRowSelection(key)} />
                 </td>
-              )) || <td className="text-center">-</td>}
+              )) || (
+                <td className="text-center">
+                  <input type="checkbox" disabled />
+                </td>
+              )}
 
               {cols &&
                 cols.map((col, index) => {
@@ -313,96 +338,100 @@ function CustomDataTable(props) {
   }
 
   return (
-    <div className="position-relative">
-      <div className="d-flex justify-content-between">
-        {rows.length >= 1 && entity && (
-          <>
-            {entity?.search && (
-              <div className="search-input-box position-relative mb-2">
-                {(!searchInput && (
-                  <FontAwesomeIcon icon={faSearch} className="base-link-color position-absolute search-icon" />
-                )) || (
-                  <FontAwesomeIcon
-                    icon={faTimes}
-                    className="base-link-color position-absolute search-icon"
-                    onClick={() => setSearchInput('')}
-                  />
-                )}
-                <Form.Control
-                  type="text"
-                  className="form-control fs-14 shadow-none p-1 bg-transparent form-search-input"
-                  placeholder="Search"
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                />
-              </div>
-            )}
-            {showCheckboxes && (
-              <div>
-                <Button
-                  className="common-btn fs-14 me-2"
-                  disabled={selectedIds?.length === 0}
-                  onClick={() => setShow(true)}
-                >
-                  Bulk Review
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-      <div className="table-responsive overview-table">
-        <table className="w-100 nifty-table">
-          {cols?.length > 0 && entity && renderTableColumns()}
-          {(currentData?.length > 0 && renderTableRows()) || (
-            <tbody>
-              <tr>
-                <td colSpan={cols?.length}>No record found!</td>
-              </tr>
-            </tbody>
-          )}
-        </table>
-      </div>
-      <div className="row align-items-center my-3 pagination-box justify-content-between">
-        <div className="fs-14 col-md-4 col-12 pt-2 pt-md-0 mb-2 mb-lg-0">
-          <div className="m-auto w-max-content ms-md-0">
-            {currentData.length > 0 && entity?.info && (
+    <>
+      {(loading && <TableLoader />) || (
+        <div className="position-relative">
+          <div className="d-flex justify-content-between">
+            {rows.length >= 1 && entity && (
               <>
-                {(rows.length > 10 && (
-                  <p className="m-0 fw-500 label-color-4">
-                    Showing {numFirst} to{' '}
-                    <span className="m-0 fw-500 label-color-4">
-                      {(numData > currentData.length && numFirst == 1 && currentData.length) || numData}{' '}
-                    </span>
-                    of {filterData.length} entries
-                  </p>
-                )) || (
-                  <p className="m-0 fw-500 label-color-4">
-                    Showing {numFirst} to <span className="m-0 fw-500 label-color-4">{currentData.length}</span> of{' '}
-                    {filterData.length} entries
-                  </p>
+                {entity?.search && (
+                  <div className="search-input-box position-relative mb-2">
+                    {(!searchInput && (
+                      <FontAwesomeIcon icon={faSearch} className="base-link-color position-absolute search-icon" />
+                    )) || (
+                      <FontAwesomeIcon
+                        icon={faTimes}
+                        className="base-link-color position-absolute search-icon"
+                        onClick={() => setSearchInput('')}
+                      />
+                    )}
+                    <Form.Control
+                      type="text"
+                      className="form-control fs-14 shadow-none p-1 bg-transparent form-search-input"
+                      placeholder="Search"
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                    />
+                  </div>
+                )}
+                {showCheckboxes && (
+                  <div>
+                    <Button
+                      className="common-btn fs-14 me-2"
+                      disabled={selectedIds?.length === 0}
+                      onClick={() => setShow(true)}
+                    >
+                      Bulk Review
+                    </Button>
+                  </div>
                 )}
               </>
             )}
           </div>
-        </div>
-        {entity?.pagination && (
-          <div className="col-md-7 col-12">
-            <div className="w-max-content m-auto me-sm-0 d-flex align-items-center justify-content-md-end mt-md-0 mt-3">
-              {rows?.length >= 1 && <>{entity?.lengthChange && selectBox()}</>}
-              <CustomPagination
-                className="pagination-bar p-0 d-flex align-items-center"
-                data={filterData}
-                pageSize={Number(currentPageSize)}
-                setCurrentData={setCurrentData}
-                setNumData={setNumData}
-                setNumFirst={setNumFirst}
-              />
-            </div>
+          <div className="table-responsive overview-table">
+            <table className="w-100 nifty-table">
+              {cols?.length > 0 && entity && renderTableColumns()}
+              {(currentData?.length > 0 && renderTableRows()) || (
+                <tbody>
+                  <tr>
+                    <td colSpan={cols?.length}>No record found!</td>
+                  </tr>
+                </tbody>
+              )}
+            </table>
           </div>
-        )}
-      </div>
-    </div>
+          <div className="row align-items-center my-3 pagination-box justify-content-between">
+            <div className="fs-14 col-md-4 col-12 pt-2 pt-md-0 mb-2 mb-lg-0">
+              <div className="m-auto w-max-content ms-md-0">
+                {currentData.length > 0 && entity?.info && (
+                  <>
+                    {(rows.length > 10 && (
+                      <p className="m-0 fw-500 label-color-4">
+                        Showing {numFirst} to{' '}
+                        <span className="m-0 fw-500 label-color-4">
+                          {(numData > currentData.length && numFirst == 1 && currentData.length) || numData}{' '}
+                        </span>
+                        of {filterData.length} entries
+                      </p>
+                    )) || (
+                      <p className="m-0 fw-500 label-color-4">
+                        Showing {numFirst} to <span className="m-0 fw-500 label-color-4">{currentData.length}</span> of{' '}
+                        {filterData.length} entries
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+            {entity?.pagination && (
+              <div className="col-md-7 col-12">
+                <div className="w-max-content m-auto me-sm-0 d-flex align-items-center justify-content-md-end mt-md-0 mt-3">
+                  {rows?.length >= 1 && <>{entity?.lengthChange && selectBox()}</>}
+                  <CustomPagination
+                    className="pagination-bar p-0 d-flex align-items-center"
+                    data={filterData}
+                    pageSize={Number(currentPageSize)}
+                    setCurrentData={setCurrentData}
+                    setNumData={setNumData}
+                    setNumFirst={setNumFirst}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

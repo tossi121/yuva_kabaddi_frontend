@@ -33,6 +33,7 @@ function Users() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [filterData, setFilterData] = useState([]);
   const [reviewId, setReviewId] = useState(null);
+  const [checkBulk, setCheckBulk] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
@@ -189,12 +190,14 @@ function Users() {
           reviewId={reviewId}
           selectedIds={selectedIds}
           handleUser={handleUser}
+          setCheckBulk={setCheckBulk}
         />
       )}
 
       {showModal && (
         <DeleteModal showModal={showModal} setShowModal={setShowModal} handleDelete={handleDeleteUser} text="user" />
       )}
+
       <section className="dashboard-section">
         <Container fluid>
           <Row className="my-4 ">
@@ -314,6 +317,7 @@ function Users() {
                     selectedIds={selectedIds}
                     setSelectedIds={setSelectedIds}
                     setShow={setShow}
+                    checkBulk={checkBulk}
                   />
                 </Card.Body>
               </Card>

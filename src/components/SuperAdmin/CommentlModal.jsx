@@ -1,11 +1,11 @@
 import { getMatchPlayers, verifyUser } from '@/_services/services_api';
 import React, { useEffect, useState } from 'react';
-import { Button, Col, Dropdown, Form, Modal, Row, Spinner } from 'react-bootstrap';
+import { Button, Col, Form, Modal, Row, Spinner } from 'react-bootstrap';
 import toast from 'react-hot-toast';
 import ReusableDropdown from '../Player/ReusableDropdown';
 
 const CommentModal = (props) => {
-  const { modalText, setShow, show, reviewId, handleUser, selectedIds } = props;
+  const { modalText, setShow, show, reviewId, handleUser, selectedIds, setCheckBulk } = props;
   const [formValues, setFormValues] = useState({
     comment: '',
     status: 'Approved',
@@ -59,20 +59,38 @@ const CommentModal = (props) => {
     }
   }
 
+  const filteredData = selectedIds.map((user) => {
+    return {
+      id: user.id,
+      playerId: user.player_id,
+    };
+  });
+
+  const bulkData = filteredData.map((user) => ({
+    ...user,
+    status: formValues.status,
+    comment: formValues.comment,
+  }));
+
   async function handleVerifyUser() {
     const params = {
-      users: [
-        {
-          id: reviewId.id,
-          status: formValues.status,
-          playerId: selectedPlayer.player_id,
-          comment: formValues.comment,
-        },
-      ],
+      users:
+        bulkData.length > 0
+          ? bulkData
+          : [
+              {
+                id: reviewId.id,
+                status: formValues.status,
+                playerId: selectedPlayer.player_id,
+                comment: formValues.comment,
+              },
+            ],
     };
+
     const res = await verifyUser(params);
     if (res?.status) {
       toast.success(res.message);
+      setCheckBulk(true);
       handleUser();
     } else {
       toast.error(res.message);
