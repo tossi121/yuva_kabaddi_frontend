@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { Button, Form } from 'react-bootstrap';
 import TableLoader from './TableLoader';
+import { useAuth } from '@/_context/authContext';
 
 const CustomPagination = dynamic(import('./CustomPagination'));
 
@@ -34,6 +35,7 @@ function CustomDataTable(props) {
   const [entity, setEntities] = useState(Object.assign({}, defaultProps, options));
   const [selectedRows, setSelectedRows] = useState({});
   const [selectAll, setSelectAll] = useState(false);
+  const { role } = useAuth();
 
   const cellClasses = {
     left: 'text-start',
@@ -42,12 +44,18 @@ function CustomDataTable(props) {
   };
 
   useEffect(() => {
-    if (rows.length == 0) {
+    if (rows.length === 0) {
       setLoading(true);
+
+      const timeoutId = setTimeout(() => {
+        setLoading(false);
+      }, 400);
+
+      return () => clearTimeout(timeoutId);
     } else {
       setLoading(false);
     }
-  }, [loading, rows]);
+  }, [rows]);
 
   useEffect(() => {
     if (checkBulk) {
@@ -279,9 +287,13 @@ function CustomDataTable(props) {
                   <input type="checkbox" checked={isSelected} onChange={() => handleRowSelection(key)} />
                 </td>
               )) || (
-                <td className="text-center">
-                  <input type="checkbox" disabled />
-                </td>
+                <>
+                  {role == 'SUPER_ADMIN' && (
+                    <td className="text-center">
+                      <input type="checkbox" disabled />
+                    </td>
+                  )}
+                </>
               )}
 
               {cols &&

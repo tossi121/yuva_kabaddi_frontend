@@ -1,12 +1,12 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 
-const AddTds = dynamic(import('@/components/SuperAdmin/AddTds'));
+const Configuration = dynamic(import('@/components/SuperAdmin/Configuration'));
 
 function DefaultPage() {
   return (
     <>
-      <AddTds />
+      <Configuration />
     </>
   );
 }

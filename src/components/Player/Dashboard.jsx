@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
+import { Alert, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,6 +20,7 @@ import {
 
 import { faMoneyBill1 } from '@fortawesome/free-regular-svg-icons';
 import UserEarnings from './UserEarnings';
+import { useAuth } from '@/_context/authContext';
 
 const DashboardBreadcrumbComponent = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
@@ -32,6 +33,8 @@ function Dashboard() {
   const [withdrawalsData, setWithdrawalsData] = useState([]);
   const [filterChart, setFilterChart] = useState([]);
   const [chart, setChart] = useState(false);
+  const { currentUser } = useAuth();
+  const [show, setShow] = useState(true);
 
   const requestTypes = [
     { label: 'Paid Withdrawals', icon: faMoneyBills },
@@ -161,6 +164,11 @@ function Dashboard() {
   return (
     <div className="dashboard-section">
       <Container fluid>
+        {currentUser?.comment != null && (
+          <Alert variant="danger" onClose={() => setShow(false)} dismissible>
+            <spna>{currentUser?.comment}</spna>
+          </Alert>
+        )}
         <Row className="mt-4">
           <Col lg={12}>
             <div className="d-flex justify-content-between">
@@ -249,6 +257,7 @@ function Dashboard() {
             </Card>
           </Col>
         </Row>
+
         <UserEarnings />
         <Row className="my-4">
           {requestTypes.map((type, index) => (

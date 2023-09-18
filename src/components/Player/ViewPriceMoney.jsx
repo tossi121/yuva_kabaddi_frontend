@@ -10,13 +10,11 @@ import { faDownload, faFilter, faSearch } from '@fortawesome/free-solid-svg-icon
 import { useRouter } from 'next/router';
 import UserEarnings from './UserEarnings';
 import { getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
-import { useAuth } from '@/_context/authContext';
 
 const WithdrawalModal = dynamic(import('./WithdrawalModal'));
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function ViewPriceMoney() {
-  const [totalAmount, setTotalAmount] = useState('');
   const [show, setShow] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -30,12 +28,11 @@ function ViewPriceMoney() {
   const router = useRouter();
   const { label } = router.query;
 
-  const { currentUser } = useAuth();
-  const amountLeft = currentUser?.Total_Earninig - currentUser?.sumAprovedEarning;
-
   const columnsWithdrawal = [
     { heading: 'Withdrawal Date', field: 'createdAt' },
     { heading: 'Withdrawal Amount', field: 'amount' },
+    { heading: 'TDS Amount', field: 'tds_amount' },
+    { heading: 'Comment', field: 'comment' },
     { heading: 'Status', field: 'status' },
   ];
 
@@ -45,6 +42,7 @@ function ViewPriceMoney() {
     { heading: 'Winning Date', field: 'Date' },
     { heading: 'Amount', field: 'priceAmount' },
   ];
+
   const [selectedFilters, setSelectedFilters] = useState({
     paid: true,
     pending: true,
@@ -74,30 +72,26 @@ function ViewPriceMoney() {
     }
   }, [showTable]);
 
-
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [priceMoneyResponse, withdrawnRequestsResponse] = await Promise.all([
-          getPriceMoney(),
-          getWithdrawnRequests(),
-        ]);
-
-        if (priceMoneyResponse?.status) {
-          setEarningsData(priceMoneyResponse.data);
-        }
-
-        if (withdrawnRequestsResponse?.status) {
-          setWithdrawalsData(withdrawnRequestsResponse.data);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    }
-    fetchData();
-
-    setTotalAmount(amountLeft);
+    handlePriceMoney();
+    handleWithdrawnRequests();
   }, [startDate, endDate]);
+
+  async function handlePriceMoney() {
+    const res = await getPriceMoney();
+    if (res?.status) {
+      const data = res.data;
+      setEarningsData(data);
+    }
+  }
+
+  async function handleWithdrawnRequests() {
+    const res = await getWithdrawnRequests();
+    if (res?.status) {
+      const data = res.data;
+      setWithdrawalsData(data);
+    }
+  }
 
   useEffect(() => {
     if (withdrawalsData && label != undefined) {
@@ -134,11 +128,16 @@ function ViewPriceMoney() {
     return <span>{moment(row.Date).format('DD-MMMM-YYYY')} </span>;
   }
 
+  function renderComment(value, row) {
+    return <>{(row.comment == null && 'N/A') || row.comment} </>;
+  }
+
   const tableOptionsWithdrawal = {
     columns: {
       render: {
         createdAt: renderWithdrawalDate,
         status: renderSatus,
+        comment: renderComment,
       },
     },
   };
@@ -287,9 +286,9 @@ function ViewPriceMoney() {
     <>
       <WithdrawalModal
         {...{
-          totalAmount,
           show,
           setShow,
+          handleWithdrawnRequests,
         }}
       />
       <section className="dashboard-section">

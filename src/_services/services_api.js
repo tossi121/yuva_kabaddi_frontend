@@ -109,6 +109,15 @@ export async function getCurrentUserDetails(params) {
   }
 }
 
+export async function playerTransactionCreated(params) {
+  try {
+    const response = await fetcher('POST', process.env.PLAYER_TRANSACTION_CREATED_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
 export async function updateUserDetails(params) {
   try {
     const response = await filesFetch('POST', process.env.UPDATE_USER_DETAILS_DATA, params);
@@ -192,6 +201,23 @@ export async function getCurrentUsers(id) {
 export async function verifyUser(params) {
   try {
     const response = await fetcher('POST', process.env.ADMIN_VERIFY_USER_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function getTdsData(params) {
+  try {
+    const response = await fetcher('GET', process.env.ADMIN_GET_TDS_CONFIG_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function tdsDataUpdate(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_TDS_CONFIG_DATA, params);
     return response;
   } catch (err) {
     return null;

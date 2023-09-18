@@ -5,7 +5,7 @@ const TableLoader = (props) => {
   return (
     <ContentLoader
     style={{ width: '100%' }}
-      height={800}
+      height={650}
       viewBox="0 0 1200 600"
       backgroundColor="#f3f3f3"
       foregroundColor="#ecebeb"

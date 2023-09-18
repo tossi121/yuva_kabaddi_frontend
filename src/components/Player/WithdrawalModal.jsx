@@ -1,24 +1,46 @@
+import { useAuth } from '@/_context/authContext';
 import { validWithdrawalAmount } from '@/_helper/regex';
+import { getTdsData, playerTransactionCreated } from '@/_services/services_api';
 import React, { useEffect, useState } from 'react';
 import { Badge, Button, Form, Modal, Spinner } from 'react-bootstrap';
 import toast from 'react-hot-toast';
 
 function WithdrawalModal(props) {
-  const { setShow, show, totalAmount } = props;
+  const { setShow, show, handleWithdrawnRequests } = props;
   const [formValues, setFormValues] = useState({
-    totalAmount: totalAmount,
+    totalAmount: '',
     withdrawalAmount: '',
   });
-
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [tdsData, setTdsData] = useState([]);
+  const { currentUser } = useAuth();
+  const amountLeft = currentUser?.Total_Earninig - currentUser?.sumAprovedEarning;
+  const total = parseFloat(formValues.totalAmount);
+  const formattedAmount = total?.toFixed(2).toLocaleString('en-IN');
+  const tdsRate = tdsData?.tds_percentage / 100;
+  const tdsAmount = formValues.withdrawalAmount * tdsRate;
+  const remaining = useEffect(() => {
+    if (currentUser) {
+      const value = {
+        withdrawalAmount: '',
+        totalAmount: amountLeft,
+      };
+      setFormValues(value);
+    }
+    handleTdsData();
+    if (!show) {
+      handleCloseModal();
+    }
+  }, [currentUser, show]);
 
-  useEffect(() => {
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      totalAmount: totalAmount,
-    }));
-  }, [totalAmount]);
+  async function handleTdsData() {
+    const res = await getTdsData();
+    if (res?.status) {
+      const data = res.data.tdsConfig;
+      setTdsData(data);
+    }
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -46,22 +68,29 @@ function WithdrawalModal(props) {
     return errors;
   };
 
+  async function handleWithdrawal() {
+    const params = {
+      amount: formValues?.withdrawalAmount,
+      tds_amount: tdsAmount,
+    };
+
+    const res = await playerTransactionCreated(params);
+    if (res?.status) {
+      toast.success(res.message);
+      handleWithdrawnRequests();
+    } else {
+      toast.error(res.message);
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validate(formValues);
-
     if (Object.keys(errors).length === 0) {
-      // Handle form submission here (e.g., API call)
       setLoading(true);
-
-      // Simulate API call delay
-      setTimeout(() => {
-        setLoading(false);
-        setShow(false);
-        setFormValues((prevValues) => ({ ...prevValues, withdrawalAmount: '' }));
-        setFormErrors({});
-        toast.success('withdrawal successfully');
-      }, 200);
+      setLoading(false);
+      handleWithdrawal();
+      setShow(false);
     } else {
       setFormErrors(errors);
     }
@@ -72,11 +101,6 @@ function WithdrawalModal(props) {
     setFormValues((prevValues) => ({ ...prevValues, withdrawalAmount: '' }));
     setFormErrors({});
   };
-
-  const total = parseFloat(formValues.totalAmount);
-  const formattedAmount = total?.toFixed(2).toLocaleString('en-IN');
-  const tdsRate = 0.07;
-  const tdsAmount = formValues.withdrawalAmount * tdsRate;
 
   return (
     <Modal show={show} onHide={handleCloseModal} centered>
@@ -114,7 +138,7 @@ function WithdrawalModal(props) {
               )}
             </Form.Group>
           </div>
-          {formValues.withdrawalAmount.length > 0 && (
+          {formValues?.withdrawalAmount > 0 && (
             <div>
               <Badge pill bg={'info'} className="fs-12">
                 Summary
@@ -124,23 +148,36 @@ function WithdrawalModal(props) {
                 <Badge pill bg={'success'} className="fs-12 me-2">
                   Paid
                 </Badge>
-                <p className="fs-14 fw-500 base-color mb-0">
-                  {parseFloat(formValues.withdrawalAmount - tdsAmount)?.toFixed(2)}
-                </p>
+                <p className="fs-14 fw-500 base-color mb-0"></p>
+
+                {(formValues?.withdrawalAmount > tdsData?.tds_amount_min && (
+                  <p className="fs-14 fw-500 base-color mb-0">
+                    {parseFloat(formValues.withdrawalAmount - tdsAmount)?.toFixed(2)}
+                  </p>
+                )) || <p className="fs-14 fw-500 base-color mb-0">{formValues.withdrawalAmount}</p>}
               </div>
               <div className="d-flex align-items-center my-2">
                 <Badge pill bg={'warning'} className="fs-12 me-2">
                   Remaining
                 </Badge>
-                <p className="fs-14 fw-500 base-color mb-0">
-                  {(totalAmount - parseFloat(formValues.withdrawalAmount))?.toFixed(2)}
-                </p>
+
+                {(formValues?.withdrawalAmount > tdsData?.tds_amount_min && (
+                  <p className="fs-14 fw-500 base-color mb-0">
+                    {parseFloat(formValues.totalAmount - formValues?.withdrawalAmount - tdsAmount)?.toFixed(2)}
+                  </p>
+                )) || (
+                  <p className="fs-14 fw-500 base-color mb-0">
+                    {parseFloat(formValues.totalAmount - formValues?.withdrawalAmount)?.toFixed(2)}
+                  </p>
+                )}
               </div>
               <div className="d-flex align-items-center my-2">
                 <Badge pill bg={'danger'} className="fs-12 me-2">
                   TDS
                 </Badge>
-                <p className="fs-14 fw-500 base-color mb-0"> {tdsAmount?.toFixed(2)}</p>
+                {(formValues?.withdrawalAmount > tdsData?.tds_amount_min && (
+                  <p className="fs-14 fw-500 base-color mb-0"> {tdsAmount?.toFixed(2)}</p>
+                )) || <p className="fs-14 fw-500 base-color mb-0">0</p>}
               </div>
             </div>
           )}

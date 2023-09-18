@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 export default function Home() {
   const router = useRouter();
   const { role } = useAuth();
+  
   useEffect(() => {
     if (role == 'SUPER_ADMIN') {
       router.push('/super-admin/dashboard');

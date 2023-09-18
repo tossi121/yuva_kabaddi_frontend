@@ -19,6 +19,7 @@ const nextConfig = {
     ROLE_DATA: 'admin/role',
     SERIES_DATA: 'series',
     MATCH_DATA: 'series/matchdetails',
+    PLAYER_TRANSACTION_CREATED_DATA: 'createplayertransaction',
     MATCH_PLAYERS_DATA: 'match/players',
     PRICE_MONEY_DATA: 'pricedetail',
     WITHDRAWN_REQUESTS_OF_USER_DATA: 'getplayerwithdrawnrequestslistforuser',
@@ -34,6 +35,8 @@ const nextConfig = {
     ADMIN_CURRENT_USER_DATA: 'admin/getcurrentuserdetailsbyid',
     ADMIN_UPDATE_USER_DATA: 'admin/updateuserdetailsadmin',
     ADMIN_VERIFY_USER_DATA: 'admin/verifyuser',
+    ADMIN_TDS_CONFIG_DATA: 'admin/tdsconfig',
+    ADMIN_GET_TDS_CONFIG_DATA: 'admin/gettdsconfig',
   },
 };
 
