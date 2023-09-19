@@ -1,11 +1,12 @@
-import { getMatchPlayers, verifyUser } from '@/_services/services_api';
+import { getMatchPlayers, updatePlayerTransactionStatus, verifyUser } from '@/_services/services_api';
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Form, Modal, Row, Spinner } from 'react-bootstrap';
 import toast from 'react-hot-toast';
 import ReusableDropdown from '../Player/ReusableDropdown';
+import { useRouter } from 'next/router';
 
 const CommentModal = (props) => {
-  const { modalText, setShow, show, reviewId, handleUser, selectedIds, setCheckBulk } = props;
+  const { modalText, setShow, show, reviewId, handleData, selectedIds, setCheckBulk } = props;
   const [formValues, setFormValues] = useState({
     comment: '',
     status: 'Approved',
@@ -16,6 +17,8 @@ const CommentModal = (props) => {
   const [loading, setLoading] = useState(false);
   const [playerData, setPlayerData] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState('');
+  const router = useRouter();
+  const path = router.pathname;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -91,7 +94,29 @@ const CommentModal = (props) => {
     if (res?.status) {
       toast.success(res.message);
       setCheckBulk(true);
-      handleUser();
+      handleData();
+    } else {
+      toast.error(res.message);
+    }
+  }
+
+  console.log(reviewId);
+  async function handleTransaction() {
+    const params = {
+      transaction_status: [
+        {
+          transactionId: reviewId.id,
+          status: formValues.status,
+          comment: formValues.comment,
+        },
+      ],
+    };
+
+    const res = await updatePlayerTransactionStatus(params);
+    if (res?.status) {
+      toast.success(res.message);
+      setCheckBulk(true);
+      handleData();
     } else {
       toast.error(res.message);
     }
@@ -102,7 +127,11 @@ const CommentModal = (props) => {
     const errors = validate(formValues);
     if (Object.keys(errors).length === 0) {
       setLoading(true);
-      handleVerifyUser();
+      if (path === '/super-admin/users path') {
+        handleVerifyUser();
+      } else if (path === '/super-admin/withdrawal-approval') {
+        handleTransaction();
+      }
       setLoading(false);
       setShow(false);
     } else {

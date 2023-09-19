@@ -37,6 +37,8 @@ const nextConfig = {
     ADMIN_VERIFY_USER_DATA: 'admin/verifyuser',
     ADMIN_TDS_CONFIG_DATA: 'admin/tdsconfig',
     ADMIN_GET_TDS_CONFIG_DATA: 'admin/gettdsconfig',
+    ADMIN_PLAYER_WITHDRAW_REQUESTS_LIST_DATA: 'admin/getplayerwithdrawnrequestslist',
+    ADMIN_UPDATE_PLAYER_TRANSACTION_STATUS: 'admin/updateplayertransactionstatus',
   },
 };
 

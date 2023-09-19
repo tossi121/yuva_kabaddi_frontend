@@ -235,14 +235,14 @@ function Dashboard() {
               className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
             >
               <div className="card-head card-head-padding border-bottom">
-                <h4 className="common-heading mb-0">Price Money Filter</h4>
+                <h4 className="common-heading mb-0">Filter</h4>
               </div>
 
               <Card.Body className="box-padding">
                 <Form onSubmit={handleSubmit}>
                   <Row>
                     <Col xl={3} lg={4} md={6}>
-                      <Form.Label className="fs-16 fw-400 base-color-1">Select Start Date</Form.Label>
+                      <Form.Label className="fs-16 fw-400 base-color">Select Start Date</Form.Label>
                       <div className="mb-2 d-flex flex-column">
                         <ReactDatePicker
                           peekNextMonth
@@ -262,7 +262,7 @@ function Dashboard() {
                     <Col xl={3} lg={4} md={6}>
                       <div className="mb-2">
                         <Form.Group className="d-flex flex-column">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Select End Date</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Select End Date</Form.Label>
                           <ReactDatePicker
                             peekNextMonth
                             showMonthDropdown

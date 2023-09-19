@@ -34,6 +34,7 @@ function Users() {
   const [filterData, setFilterData] = useState([]);
   const [reviewId, setReviewId] = useState(null);
   const [checkBulk, setCheckBulk] = useState(false);
+  const [checkedFilter, setCheckedFilter] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
@@ -154,15 +155,24 @@ function Users() {
       pending: true,
       rejected: true,
     });
-
+    setCheckedFilter(false)
     setFilterData(tableData);
   };
 
   const handleFilterChange = (filterName) => {
+    const isFilterSelected = selectedFilters[filterName];
+    const numberOfSelectedFilters = Object.values(selectedFilters).filter(Boolean).length;
+
+    if (numberOfSelectedFilters === 1 && isFilterSelected) {
+      return;
+    }
+
     setSelectedFilters((prevFilters) => ({
       ...prevFilters,
-      [filterName]: !prevFilters[filterName],
+      [filterName]: !isFilterSelected,
     }));
+
+    setCheckedFilter(true);
   };
 
   async function handleDeleteUser() {
@@ -189,7 +199,7 @@ function Users() {
           modalText={'User Approval'}
           reviewId={reviewId}
           selectedIds={selectedIds}
-          handleUser={handleUser}
+          handleData={handleUser}
           setCheckBulk={setCheckBulk}
         />
       )}
@@ -244,7 +254,7 @@ function Users() {
                       <Col>
                         <div className="mb-4">
                           <Form.Group>
-                            <Form.Label className="fs-16 fw-400 base-color-1"> Filter Status</Form.Label>
+                            <Form.Label className="fs-16 fw-400 base-color"> Filter Status</Form.Label>
                             <div className="mt-2">
                               <Form.Label className="cursor-pointer user-select-none base-color-2" htmlFor="approved">
                                 <input
@@ -278,7 +288,7 @@ function Users() {
                                   id="reject"
                                   className="me-2"
                                   checked={selectedFilters.rejected}
-                                  onChange={() => handleFilterChange('reject')}
+                                  onChange={() => handleFilterChange('rejected')}
                                 />
                                 Rejected
                               </Form.Label>
@@ -286,15 +296,24 @@ function Users() {
                           </Form.Group>
                         </div>
                       </Col>
-                      <Col>
-                        <div className="d-flex align-items-center  filters-dropdown-btn">
-                          <Button className="common-btn px-3 text-nowrap" type="submit">
+                      <Col xl={3} lg={4} md={6}>
+                        <div className="d-flex align-items-center filters-dropdown-btn">
+                          <Button
+                            className="common-btn px-3 text-nowrap"
+                            type="Submit"
+                            disabled={!selectedRole && !checkedFilter}
+                          >
                             <span className="me-2">
                               <FontAwesomeIcon icon={faSearch} width={18} height={18} />
                             </span>
                             Search
                           </Button>
-                          <Button className="common-outline-btn px-4 ms-2" onClick={handleReset} type="reset">
+                          <Button
+                            className="common-outline-btn px-4 ms-2"
+                            onClick={handleReset}
+                            type="reset"
+                            disabled={!selectedRole && !checkedFilter}
+                          >
                             Reset
                           </Button>
                         </div>

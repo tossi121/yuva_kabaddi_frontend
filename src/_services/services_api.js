@@ -215,9 +215,29 @@ export async function getTdsData(params) {
     return null;
   }
 }
+
 export async function tdsDataUpdate(params) {
   try {
     const response = await fetcher('POST', process.env.ADMIN_TDS_CONFIG_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function playerWithdrawRequestsList(params) {
+  try {
+    const response = await fetcher('GET', process.env.ADMIN_PLAYER_WITHDRAW_REQUESTS_LIST_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+
+export async function updatePlayerTransactionStatus(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_UPDATE_PLAYER_TRANSACTION_STATUS, params);
     return response;
   } catch (err) {
     return null;
