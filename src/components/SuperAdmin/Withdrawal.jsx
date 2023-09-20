@@ -31,7 +31,6 @@ function Withdrawals() {
   const [roleData, setRoleData] = useState([]);
   const [selectedRole, setSelectedRole] = useState('');
   const [show, setShow] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
   const [tableData, setTableData] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [filterData, setFilterData] = useState([]);
@@ -88,7 +87,7 @@ function Withdrawals() {
       setReviewId(row);
     };
     return (
-      <div className="d-fle justify-content-center">
+      <div className="d-flex justify-content-center">
         {(row.status != 'Approved' && (
           <Button className="common-btn fs-14" onClick={handleClick}>
             Review
@@ -101,7 +100,7 @@ function Withdrawals() {
       </div>
     );
   }
-console.log(reviewId, "IDdddddddDDDDDDDDDD")
+
   function renderSatus(value, row) {
     const statusColors = {
       Approved: 'success',

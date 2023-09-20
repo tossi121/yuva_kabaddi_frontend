@@ -12,6 +12,7 @@ function Topbar(props) {
   const { currentUser } = useAuth();
   const user = currentUser?.user_name;
   const userRole = currentUser?.user_role;
+  const profileImg = currentUser?.profile_image;
 
   function logout() {
     Cookies.remove('yuva_kabaddi_token');
@@ -22,7 +23,6 @@ function Topbar(props) {
       history.go(1);
     };
   }
-
   return (
     <>
       <div className="w-100 top-bar position-sticky top-0 bg-white">
@@ -31,7 +31,7 @@ function Topbar(props) {
             <div className="d-flex align-items-center">
               <div className="d-flex justify-content-center logo-wrapper align-items-center">
                 <Link href={'/'}>
-                  <Image src="/images/logo.png" alt="" width={110} height={54} />
+                  <Image src="/images/logo.png" alt="logo" width={110} height={54} />
                 </Link>
               </div>
               <button className="bg-transparent border-0  pt-2 toggle-btn d-lg-none d-block ms-auto">
@@ -45,16 +45,19 @@ function Topbar(props) {
               </button>
               <div className="ms-auto  d-lg-block d-none me-3">
                 <ul className="ps-0 mb-0 d-flex flex-row align-items-center navbar-nav py-0">
-                  <li className="nav-item ms-2 position-relative">
-                    <div className="d-flex align-items-center">
-                      <Image
-                        src="/images/team-roster/user-details.png"
-                        width={45}
-                        height={45}
-                        alt="user"
-                        className="img-fluid rounded-circle"
-                      />
-                      <div className="info-member ms-2">
+                  <li className="nav-item position-relative">
+                    <div className="d-flex">
+                      <div className="circular-image-top me-1">
+                        <Image
+                          src={profileImg || '/images/user.png'}
+                          alt="image"
+                          width={100}
+                          height={100}
+                          className="rounded-circle circular-image"
+                        />
+                      </div>
+
+                      <div className="ms-2">
                         <span className="base-color fw-700 fs-14 text-capitalize">{user || 'Super Admin'}</span>
                         <div className="profile">
                           <Dropdown className="px-0 py-0 rounded-2">
@@ -66,14 +69,11 @@ function Topbar(props) {
                               <span className="pe-3">{userRole || 'Super Admin'}</span>
                             </Dropdown.Toggle>
                             <Dropdown.Menu className="w-100 rounded-4">
-                              {userRole == 'PLAYER' ||
-                                (userRole == 'COACH' && (
-                                  <Dropdown.Item className="py-2 fs-14 base-color-3">
-                                    <Link href={'/dashboard/profile'}>
-                                      <span className="base-color-3 d-block">Profile</span>
-                                    </Link>
-                                  </Dropdown.Item>
-                                ))}
+                              <Dropdown.Item className="py-2 fs-14 base-color-3">
+                                <Link href={'/dashboard/profile'}>
+                                  <span className="base-color-3 d-block">Profile</span>
+                                </Link>
+                              </Dropdown.Item>
                               <Dropdown.Item className="py-2 fs-14 base-color-3" onClick={logout}>
                                 Logout
                               </Dropdown.Item>

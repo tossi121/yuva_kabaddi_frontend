@@ -173,6 +173,7 @@ function MyProfile() {
     }
   };
 
+
   const validate = () => {
     const errors = {};
 
@@ -188,6 +189,12 @@ function MyProfile() {
     }
     if (!formValues.address) {
       errors.address = 'Please enter a full address';
+    }
+    if (!selectedState) {
+      errors.selectedState = 'Please select state';
+    }
+    if (!selectedCity) {
+      errors.selectedCity = 'Please select city';
     }
 
     if (!formValues.mobile) {
@@ -360,7 +367,7 @@ function MyProfile() {
                           displayKey="name"
                           valueKey="id"
                         />
-                        {formErrors.name && <p className="text-danger fs-14 error-message">{formErrors.name}</p>}
+                        {formErrors.selectedState && <p className="text-danger fs-14 error-message">{formErrors.selectedState}</p>}
                       </Form.Group>
                     </Col>
                     <Col lg={6}>
@@ -376,7 +383,7 @@ function MyProfile() {
                             displayKey="city"
                             valueKey="id"
                           />
-                          {formErrors.city && <p className="text-danger fs-14 error-message">{formErrors.city}</p>}
+                          {formErrors.selectedCity && <p className="text-danger fs-14 error-message">{formErrors.selectedCity}</p>}
                         </Form.Group>
                       </div>
                     </Col>
@@ -571,7 +578,7 @@ function MyProfile() {
                     </Col>
                   </Row>
 
-                  <Button className="common-btn py-2 px-3 mt-3 fs-14 d-flex align-items-center">
+                  <Button type='submit' className="common-btn py-2 px-3 mt-3 fs-14 d-flex align-items-center">
                     <Image
                       src="/images/team-roster/apply.svg"
                       alt="Save Change"

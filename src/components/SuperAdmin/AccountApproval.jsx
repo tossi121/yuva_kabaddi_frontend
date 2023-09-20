@@ -216,7 +216,7 @@ function AccountApproval() {
 
   return (
     <>
-      <CommentModal show={show} setShow={setShow} modalText="Account Approval" />
+      {/* <CommentModal show={show} setShow={setShow} modalText="Account Approval" /> */}
       <section className="dashboard-section">
         <Container fluid>
           <Row className="my-4 ">
@@ -368,16 +368,7 @@ function AccountApproval() {
                 <div className="card-head card-head-padding border-bottom">
                   <h4 className="common-heading mb-0">Account Approval</h4>
                 </div>
-                <Card.Body className="box-padding position-relative">
-                  <div className="position-absolute end-0 me-4 review-btn mt-2">
-                    <Button
-                      className="common-btn fs-14 me-2"
-                      disabled={selectedIds.length === 0}
-                      onClick={() => setShow(true)}
-                    >
-                      Bulk Review
-                    </Button>
-                  </div>
+                <Card.Body className='box-padding position-relative'>
                   <CustomDataTable
                     rows={filteredData}
                     columns={columns}

@@ -164,11 +164,12 @@ function Dashboard() {
   return (
     <div className="dashboard-section">
       <Container fluid>
-        {currentUser?.comment != null && (
-          <Alert variant="danger" onClose={() => setShow(false)} dismissible>
-            <spna>{currentUser?.comment}</spna>
-          </Alert>
-        )}
+        {currentUser?.comment == '' ||
+          (currentUser?.comment != null && (
+            <Alert variant="danger" onClose={() => setShow(false)} dismissible>
+              <span>{currentUser?.comment}</span>
+            </Alert>
+          ))}
         <Row className="mt-4">
           <Col lg={12}>
             <div className="d-flex justify-content-between">

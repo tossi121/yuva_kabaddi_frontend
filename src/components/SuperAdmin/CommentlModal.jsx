@@ -100,7 +100,6 @@ const CommentModal = (props) => {
     }
   }
 
-  console.log(reviewId);
   async function handleTransaction() {
     const params = {
       transaction_status: [
@@ -111,7 +110,7 @@ const CommentModal = (props) => {
         },
       ],
     };
-
+    console.log(params)
     const res = await updatePlayerTransactionStatus(params);
     if (res?.status) {
       toast.success(res.message);
@@ -125,17 +124,24 @@ const CommentModal = (props) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validate(formValues);
-    if (Object.keys(errors).length === 0) {
-      setLoading(true);
-      if (path === '/super-admin/users path') {
+    if (path == '/super-admin/users') {
+      if (Object.keys(errors).length === 0) {
+        setLoading(true);
         handleVerifyUser();
-      } else if (path === '/super-admin/withdrawal-approval') {
-        handleTransaction();
+        setLoading(false);
+        setShow(false);
+      } else {
+        setFormErrors(errors);
       }
-      setLoading(false);
-      setShow(false);
     } else {
-      setFormErrors(errors);
+      if (Object.keys(errors).length === 0) {
+        setLoading(true);
+        handleTransaction();
+        setLoading(false);
+        setShow(false);
+      } else {
+        setFormErrors(errors);
+      }
     }
   };
 

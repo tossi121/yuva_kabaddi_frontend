@@ -35,6 +35,7 @@ function CustomDataTable(props) {
   const [entity, setEntities] = useState(Object.assign({}, defaultProps, options));
   const [selectedRows, setSelectedRows] = useState({});
   const [selectAll, setSelectAll] = useState(false);
+
   const { role } = useAuth();
 
   const cellClasses = {
@@ -187,9 +188,8 @@ function CustomDataTable(props) {
     const newSelectedRows = {};
     const newSelectedIds = [];
 
-    rows.forEach((row, rowIndex) => {
-      const isApproved = row.verify_status === 'Approved' ;
-      console.log(isApproved, "isApproved")
+    currentData.forEach((row, rowIndex) => {
+      const isApproved = row.verify_status === 'Approved';
 
       if (!isApproved || newSelectAll) {
         newSelectedRows[rowIndex] = newSelectAll;
@@ -210,13 +210,11 @@ function CustomDataTable(props) {
       setSelectedIds([]);
     }
   }
-
   function handleRowSelection(rowIndex) {
     const updatedSelectedRows = { ...selectedRows };
     updatedSelectedRows[rowIndex] = !updatedSelectedRows[rowIndex];
     const row = rows[rowIndex];
-    const isApproved = row.verify_status === 'Approved' ;
-console.log(isApproved, "isApproved")
+    const isApproved = row.verify_status === 'Approved';
     if (!isApproved) {
       setSelectedRows(updatedSelectedRows);
 
@@ -283,7 +281,7 @@ console.log(isApproved, "isApproved")
           const isSelected = selectedRows[key];
           return (
             <tr key={key}>
-              {(row.verify_status != 'Approved' && row.status != 'Approved'  && showCheckboxes && (
+              {(row.verify_status != 'Approved' && row.status != 'Approved' && showCheckboxes && (
                 <td className="text-center">
                   <input type="checkbox" checked={isSelected} onChange={() => handleRowSelection(key)} />
                 </td>

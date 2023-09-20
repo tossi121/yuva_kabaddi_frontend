@@ -126,14 +126,6 @@ function ViewPriceMoney() {
     },
   };
 
-  function renderMatchDate(value, row) {
-    return <span>{moment(row.Date).format('DD-MMMM-YYYY')} </span>;
-  }
-
-  function renderComment(value, row) {
-    return <>{(row.comment == null && 'N/A') || row.comment} </>;
-  }
-
   const tableOptionsWithdrawal = {
     columns: {
       render: {
@@ -148,10 +140,18 @@ function ViewPriceMoney() {
     return <span>{moment(row.createdAt).format('DD-MMMM-YYYY')} </span>;
   }
 
+  function renderMatchDate(value, row) {
+    return <span>{moment(row.Date).format('DD-MMMM-YYYY')} </span>;
+  }
+
+  function renderComment(value, row) {
+    return <>{row.comment == null || (row.comment == '' && 'N/A') || row.comment} </>;
+  }
+
   function renderSatus(value, row) {
     const statusColors = {
-      Paid: 'success',
-      Reject: 'danger',
+      Approved: 'success',
+      Rejected: 'danger',
       Pending: 'warning',
     };
 

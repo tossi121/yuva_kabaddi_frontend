@@ -20,7 +20,8 @@ function WithdrawalModal(props) {
   const formattedAmount = total?.toFixed(2).toLocaleString('en-IN');
   const tdsRate = tdsData?.tds_percentage / 100;
   const tdsAmount = formValues.withdrawalAmount * tdsRate;
-  const remaining = useEffect(() => {
+
+  useEffect(() => {
     if (currentUser) {
       const value = {
         withdrawalAmount: '',
@@ -28,6 +29,7 @@ function WithdrawalModal(props) {
       };
       setFormValues(value);
     }
+    
     handleTdsData();
     if (!show) {
       handleCloseModal();
