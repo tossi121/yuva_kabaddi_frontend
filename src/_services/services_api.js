@@ -234,7 +234,6 @@ export async function playerWithdrawRequestsList(params) {
   }
 }
 
-
 export async function updatePlayerTransactionStatus(params) {
   try {
     const response = await fetcher('POST', process.env.ADMIN_UPDATE_PLAYER_TRANSACTION_STATUS, params);

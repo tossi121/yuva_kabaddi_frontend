@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faEdit, faFilter, faPlus, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faFilter, faSearch, faUserGear } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import 'react-datepicker/dist/react-datepicker.css';
 import CustomDataTable from '../DataTable/CustomDataTable';
 import dynamic from 'next/dynamic';
 import CommentModal from './CommentlModal';
-import DeleteModal from './DeleteModal';
 import ReusableDropdown from '../Player/ReusableDropdown';
-import { deleteUser, getRole, playerWithdrawRequestsList } from '@/_services/services_api';
-import toast from 'react-hot-toast';
+import { getRole, playerWithdrawRequestsList } from '@/_services/services_api';
 import moment from 'moment';
 import ReactDatePicker from 'react-datepicker';
+import AccountModal from './AccountModal';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
@@ -39,6 +38,7 @@ function Withdrawals() {
   const [endDate, setEndDate] = useState(null);
   const [checkBulk, setCheckBulk] = useState(false);
   const [checkedFilter, setCheckedFilter] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
@@ -86,15 +86,32 @@ function Withdrawals() {
       setShow(true);
       setReviewId(row);
     };
+
+    const handleModal = () => {
+      setShowModal(true);
+      setReviewId(row);
+      console.log(row, "Row")
+    };
+
     return (
-      <div className="d-flex justify-content-center">
+      <div className="d-flex justify-content-center align-items-center">
+        <div className="">
+          <FontAwesomeIcon
+            className="me-3 base-color-2 cursor-pointer"
+            icon={faUserGear}
+            width={25}
+            height={25}
+            onClick={handleModal}
+            title='Account Details'
+          />
+        </div>
         {(row.status != 'Approved' && (
           <Button className="common-btn fs-14" onClick={handleClick}>
             Review
           </Button>
         )) || (
           <div className="text-success">
-            <FontAwesomeIcon icon={faCheckCircle} width={25} height={25} />
+            <FontAwesomeIcon title='Approved' icon={faCheckCircle} width={25} height={25} />
           </div>
         )}
       </div>
@@ -191,6 +208,8 @@ function Withdrawals() {
           setCheckBulk={setCheckBulk}
         />
       )}
+
+      {showModal && <AccountModal {...{ showModal, setShowModal, reviewId }} />}
 
       <section className="dashboard-section">
         <Container fluid>

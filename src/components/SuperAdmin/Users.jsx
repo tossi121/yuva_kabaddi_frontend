@@ -100,7 +100,7 @@ function Users() {
           </Button>
         )) || (
           <div className="text-success">
-            <FontAwesomeIcon icon={faCheckCircle} width={33} height={33} />
+            <FontAwesomeIcon title='Approved'  icon={faCheckCircle} width={33} height={33} />
           </div>
         )}
       </div>
