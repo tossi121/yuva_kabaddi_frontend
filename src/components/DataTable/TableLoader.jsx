@@ -4,8 +4,8 @@ import React from 'react';
 const TableLoader = (props) => {
   return (
     <ContentLoader
-      width={1200}
-      height={600}
+    style={{ width: '100%' }}
+      height={650}
       viewBox="0 0 1200 600"
       backgroundColor="#f3f3f3"
       foregroundColor="#ecebeb"

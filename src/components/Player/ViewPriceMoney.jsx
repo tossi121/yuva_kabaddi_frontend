@@ -10,13 +10,11 @@ import { faDownload, faFilter, faSearch } from '@fortawesome/free-solid-svg-icon
 import { useRouter } from 'next/router';
 import UserEarnings from './UserEarnings';
 import { getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
-import { useAuth } from '@/_context/authContext';
 
 const WithdrawalModal = dynamic(import('./WithdrawalModal'));
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function ViewPriceMoney() {
-  const [totalAmount, setTotalAmount] = useState('');
   const [show, setShow] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -25,17 +23,17 @@ function ViewPriceMoney() {
   const [withdrawalsData, setWithdrawalsData] = useState([]);
   const [showTable, setShowTable] = useState(true);
   const [filterData, setFilterData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [checkedFilter, setCheckedFilter] = useState(false);
   const tableRef = useRef(null);
   const router = useRouter();
   const { label } = router.query;
 
-  const { currentUser } = useAuth();
-  const amountLeft = currentUser?.Total_Earninig - currentUser?.sumAprovedEarning;
-
   const columnsWithdrawal = [
     { heading: 'Withdrawal Date', field: 'createdAt' },
     { heading: 'Withdrawal Amount', field: 'amount' },
+    { heading: 'TDS Amount', field: 'tds_amount' },
+    { heading: 'Comment', field: 'comment' },
     { heading: 'Status', field: 'status' },
   ];
 
@@ -45,6 +43,7 @@ function ViewPriceMoney() {
     { heading: 'Winning Date', field: 'Date' },
     { heading: 'Amount', field: 'priceAmount' },
   ];
+
   const [selectedFilters, setSelectedFilters] = useState({
     paid: true,
     pending: true,
@@ -74,30 +73,27 @@ function ViewPriceMoney() {
     }
   }, [showTable]);
 
-
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [priceMoneyResponse, withdrawnRequestsResponse] = await Promise.all([
-          getPriceMoney(),
-          getWithdrawnRequests(),
-        ]);
+    handlePriceMoney();
+    handleWithdrawnRequests();
+    setFilteredData(earningsData);
+  }, [JSON.stringify(earningsData)]);
 
-        if (priceMoneyResponse?.status) {
-          setEarningsData(priceMoneyResponse.data);
-        }
-
-        if (withdrawnRequestsResponse?.status) {
-          setWithdrawalsData(withdrawnRequestsResponse.data);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
+  async function handlePriceMoney() {
+    const res = await getPriceMoney();
+    if (res?.status) {
+      const data = res.data;
+      setEarningsData(data);
     }
-    fetchData();
+  }
 
-    setTotalAmount(amountLeft);
-  }, [startDate, endDate]);
+  async function handleWithdrawnRequests() {
+    const res = await getWithdrawnRequests();
+    if (res?.status) {
+      const data = res.data;
+      setWithdrawalsData(data);
+    }
+  }
 
   useEffect(() => {
     if (withdrawalsData && label != undefined) {
@@ -130,15 +126,12 @@ function ViewPriceMoney() {
     },
   };
 
-  function renderMatchDate(value, row) {
-    return <span>{moment(row.Date).format('DD-MMMM-YYYY')} </span>;
-  }
-
   const tableOptionsWithdrawal = {
     columns: {
       render: {
         createdAt: renderWithdrawalDate,
         status: renderSatus,
+        comment: renderComment,
       },
     },
   };
@@ -147,10 +140,18 @@ function ViewPriceMoney() {
     return <span>{moment(row.createdAt).format('DD-MMMM-YYYY')} </span>;
   }
 
+  function renderMatchDate(value, row) {
+    return <span>{moment(row.Date).format('DD-MMMM-YYYY')} </span>;
+  }
+
+  function renderComment(value, row) {
+    return <>{row.comment == null || (row.comment == '' && 'N/A') || row.comment} </>;
+  }
+
   function renderSatus(value, row) {
     const statusColors = {
-      Paid: 'success',
-      Reject: 'danger',
+      Approved: 'success',
+      Rejected: 'danger',
       Pending: 'warning',
     };
 
@@ -197,7 +198,7 @@ function ViewPriceMoney() {
   const handleReset = () => {
     setStartDate(null);
     setEndDate(null);
-    setEarningsData(earningsData);
+    setFilteredData(earningsData);
     setFilterData(withdrawalsData);
     setCheckedFilter(false);
     setSelectedFilters({
@@ -252,10 +253,12 @@ function ViewPriceMoney() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const adjustedEndDate = endDate ? moment(endDate).add(1, 'day') : null;
+
     const filteredEarnings = earningsData.filter((item) => {
       const isWithinDateRange =
         (!startDate || moment(item.Date).isSameOrAfter(startDate)) &&
-        (!endDate || moment(item.Date).isSameOrBefore(endDate));
+        (!adjustedEndDate || moment(item.Date).isSameOrBefore(adjustedEndDate));
 
       return isWithinDateRange;
     });
@@ -263,7 +266,7 @@ function ViewPriceMoney() {
     const filteredWithdrawals = withdrawalsData.filter((item) => {
       const isWithinDateRange =
         (!startDate || moment(item.createdAt).isSameOrAfter(startDate)) &&
-        (!endDate || moment(item.createdAt).isSameOrBefore(endDate));
+        (!adjustedEndDate || moment(item.createdAt).isSameOrBefore(adjustedEndDate));
 
       const isSelectedStatus =
         (selectedFilters.paid && item.status === 'Paid') ||
@@ -273,7 +276,7 @@ function ViewPriceMoney() {
       return isWithinDateRange && isSelectedStatus;
     });
 
-    setEarningsData(filteredEarnings);
+    setFilteredData(filteredEarnings);
     setFilterData(filteredWithdrawals);
     setCheckedFilter(false);
   };
@@ -287,9 +290,9 @@ function ViewPriceMoney() {
     <>
       <WithdrawalModal
         {...{
-          totalAmount,
           show,
           setShow,
+          handleWithdrawnRequests,
         }}
       />
       <section className="dashboard-section">
@@ -319,7 +322,7 @@ function ViewPriceMoney() {
                   <Form onSubmit={handleSubmit}>
                     <Row>
                       <Col xl={3} lg={4} md={6}>
-                        <Form.Label className="fs-16 fw-400 base-color-1">Select Start Date</Form.Label>
+                        <Form.Label className="fs-16 fw-400 base-color">Select Start Date</Form.Label>
                         <div className="mb-2 d-flex flex-column">
                           <ReactDatePicker
                             peekNextMonth
@@ -339,7 +342,7 @@ function ViewPriceMoney() {
                       <Col xl={3} lg={4} md={6}>
                         <div className="mb-2">
                           <Form.Group className="d-flex flex-column">
-                            <Form.Label className="fs-16 fw-400 base-color-1">Select End Date</Form.Label>
+                            <Form.Label className="fs-16 fw-400 base-color">Select End Date</Form.Label>
                             <ReactDatePicker
                               peekNextMonth
                               showMonthDropdown
@@ -361,7 +364,7 @@ function ViewPriceMoney() {
                         <Col xl={3} lg={4} md={6}>
                           <div className="mb-4">
                             <Form.Group>
-                              <Form.Label className="fs-14 fw-500 base-color-2"> Filter Status</Form.Label>
+                              <Form.Label className="fs-14 fw-500 base-color-1"> Filter Status</Form.Label>
                               <div className="mt-2">
                                 <Form.Label className="cursor-pointer user-select-none base-color-2" htmlFor="paid">
                                   <input
@@ -471,7 +474,7 @@ function ViewPriceMoney() {
                 </div>
                 <Card.Body className="box-padding" ref={tableRef} id="myTable">
                   {earningsData.length > 0 && showTable && (
-                    <CustomDataTable rows={earningsData} columns={columns} options={tableOptions} />
+                    <CustomDataTable rows={filteredData} columns={columns} options={tableOptions} />
                   )}
 
                   {!showTable && (

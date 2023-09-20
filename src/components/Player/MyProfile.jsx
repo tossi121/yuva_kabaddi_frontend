@@ -26,14 +26,12 @@ function MyProfile() {
     user_name: '',
     email: '',
     mobile: '',
-    city: '',
     address: '',
     pancard: '',
     bankIfsc: '',
     bankName: '',
     acNumber: '',
     bankBranch: '',
-    name: '',
   };
 
   const [formValues, setFormValues] = useState(initialFormValues);
@@ -67,8 +65,6 @@ function MyProfile() {
         user_name: currentUser.user_name || '',
         email: currentUser.email || '',
         mobile: currentUser.contactno || '',
-        name: currentUser.state_id || '',
-        city: currentUser.city_id || '',
         address: currentUser.address || '',
         pancard: currentUser.pan_no || '',
         bankIfsc: currentUser.ifsc_code || '',
@@ -76,6 +72,7 @@ function MyProfile() {
         acNumber: currentUser.account_number || '',
         bankBranch: currentUser.branch_name || '',
       };
+
       setFormValues(values);
       setPanImagePreview(currentUser.pan_image);
       setPassbookImagePreview(currentUser.passbook_image);
@@ -88,18 +85,18 @@ function MyProfile() {
   }, []);
 
   useEffect(() => {
-    const selectedStateId = stateData.find((item) => item.id === formValues.name);
+    const selectedStateId = stateData.find((item) => item.id === currentUser?.state_id);
     setSelectedState(selectedStateId);
-  }, [formValues.name]);
+  }, [stateData, currentUser]);
 
   useEffect(() => {
     if (selectedState) {
       handleCity(selectedState.id);
 
-      const selectedCityId = cityData.find((item) => item.id === formValues.city);
+      const selectedCityId = cityData.find((item) => item.id === currentUser?.city_id);
       setSelectedCity(selectedCityId);
     }
-  }, [selectedState, formValues.city, JSON.stringify(cityData)]);
+  }, [selectedState, currentUser?.city_id, JSON.stringify(cityData)]);
 
   async function handleState() {
     try {
@@ -176,6 +173,7 @@ function MyProfile() {
     }
   };
 
+
   const validate = () => {
     const errors = {};
 
@@ -191,6 +189,12 @@ function MyProfile() {
     }
     if (!formValues.address) {
       errors.address = 'Please enter a full address';
+    }
+    if (!selectedState) {
+      errors.selectedState = 'Please select state';
+    }
+    if (!selectedCity) {
+      errors.selectedCity = 'Please select city';
     }
 
     if (!formValues.mobile) {
@@ -232,24 +236,22 @@ function MyProfile() {
     return errors;
   };
 
-  console.log(selectedCity, selectedState);
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validate();
     setFormErrors(errors);
-    const params = {
-      ...formValues,
-      pan_image: panFileData,
-      passbook_image: passbookFileData,
-      profile_image: profileFileData,
-      state_id: selectedCity?.id,
-      city_id: selectedState?.id,
-    };
     if (Object.keys(errors).length === 0) {
       try {
+        const params = {
+          ...formValues,
+          pan_image: panFileData,
+          passbook_image: passbookFileData,
+          profile_image: profileFileData,
+          state_id: selectedState?.id,
+          city_id: selectedCity?.id,
+        };
         setLoading(true);
         const res = await updateUserDetails(params);
-        console.log(params);
         if (res?.status) {
           toast.success(res.message);
           setUpdatedUser(true);
@@ -365,7 +367,7 @@ function MyProfile() {
                           displayKey="name"
                           valueKey="id"
                         />
-                        {formErrors.name && <p className="text-danger fs-14 error-message">{formErrors.name}</p>}
+                        {formErrors.selectedState && <p className="text-danger fs-14 error-message">{formErrors.selectedState}</p>}
                       </Form.Group>
                     </Col>
                     <Col lg={6}>
@@ -381,7 +383,7 @@ function MyProfile() {
                             displayKey="city"
                             valueKey="id"
                           />
-                          {formErrors.city && <p className="text-danger fs-14 error-message">{formErrors.city}</p>}
+                          {formErrors.selectedCity && <p className="text-danger fs-14 error-message">{formErrors.selectedCity}</p>}
                         </Form.Group>
                       </div>
                     </Col>
@@ -412,7 +414,7 @@ function MyProfile() {
                 <h4 className="common-heading mb-0">Bank Details</h4>
               </div>
               <Card.Body className="box-padding">
-                <Form>
+                <Form onSubmit={handleSubmit}>
                   <Row>
                     <Col lg={6}>
                       <div className="box-profile-image mb-4">
@@ -576,7 +578,7 @@ function MyProfile() {
                     </Col>
                   </Row>
 
-                  <Button className="common-btn py-2 px-3 mt-3 fs-14 d-flex align-items-center" onClick={handleSubmit}>
+                  <Button type='submit' className="common-btn py-2 px-3 mt-3 fs-14 d-flex align-items-center">
                     <Image
                       src="/images/team-roster/apply.svg"
                       alt="Save Change"

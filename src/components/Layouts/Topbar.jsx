@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
 import { useAuth } from '@/_context/authContext';
-import { useEffect } from 'react';
 
 function Topbar(props) {
   const { ToggleFun } = props;
@@ -13,17 +12,17 @@ function Topbar(props) {
   const { currentUser } = useAuth();
   const user = currentUser?.user_name;
   const userRole = currentUser?.user_role;
+  const profileImg = currentUser?.profile_image;
 
   function logout() {
-    Cookies.remove('token');
-    Cookies.remove('role');
+    Cookies.remove('yuva_kabaddi_token');
+    Cookies.remove('yuva_kabaddi_role');
     router.push('/login');
     history.pushState(null, null, location.href);
     window.onpopstate = function () {
       history.go(1);
     };
   }
-
   return (
     <>
       <div className="w-100 top-bar position-sticky top-0 bg-white">
@@ -32,7 +31,7 @@ function Topbar(props) {
             <div className="d-flex align-items-center">
               <div className="d-flex justify-content-center logo-wrapper align-items-center">
                 <Link href={'/'}>
-                  <Image src="/images/logo.png" alt="" width={110} height={54} />
+                  <Image src="/images/logo.png" alt="logo" width={110} height={54} />
                 </Link>
               </div>
               <button className="bg-transparent border-0  pt-2 toggle-btn d-lg-none d-block ms-auto">
@@ -46,22 +45,25 @@ function Topbar(props) {
               </button>
               <div className="ms-auto  d-lg-block d-none me-3">
                 <ul className="ps-0 mb-0 d-flex flex-row align-items-center navbar-nav py-0">
-                  <li className="nav-item ms-2 position-relative">
-                    <div className="d-flex align-items-center">
-                      <Image
-                        src="/images/team-roster/user-details.png"
-                        width={45}
-                        height={45}
-                        alt="user"
-                        className="img-fluid rounded-circle"
-                      />
-                      <div className="info-member ms-2">
+                  <li className="nav-item position-relative">
+                    <div className="d-flex">
+                      <div className="circular-image-top me-1">
+                        <Image
+                          src={profileImg || '/images/user.png'}
+                          alt="image"
+                          width={100}
+                          height={100}
+                          className="rounded-circle circular-image"
+                        />
+                      </div>
+
+                      <div className="ms-2">
                         <span className="base-color fw-700 fs-14 text-capitalize">{user || 'Super Admin'}</span>
-                        <div className="Profile">
+                        <div className="profile">
                           <Dropdown className="px-0 py-0 rounded-2">
                             <Dropdown.Toggle
                               variant="none"
-                              className="text-start Profile-box-dropdown base-color-3 bg-white p-0 border-0 d-flex align-items-center fs-12 fw-400 base-color-9"
+                              className="text-start profile-box-dropdown base-color-3 bg-white p-0 border-0 d-flex align-items-center fs-12 fw-400 base-color-9"
                               id="dropdown-basic"
                             >
                               <span className="pe-3">{userRole || 'Super Admin'}</span>

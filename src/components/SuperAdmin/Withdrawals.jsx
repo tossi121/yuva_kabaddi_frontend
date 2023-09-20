@@ -1,91 +1,224 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
 import CustomDataTable from '../DataTable/CustomDataTable';
 import dynamic from 'next/dynamic';
 import CommentModal from './CommentlModal';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import moment from 'moment';
+import { useRouter } from 'next/router';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
-function AccountApproval() {
+function Withdrawal() {
   const data = [
     {
-      user_type: 'Coach',
-      name: 'John Smith',
-      status: 'Pending',
-      email: 'john.smith@example.com',
-      pan_card_no: 'ABCD1234E',
-      ifsc_code: 'EFGH5678901',
-      bank_name: 'National Bank',
-      branch_name: 'Downtown Branch',
-      account_number: '98765432101234',
-    },
-
-    {
-      user_type: 'Player',
-      name: 'Alice Johnson',
-      status: 'Pending',
-      email: 'alice.johnson@example.com',
-      pan_card_no: 'WXYZ5678F',
-      ifsc_code: 'UVWX1234567',
-      bank_name: 'Local Credit Union',
-      branch_name: 'Northside Branch',
-      account_number: '56789012345678',
-    },
-
-    {
-      user_type: 'Coach',
-      name: 'David Lee',
-      status: 'Pending',
-      email: 'david.lee@example.com',
-      pan_card_no: 'LMNO5678G',
-      ifsc_code: 'PQRS1234567',
-      bank_name: 'Global Trust Bank',
-      branch_name: 'West End Branch',
-      account_number: '11223344556677',
-    },
-
-    {
-      user_type: 'Player',
+      id: 1,
+      receiptNo: 'RCPT001',
       status: 'Approved',
-      name: 'John Smith',
-      email: 'john.smith@example.com',
-      pan_card_no: 'ABCD1234E',
-      ifsc_code: 'EFGH5678901',
-      bank_name: 'National Bank',
-      branch_name: 'Downtown Branch',
-      account_number: '98765432101234',
+      amount: 250.0,
+      name: 'John Doe',
+      date: '2023-04-18',
+      email: 'john.doe@example.com',
+      userType: 'Player',
     },
-
     {
-      user_type: 'Coach',
+      id: 2,
+      receiptNo: 'RCPT002',
+      status: 'Pending',
+      amount: 150.0,
+      name: 'Jane Smith',
+      date: '2023-03-17',
+      email: 'jane.smith@example.com',
+      userType: 'Player',
+    },
+    {
+      id: 3,
+      receiptNo: 'RCPT003',
+      status: 'Approved',
+      amount: 350.0,
+      name: 'Michael Johnson',
+      date: '2023-02-16',
+      email: 'michael.johnson@example.com',
+      userType: 'Coach',
+    },
+    {
+      id: 4,
+      receiptNo: 'RCPT004',
+      status: 'Pending',
+      amount: 200.0,
+      name: 'Emily Brown',
+      date: '2023-08-10',
+      email: 'emily.brown@example.com',
+      userType: 'Coach',
+    },
+    {
+      id: 5,
+      receiptNo: 'RCPT005',
       status: 'Reject',
-      name: 'Alice Johnson',
-      email: 'alice.johnson@example.com',
-      pan_card_no: 'WXYZ5678F',
-      ifsc_code: 'UVWX1234567',
-      bank_name: 'Local Credit Union',
-      branch_name: 'Northside Branch',
-      account_number: '56789012345678',
-    },
-
-    {
-      user_type: 'Player',
+      amount: 180.0,
       name: 'David Lee',
+      date: '2023-08-10',
       email: 'david.lee@example.com',
+      userType: 'Player',
+    },
+    {
+      id: 6,
+      receiptNo: 'RCPT006',
+      status: 'Pending',
+      amount: 300.0,
+      name: 'Sarah Johnson',
+      date: '2023-12-21',
+      email: 'sarah.johnson@example.com',
+      userType: 'Player',
+    },
+    {
+      id: 7,
+      receiptNo: 'RCPT007',
       status: 'Reject',
-      pan_card_no: 'LMNO5678G',
-      ifsc_code: 'PQRS1234567',
-      bank_name: 'Global Trust Bank',
-      branch_name: 'West End Branch',
-      account_number: '11223344556677',
+      amount: 400.0,
+      name: 'Robert Smith',
+      date: '2023-12-30',
+      email: 'robert.smith@example.com',
+      userType: 'Coach',
+    },
+    {
+      id: 8,
+      receiptNo: 'RCPT008',
+      status: 'Pending',
+      amount: 220.0,
+      name: 'Michelle White',
+      date: '2023-08-10',
+      email: 'michelle.white@example.com',
+      userType: 'Coach',
+    },
+    {
+      id: 9,
+      receiptNo: 'RCPT009',
+      status: 'Reject',
+      amount: 270.0,
+      name: 'Daniel Johnson',
+      date: '2023-08-10',
+      email: 'daniel.johnson@example.com',
+      userType: 'Player',
+    },
+    {
+      id: 10,
+      receiptNo: 'RCPT010',
+      status: 'Pending',
+      amount: 130.0,
+      name: 'Olivia Davis',
+      date: '2023-08-17',
+      email: 'olivia.davis@example.com',
+      userType: 'Player',
+    },
+    {
+      id: 11,
+      receiptNo: 'RCPT011',
+      status: 'Approved',
+      amount: 320.0,
+      name: 'William Brown',
+      date: '2023-0-16',
+      email: 'william.brown@example.com',
+      userType: 'Coach',
+    },
+    {
+      id: 12,
+      receiptNo: 'RCPT012',
+      status: 'Pending',
+      amount: 190.0,
+      name: 'Emma Johnson',
+      date: '2023-09-10',
+      email: 'emma.johnson@example.com',
+      userType: 'Coach',
+    },
+    {
+      id: 13,
+      receiptNo: 'RCPT013',
+      status: 'Reject',
+      amount: 210.0,
+      name: 'James Wilson',
+      date: '2023-08-11',
+      email: 'james.wilson@example.com',
+      userType: 'Player',
+    },
+    {
+      id: 14,
+      receiptNo: 'RCPT014',
+      status: 'Pending',
+      amount: 280.0,
+      name: 'Sophia Martin',
+      date: '2023-08-10',
+      email: 'sophia.martin@example.com',
+      userType: 'Player',
+    },
+    {
+      id: 15,
+      receiptNo: 'RCPT015',
+      status: 'Approved',
+      amount: 370.0,
+      name: 'Christopher Adams',
+      date: '2023-08-02',
+      email: 'christopher.adams@example.com',
+      userType: 'Coach',
+    },
+    {
+      id: 16,
+      receiptNo: 'RCPT016',
+      status: 'Pending',
+      amount: 240.0,
+      name: 'Ava Wilson',
+      date: '2023-08-09',
+      email: 'ava.wilson@example.com',
+      userType: 'Coach',
+    },
+    {
+      id: 17,
+      receiptNo: 'RCPT017',
+      status: 'Approved',
+      amount: 290.0,
+      name: 'Matthew Turner',
+      date: '2023-08-10',
+      email: 'matthew.turner@example.com',
+      userType: 'Player',
+    },
+    {
+      id: 18,
+      receiptNo: 'RCPT018',
+      status: 'Pending',
+      amount: 170.0,
+      name: 'Isabella Moore',
+      date: '2023-08-17',
+      email: 'isabella.moore@example.com',
+      userType: 'Player',
+    },
+    {
+      id: 19,
+      receiptNo: 'RCPT019',
+      status: 'Approved',
+      amount: 420.0,
+      name: 'Andrew Parker',
+      date: '2023-04-11',
+      email: 'andrew.parker@example.com',
+      userType: 'Coach',
+    },
+    {
+      id: 20,
+      receiptNo: 'RCPT020',
+      status: 'Pending',
+      amount: 180.0,
+      name: 'Mia Turner',
+      date: '2023-06-10',
+      email: 'mia.turner@example.com',
+      userType: 'Coach',
     },
   ];
+
   const initialFormValues = {
     mobile: '',
     role: '',
-    email: '',
   };
 
   const [formValues, setFormValues] = useState(initialFormValues);
@@ -93,25 +226,38 @@ function AccountApproval() {
   const [expanded, setExpanded] = useState(false);
   const [searchRole, setSearchRole] = useState('');
   const [show, setShow] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [filteredData, setFilteredData] = useState(data);
   const [selectedRole, setSelectedRole] = useState('');
-  const [startDate, setStartDate] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [endDate, setEndDate] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
     reject: true,
   });
+
+  const router = useRouter();
+  const { label } = router.query;
+
+  useEffect(() => {
+    if (label === 'Approved Requests') {
+      setFilteredData(data.filter((item) => item.status === 'Approved'));
+    } else if (label === 'Pending Requests') {
+      setFilteredData(data.filter((item) => item.status === 'Pending'));
+    } else if (label === 'Rejected Requests') {
+      setFilteredData(data.filter((item) => item.status === 'Reject'));
+    } else {
+      setFilteredData(data);
+    }
+  }, [label]);
+
   const columns = [
     { heading: 'Name', field: 'name' },
     { heading: 'Email Address', field: 'email' },
-    { heading: 'User Type', field: 'user_type' },
-    { heading: 'PAN Card No.', field: 'pan_card_no' },
-    { heading: 'Bank Name', field: 'bank_name' },
-    { heading: 'IFSC Code', field: 'ifsc_code' },
-    { heading: 'Account Number', field: 'account_number' },
-    { heading: 'Branch Name', field: 'branch_name' },
+    { heading: 'Amount', field: 'amount' },
+    { heading: 'Date', field: 'date' },
+    { heading: 'User Type', field: 'userType' },
     { heading: 'Status', field: 'status' },
     { heading: 'Action', field: 'Action' },
   ];
@@ -121,11 +267,16 @@ function AccountApproval() {
       render: {
         Action: (value, row) => renderWithdrawalModal(row.id),
         status: renderSatus,
+        date: renderWithdraDate,
       },
     },
   };
 
-  function renderWithdrawalModal(id) {
+  function renderWithdraDate(value, row) {
+    return <span>{moment(row.date).format('DD-MMMM-YYYY')} </span>;
+  }
+
+  function renderWithdrawalModal() {
     const handleClick = () => {
       setShow(true);
     };
@@ -151,9 +302,9 @@ function AccountApproval() {
     e.preventDefault();
 
     const filteredData = data.filter((item) => {
-      const isWithinDateRange = !startDate || moment(item.withdrawal_date).isBetween(startDate, endDate, null, '[]');
+      const isWithinDateRange = !startDate || moment(item.date).isBetween(startDate, endDate, null, '[]');
 
-      const isMatchingRole = !selectedRole || item.user_type.toLowerCase() === selectedRole.toLowerCase();
+      const isMatchingRole = !selectedRole || item.userType.toLowerCase() === selectedRole.toLowerCase();
       const isMatchingEmail = !formValues.email || item.email.toLowerCase().includes(formValues.email.toLowerCase());
 
       const isStatusMatching =
@@ -205,31 +356,22 @@ function AccountApproval() {
     );
   }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'role') {
-      setRoleName(value);
-    } else {
-      setFormValues((prevData) => ({ ...prevData, [name]: value }));
-    }
-  };
-
   return (
     <>
-      {/* <CommentModal show={show} setShow={setShow} modalText="Account Approval" /> */}
+      {show && <CommentModal show={show} setShow={setShow} modalText={'Withdrawal Approval'} />}
       <section className="dashboard-section">
         <Container fluid>
           <Row className="my-4 ">
             <Col lg={12}>
               <div className="d-flex justify-content-between align-items-center mb-4">
-                <DashboardBreadcrumb breadcrumbTitle="Account Approval" data={'Dashboard'} />
+                <DashboardBreadcrumb breadcrumbTitle="Withdrawal Approval" data={'Dashboard'} />
                 <div className="d-sm-flex justify-content-between align-items-center ">
                   <div className="add-filter d-flex mt-sm-0 mt-2">
                     <Button
                       className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
                       onClick={toggleFilterBox}
                     >
-                      <FontAwesomeIcon icon={faFilter} width={20} height={20} />
+                        <FontAwesomeIcon icon={faFilter} width={20} height={20} />
                     </Button>
                   </div>
                 </div>
@@ -239,12 +381,12 @@ function AccountApproval() {
                 className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">Account Approval Filter</h4>
+                  <h4 className="common-heading mb-0">Withdrawal Approval Filter</h4>
                 </div>
                 <Card.Body className="box-padding">
                   <Form onSubmit={handleSubmit}>
                     <Row>
-                      <Col xl={3} lg={4} md={6}>
+                      <Col>
                         <div className="mb-4">
                           <Form.Group className="position-relative">
                             <Form.Label className="fs-16 fw-400 base-color">Select Role</Form.Label>
@@ -285,23 +427,45 @@ function AccountApproval() {
                           </Form.Group>
                         </div>
                       </Col>
-                      <Col xl={3} lg={4} md={6}>
-                        <div className="mb-4">
-                          <Form.Group className="position-relative">
-                            <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="Enter Your Email Address"
-                              name="email"
+
+                      <Col>
+                        <Form.Label className="fs-16 fw-400 base-color">Select Start Date</Form.Label>
+                        <div className="mb-2 d-flex flex-column">
+                          <ReactDatePicker
+                            peekNextMonth
+                            showMonthDropdown
+                            showYearDropdown
+                            dropdownMode="select"
+                            selected={startDate}
+                            onChange={(date) => setStartDate(date)}
+                            placeholderText="Select Start Date"
+                            showTimeSelect={false}
+                            minDate={startDate}
+                            dateFormat="dd-MMM-yyyy"
+                            className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
+                          />
+                        </div>
+                      </Col>
+                      <Col>
+                        <div className="mb-2">
+                          <Form.Group className="d-flex flex-column">
+                            <Form.Label className="fs-16 fw-400 base-color">Select End Date</Form.Label>
+                            <ReactDatePicker
+                              peekNextMonth
+                              showMonthDropdown
+                              showYearDropdown
+                              dropdownMode="select"
+                              selected={endDate}
+                              onChange={(date) => setEndDate(date)}
+                              placeholderText="Select End Date"
+                              showTimeSelect={false}
+                              dateFormat="dd-MMM-yyyy"
                               className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                              value={formValues.email}
-                              onChange={handleChange}
                             />
-                            {formErrors.email && <p className="text-danger fs-14 error-message">{formErrors.email}</p>}
                           </Form.Group>
                         </div>
                       </Col>
-                      <Col xl={3} lg={4} md={6}>
+                      <Col>
                         <div className="mb-4">
                           <Form.Group>
                             <Form.Label className="fs-14 fw-500 base-color-2"> Filter Status</Form.Label>
@@ -346,9 +510,9 @@ function AccountApproval() {
                           </Form.Group>
                         </div>
                       </Col>
-                      <Col xl={3} lg={4} md={6}>
+                      <Col>
                         <div className="d-flex align-items-center  filters-dropdown-btn">
-                          <Button className="common-btn px-3 text-nowrap">
+                          <Button className="common-btn px-3 text-nowrap" >
                             <span className="me-2">
                               <FontAwesomeIcon icon={faSearch} width={18} height={18} />
                             </span>
@@ -366,9 +530,18 @@ function AccountApproval() {
 
               <Card className="bg-white common-card-box">
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">Account Approval</h4>
+                  <h4 className="common-heading mb-0">Withdrawal Approval</h4>
                 </div>
-                <Card.Body className='box-padding position-relative'>
+                <Card.Body className="box-padding position-relative">
+                  <div className="position-absolute end-0 me-4 review-btn mt-2">
+                    <Button
+                      className="common-btn fs-14 me-2"
+                      disabled={selectedIds.length === 0}
+                      onClick={() => setShow(true)}
+                    >
+                      Bulk Review
+                    </Button>
+                  </div>
                   <CustomDataTable
                     rows={filteredData}
                     columns={columns}
@@ -387,4 +560,4 @@ function AccountApproval() {
   );
 }
 
-export default AccountApproval;
+export default Withdrawal;

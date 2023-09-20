@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const checkUserAuthentication = async () => {
-    const token = Cookies.get('token');
+    const token = Cookies.get('yuva_kabaddi_token');
     const isAuthenticated = !!token;
     setIsLoggedIn(isAuthenticated);
     return isAuthenticated;
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   const redirectToCorrectRoute = async () => {
     const currentPath = router.pathname;
-    setRole(Cookies.get('role'));
+    setRole(Cookies.get('yuva_kabaddi_role'));
     const isAuthenticated = await checkUserAuthentication();
 
     if (isAuthenticated) {
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
   }, [role, router, currentUser]);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, role, currentUser, handleUser, checkUserAuthentication }}>
+    <AuthContext.Provider value={{ isLoggedIn, role, currentUser, handleUser, }}>
       {children}
     </AuthContext.Provider>
   );

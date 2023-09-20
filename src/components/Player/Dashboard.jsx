@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
+import { Alert, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,6 +20,7 @@ import {
 
 import { faMoneyBill1 } from '@fortawesome/free-regular-svg-icons';
 import UserEarnings from './UserEarnings';
+import { useAuth } from '@/_context/authContext';
 
 const DashboardBreadcrumbComponent = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
@@ -32,6 +33,8 @@ function Dashboard() {
   const [withdrawalsData, setWithdrawalsData] = useState([]);
   const [filterChart, setFilterChart] = useState([]);
   const [chart, setChart] = useState(false);
+  const { currentUser } = useAuth();
+  const [show, setShow] = useState(true);
 
   const requestTypes = [
     { label: 'Paid Withdrawals', icon: faMoneyBills },
@@ -161,6 +164,12 @@ function Dashboard() {
   return (
     <div className="dashboard-section">
       <Container fluid>
+        {currentUser?.comment == '' ||
+          (currentUser?.comment != null && (
+            <Alert variant="danger" onClose={() => setShow(false)} dismissible>
+              <span>{currentUser?.comment}</span>
+            </Alert>
+          ))}
         <Row className="mt-4">
           <Col lg={12}>
             <div className="d-flex justify-content-between">
@@ -179,14 +188,14 @@ function Dashboard() {
               className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
             >
               <div className="card-head card-head-padding border-bottom">
-                <h4 className="common-heading mb-0">Price Money Filter</h4>
+                <h4 className="common-heading mb-0">Filter</h4>
               </div>
 
               <Card.Body className="box-padding">
                 <Form onSubmit={handleSubmit}>
                   <Row>
                     <Col xl={3} lg={4} md={6}>
-                      <Form.Label className="fs-16 fw-400 base-color-1">Select Start Date</Form.Label>
+                      <Form.Label className="fs-16 fw-400 base-color">Select Start Date</Form.Label>
                       <div className="mb-2 d-flex flex-column">
                         <ReactDatePicker
                           peekNextMonth
@@ -206,7 +215,7 @@ function Dashboard() {
                     <Col xl={3} lg={4} md={6}>
                       <div className="mb-2">
                         <Form.Group className="d-flex flex-column">
-                          <Form.Label className="fs-16 fw-400 base-color-1">Select End Date</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Select End Date</Form.Label>
                           <ReactDatePicker
                             peekNextMonth
                             showMonthDropdown
@@ -249,6 +258,7 @@ function Dashboard() {
             </Card>
           </Col>
         </Row>
+
         <UserEarnings />
         <Row className="my-4">
           {requestTypes.map((type, index) => (

@@ -3,21 +3,7 @@ import { Card, Col, Row } from 'react-bootstrap';
 import { Bar, Doughnut } from 'react-chartjs-2';
 
 function WithdrawalsChart(props) {
-  const { withdrawalsChartData, chartOptions, getRequest, colorsWithdrawals } = props;
-  const doughnutData = {
-    labels: ['Paid', 'Pending', 'Rejected', 'Total'],
-    datasets: [
-      {
-        data: [
-          getRequest('Paid Withdrawals'),
-          getRequest('Pending Withdrawals'),
-          getRequest('Rejected Withdrawals'),
-          getRequest('Total Withdrawals'),
-        ],
-        backgroundColor: colorsWithdrawals,
-      },
-    ],
-  };
+  const { withdrawalsChartData, chartOptions, } = props;
 
   return (
     <>
@@ -30,14 +16,6 @@ function WithdrawalsChart(props) {
             </Card.Body>
           </Card>
         </Col>
-          {/* <Col lg={3}>
-            <Card className="common-card-box common-card-shadow transition mt-4 doughnut-chart">
-              <Card.Body>
-                <h5 className="common-heading text-center">Withdrawals Chart</h5>
-                <Doughnut data={doughnutData} />
-              </Card.Body>
-            </Card>
-          </Col> */}
       </Row>
     </>
   );

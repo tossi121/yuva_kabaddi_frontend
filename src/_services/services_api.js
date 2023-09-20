@@ -109,6 +109,15 @@ export async function getCurrentUserDetails(params) {
   }
 }
 
+export async function playerTransactionCreated(params) {
+  try {
+    const response = await fetcher('POST', process.env.PLAYER_TRANSACTION_CREATED_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
 export async function updateUserDetails(params) {
   try {
     const response = await filesFetch('POST', process.env.UPDATE_USER_DETAILS_DATA, params);
@@ -148,6 +157,87 @@ export async function getSpent(params) {
 export async function getWithdrawnRequestsList(params) {
   try {
     const response = await fetcher('GET', process.env.ADMIN_WITHDRAWN_REQUESTS_OF_USER_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function getUsersList(params) {
+  try {
+    const response = await fetcher('GET', process.env.ADMIN_ALL_USER_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function deleteUser(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_USER_DELETE_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function updateUser(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_UPDATE_USER_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+export async function getCurrentUsers(id) {
+  try {
+    const url = `${process.env.ADMIN_CURRENT_USER_DATA}/${id}`;
+    const response = await fetcher('GET', url);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function verifyUser(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_VERIFY_USER_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function getTdsData(params) {
+  try {
+    const response = await fetcher('GET', process.env.ADMIN_GET_TDS_CONFIG_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function tdsDataUpdate(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_TDS_CONFIG_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function playerWithdrawRequestsList(params) {
+  try {
+    const response = await fetcher('GET', process.env.ADMIN_PLAYER_WITHDRAW_REQUESTS_LIST_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+
+export async function updatePlayerTransactionStatus(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_UPDATE_PLAYER_TRANSACTION_STATUS, params);
     return response;
   } catch (err) {
     return null;
