@@ -213,7 +213,7 @@ function CustomDataTable(props) {
     const updatedSelectedRows = { ...selectedRows };
     updatedSelectedRows[rowIndex] = !updatedSelectedRows[rowIndex];
     const row = rows[rowIndex];
-    const isApproved = row.verify_status === 'Approved';
+    const isApproved = path === '/super-admin/users'?row.verify_status === 'Approved':row.account_verify_status === 'Approved';
     if (!isApproved) {
       setSelectedRows(updatedSelectedRows);
 
