@@ -390,7 +390,7 @@ function CustomDataTable(props) {
             )}
           </div>
           <div className="table-responsive overview-table">
-            <table className="w-100 nifty-table">
+            <table className="w-100">
               {cols?.length > 0 && entity && renderTableColumns()}
               {(currentData?.length > 0 && renderTableRows()) || (
                 <tbody>

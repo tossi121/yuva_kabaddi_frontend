@@ -136,10 +136,10 @@ function Configuration() {
                       </div>
                       <div className="mb-3">
                         <Form.Group className="position-relative">
-                          <Form.Label className="fs-16 fw-400 base-color">Enter TDS Amount</Form.Label>
+                          <Form.Label className="fs-16 fw-400 base-color">Enter Minimum TDS Amount</Form.Label>
                           <Form.Control
                             type="text"
-                            placeholder="Enter TDS Amount"
+                            placeholder="Enter Minimum TDS Amount"
                             name="tds_amount_min"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                             id="tds_amount_min"

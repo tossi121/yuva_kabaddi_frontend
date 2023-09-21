@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faCheckCircle,
   faEdit,
   faEllipsisV,
   faFilter,
-  faPlus,
+  faMessage,
   faSearch,
   faTrash,
+  faTrashAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
 import Link from 'next/link';
@@ -18,6 +18,7 @@ import DeleteModal from './DeleteModal';
 import ReusableDropdown from '../Player/ReusableDropdown';
 import { deleteUser, getRole, getUsersList } from '@/_services/services_api';
 import toast from 'react-hot-toast';
+import { faCommentAlt } from '@fortawesome/free-regular-svg-icons';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
@@ -34,6 +35,7 @@ function Users() {
   const [reviewId, setReviewId] = useState(null);
   const [checkBulk, setCheckBulk] = useState(false);
   const [checkedFilter, setCheckedFilter] = useState(false);
+  const [dropdownShow, setDropdownShow] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
@@ -90,33 +92,42 @@ function Users() {
       setShowModal(true);
     };
 
+    const handleDropdown = () => {
+      setDropdownShow(true);
+      console.log("first")
+    };
+
+    console.log("dropdownShow", dropdownShow);
     return (
-      <div>
-        <Dropdown>
+      <>
+        <Dropdown className="action-bar position-relative">
           <Dropdown.Toggle variant="" className="border-0 p-0" id="dropdown-basic">
             <FontAwesomeIcon width={15} height={15} icon={faEllipsisV} />
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            <Dropdown.Item>Action</Dropdown.Item>
-            <Dropdown.Item>Another action</Dropdown.Item>
-            <Dropdown.Item>Something else</Dropdown.Item>
+            <Link href={`users/${row.id}`} className="base-color">
+              <div className="px-2 py-1 d-flex align-items-center cursor-pointer base-color fs-14">
+                <FontAwesomeIcon icon={faEdit} width={15} height={15} className="me-2" title="Edit User" />
+                Edit
+              </div>
+            </Link>
+            <div className="px-2 py-1 d-flex align-items-center cursor-pointer base-color fs-14" onClick={handleDelete}>
+              <FontAwesomeIcon icon={faTrashAlt} width={15} height={15} className="me-2" title="Delete User" />
+              Delete
+            </div>
+            {row.verify_status != 'Approved' && (
+              <div
+                className="px-2 py-1 d-flex align-items-center cursor-pointer base-color fs-14"
+                onClick={handleClick}
+              >
+                <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} className="me-2" title="Delete User" />
+                Review
+              </div>
+            )}
           </Dropdown.Menu>
         </Dropdown>
-
-        {/* <div>
-          <Link href={`users/${row.id}`} className="base-color me-3">
-            <FontAwesomeIcon icon={faEdit} width={15} height={15} title="Edit User" />
-          </Link>
-          <FontAwesomeIcon icon={faTrash} width={15} height={15} title="Delete User" onClick={handleDelete} />
-        </div>
-        {(row.verify_status != 'Approved' && (
-          <Button className="common-btn fs-14" onClick={handleClick}>
-            Review
-          </Button>
-        )) ||
-          ''} */}
-      </div>
+      </>
     );
   }
 

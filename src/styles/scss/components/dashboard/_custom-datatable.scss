@@ -56,9 +56,101 @@
   }
 }
 
-.review-btn{
+.review-btn {
   z-index: 99;
 }
+
+.action-bar {
+  // .dropdown-menu {
+  //   // transform: unset !important;
+  //   inset: unset !important;
+  //   .dropdown-item {
+  //     display: flex !important;
+  //     background-color: var(--base-link-color);
+  //     color: #fff;
+  //     margin: 0 10px;
+  //     border-radius: 50%;
+  //     width: 30px;
+  //     height: 30px;
+  //     padding: 0 !important;
+  //     align-items: center;
+  //     justify-content: center;
+  //   }
+  // }
+  .dropdown-menu {
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    border: 0;
+    div:hover, div:hover a  {
+      background-color: var(--base-link-color);
+      color: #fff !important;
+    }
+
+    // &:after {
+    //   content: '';
+    //   display: block;
+    //   position: absolute;
+    //   right: 0;
+    //   bottom: 100%;
+    //   width: 0;
+    //   height: 0;
+    //   border: 10px solid transparent;
+    //   border-bottom-color: #cfe2ff;
+    // }
+  }
+}
+
+// .overview-table {
+//   tbody tr {
+//     &:last-child {
+//       .dropdown-menu {
+//         &:after {
+//           content: '';
+//           display: block;
+//           position: absolute;
+//           right: 0;
+//           top: 100%;
+//           width: 0;
+//           height: 0;
+//           border: 10px solid transparent;
+//           border-bottom-color: #cfe2ff;
+//           transform: rotate(180deg);
+//         }
+//       }
+//     }
+//     // &:nth-last-child(2) {
+//     //   .dropdown-menu {
+//     //     &:after {
+//     //       content: '';
+//     //       display: block;
+//     //       position: absolute;
+//     //       right: 0;
+//     //       top: 100%;
+//     //       width: 0;
+//     //       height: 0;
+//     //       border: 10px solid transparent;
+//     //       border-bottom-color: #cfe2ff;
+//     //       transform: rotate(180deg);
+//     //     }
+//     //   }
+//     // }
+//     &:nth-last-child(3) {
+//       .dropdown-menu {
+//         &:after {
+//           content: '';
+//           display: block;
+//           position: absolute;
+//           right: 0;
+//           top: 100%;
+//           width: 0;
+//           height: 0;
+//           border: 10px solid transparent;
+//           border-bottom-color: #cfe2ff;
+//           transform: rotate(180deg);
+//         }
+//       }
+//     }
+//   }
+// }
 
 .custom-select:focus-visible {
   outline: none !important;
@@ -108,6 +200,7 @@
     background-color: var(--base-link-color);
   }
 }
+
 .pagination-container {
   &.dots:hover {
     cursor: default;

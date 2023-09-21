@@ -38,8 +38,8 @@ function ViewPriceMoney() {
     { heading: 'Withdrawal Date', field: 'createdAt' },
     { heading: 'Withdrawal Amount', field: 'amount' },
     { heading: 'TDS Amount', field: 'tds_amount' },
-    { heading: 'Comment', field: 'comment' },
     { heading: 'Status', field: 'status' },
+    { heading: 'Comment', field: 'comment' },
   ];
 
   const columns = [
