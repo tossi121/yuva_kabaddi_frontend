@@ -11,21 +11,11 @@ import { getRole, playerWithdrawRequestsList } from '@/_services/services_api';
 import moment from 'moment';
 import ReactDatePicker from 'react-datepicker';
 import AccountModal from './AccountModal';
+import { useRouter } from 'next/router';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function Withdrawals() {
-  const columns = [
-    { heading: 'Name', field: 'user_name' },
-    { heading: 'Email Address', field: 'email' },
-    { heading: 'User Type', field: 'user_role' },
-    { heading: 'Amount', field: 'amount' },
-    { heading: 'TDS Amount', field: 'tds_amount' },
-    { heading: 'Date', field: 'updatedAt' },
-    { heading: 'Status', field: 'status' },
-    { heading: 'Action', field: 'action', align: 'center' },
-  ];
-
   const [expanded, setExpanded] = useState(false);
   const [roleData, setRoleData] = useState([]);
   const [selectedRole, setSelectedRole] = useState('');
@@ -39,11 +29,49 @@ function Withdrawals() {
   const [checkBulk, setCheckBulk] = useState(false);
   const [checkedFilter, setCheckedFilter] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const router = useRouter();
+  const { label } = router.query;
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
     rejected: true,
   });
+
+  const setSelectedFiltersByLabel = (newLabel) => {
+    const updatedFilters = {
+      approved: newLabel === 'Approved Withdrawals',
+      pending: newLabel === 'Pending Withdrawals',
+      rejected: newLabel === 'Rejected Withdrawals',
+    };
+
+    setSelectedFilters(updatedFilters);
+  };
+
+  const columns = [
+    { heading: 'Name', field: 'user_name' },
+    { heading: 'Email Address', field: 'email' },
+    { heading: 'User Type', field: 'user_role' },
+    { heading: 'Amount', field: 'amount' },
+    { heading: 'TDS Amount', field: 'tds_amount' },
+    { heading: 'Date', field: 'updatedAt' },
+    { heading: 'Status', field: 'status' },
+    { heading: 'Action', field: 'action', align: 'center' },
+  ];
+
+  useEffect(() => {
+    if (tableData && label != undefined) {
+      setSelectedFiltersByLabel(label);
+      if (label === 'Approved Withdrawals') {
+        setFilterData(tableData.filter((item) => item.status === 'Approved'));
+      } else if (label === 'Pending Withdrawals') {
+        setFilterData(tableData.filter((item) => item.status === 'Pending'));
+      } else if (label === 'Rejected Withdrawals') {
+        setFilterData(tableData.filter((item) => item.status === 'Rejected'));
+      } else {
+        setFilterData(tableData);
+      }
+    }
+  }, [label, tableData]);
 
   useEffect(() => {
     handleRole();
@@ -90,7 +118,6 @@ function Withdrawals() {
     const handleModal = () => {
       setShowModal(true);
       setReviewId(row);
-      console.log(row, "Row")
     };
 
     return (
@@ -102,18 +129,15 @@ function Withdrawals() {
             width={25}
             height={25}
             onClick={handleModal}
-            title='Account Details'
+            title="Account Details"
           />
         </div>
         {(row.status != 'Approved' && (
           <Button className="common-btn fs-14" onClick={handleClick}>
             Review
           </Button>
-        )) || (
-          <div className="text-success">
-            <FontAwesomeIcon title='Approved' icon={faCheckCircle} width={25} height={25} />
-          </div>
-        )}
+        )) ||
+          ''}
       </div>
     );
   }
@@ -175,6 +199,16 @@ function Withdrawals() {
   };
 
   const handleFilterChange = (filterName) => {
+    if (label === 'Approved Withdrawals' && filterName !== 'approved') {
+      return;
+    }
+    if (label === 'Pending Withdrawals' && filterName !== 'pending') {
+      return;
+    }
+    if (label === 'Rejected Withdrawals' && filterName !== 'reject') {
+      return;
+    }
+
     const isFilterSelected = selectedFilters[filterName];
     const numberOfSelectedFilters = Object.values(selectedFilters).filter(Boolean).length;
 
@@ -324,16 +358,16 @@ function Withdrawals() {
                                 />
                                 Pending
                               </Form.Label>
-                              <Form.Label className="cursor-pointer user-select-none base-color-2" htmlFor="reject">
+                              <Form.Label className="cursor-pointer user-select-none base-color-2" htmlFor="rejected">
                                 <input
                                   type="checkbox"
-                                  name="reject"
-                                  id="reject"
+                                  name="rejected"
+                                  id="rejected"
                                   className="me-2"
                                   checked={selectedFilters.rejected}
                                   onChange={() => handleFilterChange('rejected')}
                                 />
-                                Reject
+                                rejected
                               </Form.Label>
                             </div>
                           </Form.Group>

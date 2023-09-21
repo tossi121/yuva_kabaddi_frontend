@@ -29,7 +29,7 @@ function WithdrawalModal(props) {
       };
       setFormValues(value);
     }
-    
+
     handleTdsData();
     if (!show) {
       handleCloseModal();
@@ -148,21 +148,33 @@ function WithdrawalModal(props) {
 
               <div className="d-flex align-items-center my-2">
                 <Badge pill bg={'success'} className="fs-12 me-2">
-                  Paid
+                  Amount to be credited
                 </Badge>
-                <p className="fs-14 fw-500 base-color mb-0"></p>
-
+                &#8377;
                 {(formValues?.withdrawalAmount > tdsData?.tds_amount_min && (
                   <p className="fs-14 fw-500 base-color mb-0">
                     {parseFloat(formValues.withdrawalAmount - tdsAmount)?.toFixed(2)}
                   </p>
                 )) || <p className="fs-14 fw-500 base-color mb-0">{formValues.withdrawalAmount}</p>}
               </div>
+
+              {formValues?.withdrawalAmount > tdsData?.tds_amount_min && (
+                <div className="d-flex align-items-center my-2">
+                  <Badge pill bg={'danger'} className="fs-12 me-2">
+                    TDS
+                  </Badge>
+                  &#8377;{' '}
+                  {(formValues?.withdrawalAmount > tdsData?.tds_amount_min && (
+                    <p className="fs-14 fw-500 base-color mb-0"> {tdsAmount?.toFixed(2)}</p>
+                  )) || <p className="fs-14 fw-500 base-color mb-0">0</p>}
+                </div>
+              )}
+
               <div className="d-flex align-items-center my-2">
                 <Badge pill bg={'warning'} className="fs-12 me-2">
                   Remaining
                 </Badge>
-
+                &#8377;
                 {(formValues?.withdrawalAmount > tdsData?.tds_amount_min && (
                   <p className="fs-14 fw-500 base-color mb-0">
                     {parseFloat(formValues.totalAmount - formValues?.withdrawalAmount - tdsAmount)?.toFixed(2)}
@@ -172,14 +184,6 @@ function WithdrawalModal(props) {
                     {parseFloat(formValues.totalAmount - formValues?.withdrawalAmount)?.toFixed(2)}
                   </p>
                 )}
-              </div>
-              <div className="d-flex align-items-center my-2">
-                <Badge pill bg={'danger'} className="fs-12 me-2">
-                  TDS
-                </Badge>
-                {(formValues?.withdrawalAmount > tdsData?.tds_amount_min && (
-                  <p className="fs-14 fw-500 base-color mb-0"> {tdsAmount?.toFixed(2)}</p>
-                )) || <p className="fs-14 fw-500 base-color mb-0">0</p>}
               </div>
             </div>
           )}

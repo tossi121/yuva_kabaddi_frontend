@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faEdit, faFilter, faPlus, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Badge, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
+import {
+  faEdit,
+  faEllipsisV,
+  faFilter,
+  faMessage,
+  faSearch,
+  faTrash,
+  faTrashAlt,
+} from '@fortawesome/free-solid-svg-icons';
+import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
 import Link from 'next/link';
 import CustomDataTable from '../DataTable/CustomDataTable';
 import dynamic from 'next/dynamic';
@@ -10,19 +18,11 @@ import DeleteModal from './DeleteModal';
 import ReusableDropdown from '../Player/ReusableDropdown';
 import { deleteUser, getRole, getUsersList } from '@/_services/services_api';
 import toast from 'react-hot-toast';
+import { faCommentAlt } from '@fortawesome/free-regular-svg-icons';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function Users() {
-  const columns = [
-    { heading: 'Name', field: 'user_name' },
-    { heading: 'Email Address', field: 'email' },
-    { heading: 'Mobile Number', field: 'contactno' },
-    { heading: 'User Type', field: 'user_role' },
-    { heading: 'Status', field: 'verify_status' },
-    { heading: 'Action', field: 'action', align: 'center' },
-  ];
-
   const [expanded, setExpanded] = useState(false);
   const [roleData, setRoleData] = useState([]);
   const [selectedRole, setSelectedRole] = useState('');
@@ -35,11 +35,21 @@ function Users() {
   const [reviewId, setReviewId] = useState(null);
   const [checkBulk, setCheckBulk] = useState(false);
   const [checkedFilter, setCheckedFilter] = useState(false);
+  const [dropdownShow, setDropdownShow] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
     rejected: true,
   });
+
+  const columns = [
+    { heading: 'Name', field: 'user_name' },
+    { heading: 'Email Address', field: 'email' },
+    { heading: 'Mobile Number', field: 'contactno' },
+    { heading: 'User Type', field: 'user_role' },
+    { heading: 'Status', field: 'verify_status' },
+    { heading: 'Action', field: 'action', align: 'center' },
+  ];
 
   useEffect(() => {
     handleRole();
@@ -82,28 +92,42 @@ function Users() {
       setShowModal(true);
     };
 
+    const handleDropdown = () => {
+      setDropdownShow(true);
+      console.log("first")
+    };
+
+    console.log("dropdownShow", dropdownShow);
     return (
-      <div className="d-flex justify-content-center">
-        <div>
-          <Link href={`users/${row.id}`} className="text-white">
-            <Button variant="success" className="py-1 px-2 me-3" title="Edit User">
-              <FontAwesomeIcon icon={faEdit} width={15} height={15} />
-            </Button>
-          </Link>
-          <Button variant="danger" className="py-1 px-2 me-3" title="Delete User" onClick={handleDelete}>
-            <FontAwesomeIcon icon={faTrash} width={15} height={15} />
-          </Button>
-        </div>
-        {(row.verify_status != 'Approved' && (
-          <Button className="common-btn fs-14" onClick={handleClick}>
-            Review
-          </Button>
-        )) || (
-          <div className="text-success">
-            <FontAwesomeIcon title='Approved'  icon={faCheckCircle} width={33} height={33} />
-          </div>
-        )}
-      </div>
+      <>
+        <Dropdown className="action-bar position-relative">
+          <Dropdown.Toggle variant="" className="border-0 p-0" id="dropdown-basic">
+            <FontAwesomeIcon width={15} height={15} icon={faEllipsisV} />
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu>
+            <Link href={`users/${row.id}`} className="base-color">
+              <div className="px-2 py-1 d-flex align-items-center cursor-pointer base-color fs-14">
+                <FontAwesomeIcon icon={faEdit} width={15} height={15} className="me-2" title="Edit User" />
+                Edit
+              </div>
+            </Link>
+            <div className="px-2 py-1 d-flex align-items-center cursor-pointer base-color fs-14" onClick={handleDelete}>
+              <FontAwesomeIcon icon={faTrashAlt} width={15} height={15} className="me-2" title="Delete User" />
+              Delete
+            </div>
+            {row.verify_status != 'Approved' && (
+              <div
+                className="px-2 py-1 d-flex align-items-center cursor-pointer base-color fs-14"
+                onClick={handleClick}
+              >
+                <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} className="me-2" title="Delete User" />
+                Review
+              </div>
+            )}
+          </Dropdown.Menu>
+        </Dropdown>
+      </>
     );
   }
 
@@ -155,7 +179,7 @@ function Users() {
       pending: true,
       rejected: true,
     });
-    setCheckedFilter(false)
+    setCheckedFilter(false);
     setFilterData(tableData);
   };
 

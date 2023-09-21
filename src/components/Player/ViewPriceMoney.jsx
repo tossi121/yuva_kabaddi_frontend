@@ -28,13 +28,18 @@ function ViewPriceMoney() {
   const tableRef = useRef(null);
   const router = useRouter();
   const { label } = router.query;
+  const [selectedFilters, setSelectedFilters] = useState({
+    paid: true,
+    pending: true,
+    reject: true,
+  });
 
   const columnsWithdrawal = [
     { heading: 'Withdrawal Date', field: 'createdAt' },
     { heading: 'Withdrawal Amount', field: 'amount' },
     { heading: 'TDS Amount', field: 'tds_amount' },
-    { heading: 'Comment', field: 'comment' },
     { heading: 'Status', field: 'status' },
+    { heading: 'Comment', field: 'comment' },
   ];
 
   const columns = [
@@ -44,11 +49,6 @@ function ViewPriceMoney() {
     { heading: 'Amount', field: 'priceAmount' },
   ];
 
-  const [selectedFilters, setSelectedFilters] = useState({
-    paid: true,
-    pending: true,
-    reject: true,
-  });
 
   const setSelectedFiltersByLabel = (newLabel) => {
     const updatedFilters = {

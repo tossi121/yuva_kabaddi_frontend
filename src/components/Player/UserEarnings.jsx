@@ -10,8 +10,6 @@ function UserEarnings({ setShow, withdrawalShow }) {
   }
 
   const { user_name, Total_Earninig, sumplayerEarningFee, sumPlayerOfAwards, sumAprovedEarning } = currentUser;
-
-  // Use the nullish coalescing operator (??) to display 0 for null values
   const amountLeft = (Total_Earninig ?? 0) - (sumAprovedEarning ?? 0);
 
   function renderEarningsDetails() {
