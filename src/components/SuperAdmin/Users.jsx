@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faEdit, faFilter, faPlus, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Badge, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
+import {
+  faCheckCircle,
+  faEdit,
+  faEllipsisV,
+  faFilter,
+  faPlus,
+  faSearch,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons';
+import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
 import Link from 'next/link';
 import CustomDataTable from '../DataTable/CustomDataTable';
 import dynamic from 'next/dynamic';
@@ -14,15 +22,6 @@ import toast from 'react-hot-toast';
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function Users() {
-  const columns = [
-    { heading: 'Name', field: 'user_name' },
-    { heading: 'Email Address', field: 'email' },
-    { heading: 'Mobile Number', field: 'contactno' },
-    { heading: 'User Type', field: 'user_role' },
-    { heading: 'Status', field: 'verify_status' },
-    { heading: 'Action', field: 'action', align: 'center' },
-  ];
-
   const [expanded, setExpanded] = useState(false);
   const [roleData, setRoleData] = useState([]);
   const [selectedRole, setSelectedRole] = useState('');
@@ -40,6 +39,15 @@ function Users() {
     pending: true,
     rejected: true,
   });
+
+  const columns = [
+    { heading: 'Name', field: 'user_name' },
+    { heading: 'Email Address', field: 'email' },
+    { heading: 'Mobile Number', field: 'contactno' },
+    { heading: 'User Type', field: 'user_role' },
+    { heading: 'Status', field: 'verify_status' },
+    { heading: 'Action', field: 'action', align: 'center' },
+  ];
 
   useEffect(() => {
     handleRole();
@@ -83,26 +91,31 @@ function Users() {
     };
 
     return (
-      <div className="d-flex justify-content-center">
-        <div>
-          <Link href={`users/${row.id}`} className="text-white">
-            <Button variant="success" className="py-1 px-2 me-3" title="Edit User">
-              <FontAwesomeIcon icon={faEdit} width={15} height={15} />
-            </Button>
+      <div>
+        <Dropdown>
+          <Dropdown.Toggle variant="" className="border-0 p-0" id="dropdown-basic">
+            <FontAwesomeIcon width={15} height={15} icon={faEllipsisV} />
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu>
+            <Dropdown.Item>Action</Dropdown.Item>
+            <Dropdown.Item>Another action</Dropdown.Item>
+            <Dropdown.Item>Something else</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+
+        {/* <div>
+          <Link href={`users/${row.id}`} className="base-color me-3">
+            <FontAwesomeIcon icon={faEdit} width={15} height={15} title="Edit User" />
           </Link>
-          <Button variant="danger" className="py-1 px-2 me-3" title="Delete User" onClick={handleDelete}>
-            <FontAwesomeIcon icon={faTrash} width={15} height={15} />
-          </Button>
+          <FontAwesomeIcon icon={faTrash} width={15} height={15} title="Delete User" onClick={handleDelete} />
         </div>
         {(row.verify_status != 'Approved' && (
           <Button className="common-btn fs-14" onClick={handleClick}>
             Review
           </Button>
-        )) || (
-          <div className="text-success">
-            <FontAwesomeIcon title='Approved'  icon={faCheckCircle} width={33} height={33} />
-          </div>
-        )}
+        )) ||
+          ''} */}
       </div>
     );
   }
@@ -155,7 +168,7 @@ function Users() {
       pending: true,
       rejected: true,
     });
-    setCheckedFilter(false)
+    setCheckedFilter(false);
     setFilterData(tableData);
   };
 

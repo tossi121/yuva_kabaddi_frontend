@@ -7,7 +7,6 @@ import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, BarElement, T
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getSpent, getWithdrawnRequestsList } from '@/_services/services_api';
-import { useAuth } from '@/_context/authContext';
 import WithdrawalsChart from './Chart/WithdrawalsChart';
 
 import {
@@ -27,7 +26,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tool
 const DashboardBreadcrumbComponent = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 const requestTypes = [
-  { label: 'Paid Withdrawals', icon: faMoneyBills },
+  { label: 'Approved Withdrawals', icon: faMoneyBills },
   { label: 'Pending Withdrawals', icon: faMoneyBillAlt },
   { label: 'Rejected Withdrawals', icon: faMoneyBill1 },
   { label: 'Total Withdrawals', icon: faMoneyBillTransfer },
@@ -64,14 +63,14 @@ function Dashboard() {
             const { createdAt, status } = request;
             const date = new Date(createdAt).toISOString().split('T')[0];
             if (!counts[date]) {
-              counts[date] = { pending: 0, paid: 0, rejected: 0 };
+              counts[date] = { pending: 0, approved: 0, rejected: 0 };
             }
 
             if (status === 'Pending') {
               counts[date].pending++;
-            } else if (status === 'Paid') {
-              counts[date].paid++;
-            } else if (status === 'Reject') {
+            } else if (status === 'Approved') {
+              counts[date].approved++;
+            } else if (status === 'Rejected') {
               counts[date].rejected++;
             }
 
@@ -116,9 +115,9 @@ function Dashboard() {
       return dataRequests.length;
     }
     const statusMapping = {
-      'Paid Withdrawals': 'Paid',
+      'Approved Withdrawals': 'Approved',
       'Pending Withdrawals': 'Pending',
-      'Rejected Withdrawals': 'Reject',
+      'Rejected Withdrawals': 'Rejected',
     };
 
     const status = statusMapping[label];
@@ -184,14 +183,14 @@ function Dashboard() {
       const { createdAt, status } = request;
       const date = new Date(createdAt).toISOString().split('T')[0];
       if (!counts[date]) {
-        counts[date] = { pending: 0, paid: 0, rejected: 0 };
+        counts[date] = { pending: 0, approved: 0, rejected: 0 };
       }
 
       if (status === 'Pending') {
         counts[date].pending++;
-      } else if (status === 'Paid') {
-        counts[date].paid++;
-      } else if (status === 'Reject') {
+      } else if (status === 'Approved') {
+        counts[date].approved++;
+      } else if (status === 'Rejected') {
         counts[date].rejected++;
       }
 
@@ -328,6 +327,7 @@ function Dashboard() {
           {requestTypes.map((type, index) => (
             <Col key={type.label}>
               <DashboardCard icon={type.icon} label={type.label} count={getRequest(type.label)} />
+
             </Col>
           ))}
         </Row>
@@ -347,7 +347,7 @@ function DashboardCard({ icon, label, count }) {
   return (
     <Card className="common-card-box h-100 dashboard-home-card common-card-shadow transition">
       <Card.Body>
-        <Link href={`/dashboard/view-price-money?label=${label}`}>
+        <Link href={`/super-admin/withdrawal-approval?label=${label}`}>
           <div className="d-flex align-items-center">
             <div className="booking-image">
               <FontAwesomeIcon icon={icon} width={50} height={50} className="base-link-color" />

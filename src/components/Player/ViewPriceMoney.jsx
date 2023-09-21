@@ -28,6 +28,11 @@ function ViewPriceMoney() {
   const tableRef = useRef(null);
   const router = useRouter();
   const { label } = router.query;
+  const [selectedFilters, setSelectedFilters] = useState({
+    paid: true,
+    pending: true,
+    reject: true,
+  });
 
   const columnsWithdrawal = [
     { heading: 'Withdrawal Date', field: 'createdAt' },
@@ -44,11 +49,6 @@ function ViewPriceMoney() {
     { heading: 'Amount', field: 'priceAmount' },
   ];
 
-  const [selectedFilters, setSelectedFilters] = useState({
-    paid: true,
-    pending: true,
-    reject: true,
-  });
 
   const setSelectedFiltersByLabel = (newLabel) => {
     const updatedFilters = {
