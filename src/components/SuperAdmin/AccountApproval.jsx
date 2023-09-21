@@ -1,87 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
 import CustomDataTable from '../DataTable/CustomDataTable';
 import dynamic from 'next/dynamic';
 import CommentModal from './CommentlModal';
+import { getUsersList } from '@/_services/services_api';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function AccountApproval() {
-  const data = [
-    {
-      user_type: 'Coach',
-      name: 'John Smith',
-      status: 'Pending',
-      email: 'john.smith@example.com',
-      pan_card_no: 'ABCD1234E',
-      ifsc_code: 'EFGH5678901',
-      bank_name: 'National Bank',
-      branch_name: 'Downtown Branch',
-      account_number: '98765432101234',
-    },
-
-    {
-      user_type: 'Player',
-      name: 'Alice Johnson',
-      status: 'Pending',
-      email: 'alice.johnson@example.com',
-      pan_card_no: 'WXYZ5678F',
-      ifsc_code: 'UVWX1234567',
-      bank_name: 'Local Credit Union',
-      branch_name: 'Northside Branch',
-      account_number: '56789012345678',
-    },
-
-    {
-      user_type: 'Coach',
-      name: 'David Lee',
-      status: 'Pending',
-      email: 'david.lee@example.com',
-      pan_card_no: 'LMNO5678G',
-      ifsc_code: 'PQRS1234567',
-      bank_name: 'Global Trust Bank',
-      branch_name: 'West End Branch',
-      account_number: '11223344556677',
-    },
-
-    {
-      user_type: 'Player',
-      status: 'Approved',
-      name: 'John Smith',
-      email: 'john.smith@example.com',
-      pan_card_no: 'ABCD1234E',
-      ifsc_code: 'EFGH5678901',
-      bank_name: 'National Bank',
-      branch_name: 'Downtown Branch',
-      account_number: '98765432101234',
-    },
-
-    {
-      user_type: 'Coach',
-      status: 'Reject',
-      name: 'Alice Johnson',
-      email: 'alice.johnson@example.com',
-      pan_card_no: 'WXYZ5678F',
-      ifsc_code: 'UVWX1234567',
-      bank_name: 'Local Credit Union',
-      branch_name: 'Northside Branch',
-      account_number: '56789012345678',
-    },
-
-    {
-      user_type: 'Player',
-      name: 'David Lee',
-      email: 'david.lee@example.com',
-      status: 'Reject',
-      pan_card_no: 'LMNO5678G',
-      ifsc_code: 'PQRS1234567',
-      bank_name: 'Global Trust Bank',
-      branch_name: 'West End Branch',
-      account_number: '11223344556677',
-    },
-  ];
   const initialFormValues = {
     mobile: '',
     role: '',
@@ -93,7 +21,10 @@ function AccountApproval() {
   const [expanded, setExpanded] = useState(false);
   const [searchRole, setSearchRole] = useState('');
   const [show, setShow] = useState(false);
-  const [filteredData, setFilteredData] = useState(data);
+  const [tableData, setTableData] = useState([]);
+  const [reviewId, setReviewId] = useState(null);
+  const [checkBulk, setCheckBulk] = useState(false);
+  const [filteredData, setFilteredData] = useState(tableData);
   const [selectedRole, setSelectedRole] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -104,36 +35,57 @@ function AccountApproval() {
     reject: true,
   });
   const columns = [
-    { heading: 'Name', field: 'name' },
+    { heading: 'Name', field: 'user_name' },
     { heading: 'Email Address', field: 'email' },
-    { heading: 'User Type', field: 'user_type' },
-    { heading: 'PAN Card No.', field: 'pan_card_no' },
+    { heading: 'User Type', field: 'user_role' },
+    { heading: 'PAN Card No.', field: 'pan_no' },
     { heading: 'Bank Name', field: 'bank_name' },
     { heading: 'IFSC Code', field: 'ifsc_code' },
     { heading: 'Account Number', field: 'account_number' },
     { heading: 'Branch Name', field: 'branch_name' },
-    { heading: 'Status', field: 'status' },
+    { heading: 'Comment', field: 'account_verify_comment' },
+    { heading: 'Status', field: 'account_verify_status' },
     { heading: 'Action', field: 'Action' },
   ];
-
+  useEffect(() => {
+    // handleRole();
+    handleUser();
+    setFilteredData(tableData);
+  }, [JSON.stringify(tableData)]);
+  async function handleUser() {
+    const res = await getUsersList();
+    if (res?.status) {
+      const data = res.data;
+      setTableData(data);
+    }
+  }
   const tableOptions = {
     columns: {
       render: {
-        Action: (value, row) => renderWithdrawalModal(row.id),
-        status: renderSatus,
+        Action: (value, row) => renderWithdrawalModal(row),
+        account_verify_status: renderSatus,
       },
     },
   };
 
-  function renderWithdrawalModal(id) {
+  function renderWithdrawalModal(row) {
     const handleClick = () => {
       setShow(true);
+      setReviewId(row);
     };
 
     return (
-      <Button className="common-btn fs-14 mx-auto" onClick={handleClick}>
-        Review
-      </Button>
+      <div className="d-flex justify-content-center">
+        {(row.account_verify_status != 'Approved' && (
+          <Button className="common-btn fs-14" onClick={handleClick}>
+            Review
+          </Button>
+        )) || (
+          <div className="text-success">
+            <FontAwesomeIcon title='Approved'  icon={faCheckCircle} width={33} height={33} />
+          </div>
+        )}
+      </div>
     );
   }
 
@@ -189,23 +141,24 @@ function AccountApproval() {
       [filterName]: !prevFilters[filterName],
     }));
   };
-
+  
   function renderSatus(value, row) {
     const statusColors = {
       Approved: 'success',
-      Reject: 'danger',
+      Rejected: 'danger',
       Pending: 'warning',
     };
+
     return (
       <>
-        <Badge pill bg={statusColors[row.status]} className="fs-12">
-          {row.status}
+        <Badge pill bg={statusColors[row.account_verify_status]} className="fs-12">
+          {row.account_verify_status}
         </Badge>
       </>
     );
   }
 
-  const handleChange = (e) => {
+  const handleChange = (e)  => {
     const { name, value } = e.target;
     if (name === 'role') {
       setRoleName(value);
@@ -216,6 +169,17 @@ function AccountApproval() {
 
   return (
     <>
+    {show && (
+        <CommentModal
+          show={show}
+          setShow={setShow}
+          modalText={'User Approval'}
+          reviewId={reviewId}
+          selectedIds={selectedIds}
+          handleData={handleUser}
+          setCheckBulk={setCheckBulk}
+        />
+      )}
       {/* <CommentModal show={show} setShow={setShow} modalText="Account Approval" /> */}
       <section className="dashboard-section">
         <Container fluid>
@@ -375,6 +339,7 @@ function AccountApproval() {
                     options={tableOptions}
                     showCheckboxes={true}
                     selectedIds={selectedIds}
+                    setShow={setShow}
                     setSelectedIds={setSelectedIds}
                   />
                 </Card.Body>

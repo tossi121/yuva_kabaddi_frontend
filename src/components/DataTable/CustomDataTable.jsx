@@ -6,6 +6,7 @@ import moment from 'moment';
 import { Button, Form } from 'react-bootstrap';
 import TableLoader from './TableLoader';
 import { useAuth } from '@/_context/authContext';
+import { useRouter } from 'next/router';
 
 const CustomPagination = dynamic(import('./CustomPagination'));
 
@@ -35,6 +36,8 @@ function CustomDataTable(props) {
   const [entity, setEntities] = useState(Object.assign({}, defaultProps, options));
   const [selectedRows, setSelectedRows] = useState({});
   const [selectAll, setSelectAll] = useState(false);
+  const router = useRouter();
+  const path = router.pathname;
 
   const { role } = useAuth();
 
@@ -189,21 +192,17 @@ function CustomDataTable(props) {
     const newSelectedIds = [];
 
     currentData.forEach((row, rowIndex) => {
-      const isApproved = row.verify_status === 'Approved';
-
+      const isApproved = path === '/super-admin/users'?row.verify_status === 'Approved':row.account_verify_status === 'Approved';
       if (!isApproved || newSelectAll) {
         newSelectedRows[rowIndex] = newSelectAll;
-
         if (!isApproved) {
           newSelectedIds.push(row);
         }
       }
     });
-
     // Set the selected state and selectedIds
     setSelectedRows(newSelectedRows);
     setSelectedIds(newSelectedIds);
-
     // If unchecking all, also clear the selected state
     if (!newSelectAll) {
       setSelectedRows({});
@@ -281,11 +280,13 @@ function CustomDataTable(props) {
           const isSelected = selectedRows[key];
           return (
             <tr key={key}>
-              {(row.verify_status != 'Approved' && row.status != 'Approved' && showCheckboxes && (
-                <td className="text-center">
-                  <input type="checkbox" checked={isSelected} onChange={() => handleRowSelection(key)} />
-                </td>
-              )) || (
+              {((row.verify_status !== 'Approved' && path === '/super-admin/users') ||
+                (row.account_verify_status !== 'Approved' && path === '/super-admin/account-approval') &&
+                (row.status !== 'Approved' && showCheckboxes)) && (
+                  <td className="text-center">
+                    <input type="checkbox" checked={isSelected} onChange={() => handleRowSelection(key)} />
+                  </td>
+                ) || (
                 <>
                   {role == 'SUPER_ADMIN' && (
                     <td className="text-center">

@@ -1,4 +1,4 @@
-import { getMatchPlayers, updatePlayerTransactionStatus, verifyUser } from '@/_services/services_api';
+import { getMatchPlayers, updatePlayerTransactionStatus, verifyAccount, verifyUser } from '@/_services/services_api';
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Form, Modal, Row, Spinner } from 'react-bootstrap';
 import toast from 'react-hot-toast';
@@ -99,7 +99,30 @@ const CommentModal = (props) => {
       toast.error(res.message);
     }
   }
+  async function handleVerifyAccount() {
+    const params = {
+      users:
+        bulkData.length > 0
+          ? bulkData
+          : [
+              {
+                id: reviewId.id,
+                status: formValues.status,
+                playerId: selectedPlayer.player_id,
+                comment: formValues.comment,
+              },
+            ],
+    };
 
+    const res = await verifyAccount(params);
+    if (res?.status) {
+      toast.success(res.message);
+      setCheckBulk(true);
+      handleData();
+    } else {
+      toast.error(res.message);
+    }
+  }
   async function handleTransaction() {
     const params = {
       transaction_status: [
@@ -133,7 +156,18 @@ const CommentModal = (props) => {
       } else {
         setFormErrors(errors);
       }
-    } else {
+    }
+    if (path == '/super-admin/account-approval') {
+      if (Object.keys(errors).length === 0) {
+        setLoading(true);
+        handleVerifyAccount();
+        setLoading(false);
+        setShow(false);
+      } else {
+        setFormErrors(errors);
+      }
+    } 
+    else {
       if (Object.keys(errors).length === 0) {
         setLoading(true);
         handleTransaction();
@@ -162,7 +196,7 @@ const CommentModal = (props) => {
         <Row>
           <Col lg={12}>
             <Form onSubmit={handleSubmit} autoComplete="off">
-              {selectedPlayer.player_name && (
+              {path == '/super-admin/users' && (
                 <div className="mb-3">
                   <Form.Group className="position-relative">
                     <Form.Label className="fs-16 fw-400 base-color">Select Player</Form.Label>
