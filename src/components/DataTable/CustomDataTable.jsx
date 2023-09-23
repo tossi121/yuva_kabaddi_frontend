@@ -38,7 +38,6 @@ function CustomDataTable(props) {
   const [selectAll, setSelectAll] = useState(false);
   const router = useRouter();
   const path = router.pathname;
-
   const { role } = useAuth();
 
   const cellClasses = {
@@ -192,7 +191,8 @@ function CustomDataTable(props) {
     const newSelectedIds = [];
 
     currentData.forEach((row, rowIndex) => {
-      const isApproved = path === '/super-admin/users'?row.verify_status === 'Approved':row.account_verify_status === 'Approved';
+      const isApproved =
+        path === '/super-admin/users' ? row.verify_status === 'Approved' : row.account_verify_status === 'Approved';
       if (!isApproved || newSelectAll) {
         newSelectedRows[rowIndex] = newSelectAll;
         if (!isApproved) {
@@ -213,7 +213,8 @@ function CustomDataTable(props) {
     const updatedSelectedRows = { ...selectedRows };
     updatedSelectedRows[rowIndex] = !updatedSelectedRows[rowIndex];
     const row = rows[rowIndex];
-    const isApproved = path === '/super-admin/users'?row.verify_status === 'Approved':row.account_verify_status === 'Approved';
+    const isApproved =
+      path === '/super-admin/users' ? row.verify_status === 'Approved' : row.account_verify_status === 'Approved';
     if (!isApproved) {
       setSelectedRows(updatedSelectedRows);
 
@@ -280,13 +281,16 @@ function CustomDataTable(props) {
           const isSelected = selectedRows[key];
           return (
             <tr key={key}>
-              {((row.verify_status !== 'Approved' && path === '/super-admin/users') ||
-                (row.account_verify_status !== 'Approved' && path === '/super-admin/account-approval') &&
-                (row.status !== 'Approved' && showCheckboxes)) && (
-                  <td className="text-center">
-                    <input type="checkbox" checked={isSelected} onChange={() => handleRowSelection(key)} />
-                  </td>
-                ) || (
+              {(((row.status != 'Approved' && path === '/super-admin/withdrawal-approval') ||
+                (row.verify_status !== 'Approved' && path === '/super-admin/users') ||
+                (row.account_verify_status !== 'Approved' &&
+                  path === '/super-admin/account-approval' &&
+                  row.status !== 'Approved' &&
+                  showCheckboxes)) && (
+                <td className="text-center">
+                  <input type="checkbox" checked={isSelected} onChange={() => handleRowSelection(key)} />
+                </td>
+              )) || (
                 <>
                   {role == 'SUPER_ADMIN' && (
                     <td className="text-center">
@@ -298,23 +302,28 @@ function CustomDataTable(props) {
 
               {cols &&
                 cols.map((col, index) => {
-                  const colMethod = eval(entity?.columns?.render?.[col['field']]);
+                  // Extract the field from the column
+                  const field = col['field'];
+
+                  // Use optional chaining to get the render function
+                  const colRender = entity?.columns?.render?.[field];
+
+                  // Use a default align value if it's not specified in the column
+                  const alignClass = col?.align ? cellClasses[col.align] : 'text-left';
+
+                  // Get the value from the row
+                  const fieldValue = row[field];
+
+                  // Check if the fieldValue is null, undefined, or an empty string and display 'N/A' in those cases
+                  const displayValue =
+                    fieldValue == null || fieldValue === undefined || fieldValue === '' ? 'N/A' : fieldValue;
+
+                  // Call the render function if it exists, otherwise use the fieldValue
+                  const finalValue = colRender ? colRender(fieldValue, row, field) : displayValue;
+
                   return (
-                    <td
-                      key={index}
-                      className={`
-                        ${(col?.align && cellClasses[col.align]) || 'text-left'}
-                      `}
-                    >
-                      {col['field'] == 'net_value' ? (
-                        <span className={`${row[col['field']] > 0 ? 'percent-green' : 'percent-red'}`}>
-                          {(colMethod && colMethod(row[col['field']], row, col['field'])) || row[col['field']]}
-                        </span>
-                      ) : (
-                        <span>
-                          {(colMethod && colMethod(row[col['field']], row, col['field'])) || row[col['field']]}
-                        </span>
-                      )}
+                    <td key={index} className={alignClass}>
+                      {finalValue}
                     </td>
                   );
                 })}

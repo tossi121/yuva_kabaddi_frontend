@@ -35,6 +35,7 @@ function Dashboard() {
   const [chart, setChart] = useState(false);
   const { currentUser } = useAuth();
   const [show, setShow] = useState(true);
+  const [showAlert, setShowAlert] = useState(true);
 
   const requestTypes = [
     { label: 'Paid Withdrawals', icon: faMoneyBills },
@@ -164,12 +165,19 @@ function Dashboard() {
   return (
     <div className="dashboard-section">
       <Container fluid>
-        {currentUser?.comment == '' ||
+        {currentUser?.account_verify_comment == '' ||
+          (currentUser?.account_verify_comment != null && (
+            <Alert variant="danger" onClose={() => setShowAlert(false)} dismissible>
+              <span>{currentUser?.account_verify_comment}</span>
+            </Alert>
+          ))}
+
+        {/* {currentUser?.comment == '' ||
           (currentUser?.comment != null && (
             <Alert variant="danger" onClose={() => setShow(false)} dismissible>
               <span>{currentUser?.comment}</span>
             </Alert>
-          ))}
+          ))} */}
         <Row className="mt-4">
           <Col lg={12}>
             <div className="d-flex justify-content-between">

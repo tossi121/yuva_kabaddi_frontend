@@ -49,7 +49,6 @@ function ViewPriceMoney() {
     { heading: 'Amount', field: 'priceAmount' },
   ];
 
-
   const setSelectedFiltersByLabel = (newLabel) => {
     const updatedFilters = {
       paid: newLabel === 'Paid Withdrawals',
@@ -107,9 +106,10 @@ function ViewPriceMoney() {
       } else if (label === 'Rejected Withdrawals') {
         setShowTable(false);
         setFilterData(withdrawalsData.filter((item) => item.status === 'Reject'));
-      } else {
+      } else if (label === 'Total Withdrawals') {
+      
         setFilterData(withdrawalsData);
-        setShowTable(true);
+        setShowTable(false);
       }
     }
     if (label === undefined) {

@@ -1,26 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faEdit,
-  faEllipsisV,
-  faFilter,
-  faMessage,
-  faSearch,
-  faTrash,
-  faTrashAlt,
-} from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisH, faFilter, faSearch, faTrashAlt, faUserEdit } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
 import Link from 'next/link';
-import CustomDataTable from '../DataTable/CustomDataTable';
 import dynamic from 'next/dynamic';
-import CommentModal from './CommentlModal';
-import DeleteModal from './DeleteModal';
-import ReusableDropdown from '../Player/ReusableDropdown';
 import { deleteUser, getRole, getUsersList } from '@/_services/services_api';
 import toast from 'react-hot-toast';
 import { faCommentAlt } from '@fortawesome/free-regular-svg-icons';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
+const ReusableDropdown = dynamic(import('../Player/ReusableDropdown'));
+const DeleteModal = dynamic(import('./DeleteModal'));
+const CommentModal = dynamic(import('./CommentlModal'));
+const CustomDataTable = dynamic(import('../DataTable/CustomDataTable'));
 
 function Users() {
   const [expanded, setExpanded] = useState(false);
@@ -35,7 +27,6 @@ function Users() {
   const [reviewId, setReviewId] = useState(null);
   const [checkBulk, setCheckBulk] = useState(false);
   const [checkedFilter, setCheckedFilter] = useState(false);
-  const [dropdownShow, setDropdownShow] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
@@ -92,39 +83,35 @@ function Users() {
       setShowModal(true);
     };
 
-    const handleDropdown = () => {
-      setDropdownShow(true);
-      console.log("first")
-    };
-
-    console.log("dropdownShow", dropdownShow);
     return (
       <>
-        <Dropdown className="action-bar position-relative">
+        <Dropdown className="action-bar">
           <Dropdown.Toggle variant="" className="border-0 p-0" id="dropdown-basic">
-            <FontAwesomeIcon width={15} height={15} icon={faEllipsisV} />
+            <FontAwesomeIcon width={15} height={15} icon={faEllipsisH} />
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            <Link href={`users/${row.id}`} className="base-color">
-              <div className="px-2 py-1 d-flex align-items-center cursor-pointer base-color fs-14">
-                <FontAwesomeIcon icon={faEdit} width={15} height={15} className="me-2" title="Edit User" />
-                Edit
-              </div>
-            </Link>
-            <div className="px-2 py-1 d-flex align-items-center cursor-pointer base-color fs-14" onClick={handleDelete}>
-              <FontAwesomeIcon icon={faTrashAlt} width={15} height={15} className="me-2" title="Delete User" />
-              Delete
-            </div>
-            {row.verify_status != 'Approved' && (
-              <div
-                className="px-2 py-1 d-flex align-items-center cursor-pointer base-color fs-14"
-                onClick={handleClick}
+            <div className="d-flex justify-content-around">
+              <Dropdown.Item className="text-white m-0 p-0 rounded-circle d-flex align-items-center justify-content-center">
+                <Link href={`users/${row.id}`} className="text-white">
+                  <FontAwesomeIcon icon={faUserEdit} width={15} height={15} title="Edit User" />
+                </Link>
+              </Dropdown.Item>
+              <Dropdown.Item
+                className="text-white m-0 p-0 rounded-circle d-flex align-items-center justify-content-center"
+                onClick={handleDelete}
               >
-                <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} className="me-2" title="Delete User" />
-                Review
-              </div>
-            )}
+                <FontAwesomeIcon icon={faTrashAlt} width={15} height={15} title="Delete User" />
+              </Dropdown.Item>
+              {row.verify_status != 'Approved' && (
+                <Dropdown.Item
+                  className="text-white m-0 p-0 rounded-circle d-flex align-items-center justify-content-center"
+                  onClick={handleClick}
+                >
+                  <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} title="Review User" />
+                </Dropdown.Item>
+              )}
+            </div>
           </Dropdown.Menu>
         </Dropdown>
       </>
@@ -224,6 +211,7 @@ function Users() {
           reviewId={reviewId}
           selectedIds={selectedIds}
           handleData={handleUser}
+          setSelectedIds={setSelectedIds}
           setCheckBulk={setCheckBulk}
         />
       )}

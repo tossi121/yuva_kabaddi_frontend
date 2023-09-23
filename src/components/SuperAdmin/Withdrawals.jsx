@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faFilter, faSearch, faUserGear } from '@fortawesome/free-solid-svg-icons';
-import { Badge, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
+import {
+  faCheckCircle,
+  faCommentAlt,
+  faEllipsisH,
+  faFilter,
+  faSearch,
+  faUserGear,
+} from '@fortawesome/free-solid-svg-icons';
+import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
 import 'react-datepicker/dist/react-datepicker.css';
 import CustomDataTable from '../DataTable/CustomDataTable';
 import dynamic from 'next/dynamic';
@@ -121,24 +128,31 @@ function Withdrawals() {
     };
 
     return (
-      <div className="d-flex justify-content-center align-items-center">
-        <div className="">
-          <FontAwesomeIcon
-            className="me-3 base-color-2 cursor-pointer"
-            icon={faUserGear}
-            width={25}
-            height={25}
-            onClick={handleModal}
-            title="Account Details"
-          />
-        </div>
-        {(row.status != 'Approved' && (
-          <Button className="common-btn fs-14" onClick={handleClick}>
-            Review
-          </Button>
-        )) ||
-          ''}
-      </div>
+      <Dropdown className="action-bar">
+        <Dropdown.Toggle variant="" className="border-0 p-0" id="dropdown-basic">
+          <FontAwesomeIcon width={15} height={15} icon={faEllipsisH} />
+        </Dropdown.Toggle>
+
+        <Dropdown.Menu>
+          <div className="d-flex justify-content-around">
+            <Dropdown.Item
+              className="text-white m-0 p-0 rounded-circle d-flex align-items-center justify-content-center"
+              onClick={handleModal}
+            >
+              <FontAwesomeIcon icon={faUserGear} width={15} height={15} title="Account Details" />
+            </Dropdown.Item>
+
+            {row.verify_status != 'Approved' && (
+              <Dropdown.Item
+                className="text-white m-0 p-0 rounded-circle d-flex align-items-center justify-content-center"
+                onClick={handleClick}
+              >
+                <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} title="Review Withdrawal " />
+              </Dropdown.Item>
+            )}
+          </div>
+        </Dropdown.Menu>
+      </Dropdown>
     );
   }
 
@@ -247,7 +261,7 @@ function Withdrawals() {
 
       <section className="dashboard-section">
         <Container fluid>
-          <Row className="my-4 ">
+          <Row className="my-4">
             <Col lg={12}>
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <DashboardBreadcrumb breadcrumbTitle="Withdrawal Approval" data={'Dashboard'} />

@@ -1,39 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faCommentAlt, faEllipsisH, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
+import 'react-datepicker/dist/react-datepicker.css';
 import CustomDataTable from '../DataTable/CustomDataTable';
 import dynamic from 'next/dynamic';
 import CommentModal from './CommentlModal';
-import { getUsersList } from '@/_services/services_api';
+import ReusableDropdown from '../Player/ReusableDropdown';
+import { getRole, getUsersList } from '@/_services/services_api';
+import moment from 'moment';
+import ReactDatePicker from 'react-datepicker';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
 function AccountApproval() {
-  const initialFormValues = {
-    mobile: '',
-    role: '',
-    email: '',
-  };
-
-  const [formValues, setFormValues] = useState(initialFormValues);
-  const [formErrors, setFormErrors] = useState({});
   const [expanded, setExpanded] = useState(false);
-  const [searchRole, setSearchRole] = useState('');
+  const [roleData, setRoleData] = useState([]);
+  const [selectedRole, setSelectedRole] = useState('');
   const [show, setShow] = useState(false);
   const [tableData, setTableData] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [filterData, setFilterData] = useState([]);
   const [reviewId, setReviewId] = useState(null);
   const [checkBulk, setCheckBulk] = useState(false);
-  const [filteredData, setFilteredData] = useState(tableData);
-  const [selectedRole, setSelectedRole] = useState('');
-  const [startDate, setStartDate] = useState(null);
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [endDate, setEndDate] = useState(null);
+  const [checkedFilter, setCheckedFilter] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
-    reject: true,
+    rejected: true,
   });
+
   const columns = [
     { heading: 'Name', field: 'user_name' },
     { heading: 'Email Address', field: 'email' },
@@ -43,105 +39,68 @@ function AccountApproval() {
     { heading: 'IFSC Code', field: 'ifsc_code' },
     { heading: 'Account Number', field: 'account_number' },
     { heading: 'Branch Name', field: 'branch_name' },
-    { heading: 'Comment', field: 'account_verify_comment' },
     { heading: 'Status', field: 'account_verify_status' },
-    { heading: 'Action', field: 'Action' },
+    { heading: 'Action', field: 'action', align: 'center' },
   ];
+
   useEffect(() => {
-    // handleRole();
-    handleUser();
-    setFilteredData(tableData);
+    handleRole();
+    handleWithdrawals();
+    setFilterData(tableData);
   }, [JSON.stringify(tableData)]);
-  async function handleUser() {
+
+  async function handleRole() {
+    const res = await getRole();
+    if (res?.status) {
+      const data = res.data;
+      setRoleData(data);
+    }
+  }
+
+  async function handleWithdrawals() {
     const res = await getUsersList();
     if (res?.status) {
       const data = res.data;
       setTableData(data);
     }
   }
+
   const tableOptions = {
     columns: {
       render: {
-        Action: (value, row) => renderWithdrawalModal(row),
+        action: renderWithdrawalModal,
         account_verify_status: renderSatus,
       },
     },
   };
 
-  function renderWithdrawalModal(row) {
+  function renderWithdrawalModal(value, row) {
     const handleClick = () => {
       setShow(true);
       setReviewId(row);
     };
 
     return (
-      <div className="d-flex justify-content-center">
-        {(row.account_verify_status != 'Approved' && (
-          <Button className="common-btn fs-14" onClick={handleClick}>
-            Review
-          </Button>
-        )) || (
-          <div className="text-success">
-            <FontAwesomeIcon title='Approved'  icon={faCheckCircle} width={33} height={33} />
+      <Dropdown className="withdrawal-action-bar action-bar">
+        <Dropdown.Toggle variant="" className="border-0 p-0" id="dropdown-basic">
+          <FontAwesomeIcon width={15} height={15} icon={faEllipsisH} />
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          <div className="d-flex justify-content-around">
+            {row.verify_status != 'Approved' && (
+              <Dropdown.Item
+                className="text-white m-0 p-0 rounded-circle d-flex align-items-center justify-content-center"
+                onClick={handleClick}
+              >
+                <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} title="Account  Withdrawal" />
+              </Dropdown.Item>
+            )}
           </div>
-        )}
-      </div>
+        </Dropdown.Menu>
+      </Dropdown>
     );
   }
 
-  const handleRoleSelect = (selectedRole) => {
-    setSelectedRole(selectedRole);
-    setFormValues((prevData) => ({ ...prevData, role: selectedRole }));
-    setFormErrors((prevErrors) => ({ ...prevErrors, role: '' }));
-  };
-  // Toggle the filter box
-  const toggleFilterBox = () => {
-    setExpanded(!expanded);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const filteredData = data.filter((item) => {
-      const isWithinDateRange = !startDate || moment(item.withdrawal_date).isBetween(startDate, endDate, null, '[]');
-
-      const isMatchingRole = !selectedRole || item.user_type.toLowerCase() === selectedRole.toLowerCase();
-      const isMatchingEmail = !formValues.email || item.email.toLowerCase().includes(formValues.email.toLowerCase());
-
-      const isStatusMatching =
-        (selectedFilters.approved && item.status === 'Approved') ||
-        (selectedFilters.pending && item.status === 'Pending') ||
-        (selectedFilters.reject && item.status === 'Reject');
-
-      return isWithinDateRange && isMatchingRole && isMatchingEmail && isStatusMatching;
-    });
-
-    setFilteredData(filteredData);
-  };
-
-  // Handle reset form
-  const handleReset = () => {
-    setFormValues(initialFormValues);
-    setFormErrors({});
-    setSelectedRole('');
-    setSearchRole('');
-    setSelectedFilters({
-      approved: true,
-      pending: true,
-      reject: true,
-    });
-    setStartDate(null);
-    setEndDate(null);
-    setFilteredData(data);
-  };
-
-  const handleFilterChange = (filterName) => {
-    setSelectedFilters((prevFilters) => ({
-      ...prevFilters,
-      [filterName]: !prevFilters[filterName],
-    }));
-  };
-  
   function renderSatus(value, row) {
     const statusColors = {
       Approved: 'success',
@@ -158,29 +117,72 @@ function AccountApproval() {
     );
   }
 
-  const handleChange = (e)  => {
-    const { name, value } = e.target;
-    if (name === 'role') {
-      setRoleName(value);
-    } else {
-      setFormValues((prevData) => ({ ...prevData, [name]: value }));
+  // Toggle the filter box
+  const toggleFilterBox = () => {
+    setExpanded(!expanded);
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const filteredData = tableData.filter((user) => {
+      if (selectedRole && user.user_role.toLowerCase() !== selectedRole.user_role.toLowerCase()) {
+        return false;
+      }
+      if (
+        (selectedFilters.approved && user.account_verify_status === 'Approved') ||
+        (selectedFilters.pending && user.account_verify_status === 'Pending') ||
+        (selectedFilters.rejected && user.account_verify_status === 'Rejected')
+      ) {
+        return true;
+      }
+
+      return false;
+    });
+    setFilterData(filteredData);
+  };
+
+  const handleReset = () => {
+    setSelectedRole('');
+    setSelectedFilters({
+      approved: true,
+      pending: true,
+      rejected: true,
+    });
+    setCheckedFilter(false);
+    setFilterData(tableData);
+  };
+
+  const handleFilterChange = (filterName) => {
+    const isFilterSelected = selectedFilters[filterName];
+    const numberOfSelectedFilters = Object.values(selectedFilters).filter(Boolean).length;
+
+    if (numberOfSelectedFilters === 1 && isFilterSelected) {
+      return;
     }
+
+    setSelectedFilters((prevFilters) => ({
+      ...prevFilters,
+      [filterName]: !isFilterSelected,
+    }));
+
+    setCheckedFilter(true);
   };
 
   return (
     <>
-    {show && (
+      {show && (
         <CommentModal
           show={show}
           setShow={setShow}
-          modalText={'User Approval'}
+          modalText={'Account Approval'}
           reviewId={reviewId}
           selectedIds={selectedIds}
-          handleData={handleUser}
+          handleData={handleWithdrawals}
           setCheckBulk={setCheckBulk}
         />
       )}
-      {/* <CommentModal show={show} setShow={setShow} modalText="Account Approval" /> */}
+
       <section className="dashboard-section">
         <Container fluid>
           <Row className="my-4 ">
@@ -203,72 +205,31 @@ function AccountApproval() {
                 className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
-                  <h4 className="common-heading mb-0">Account Approval Filter</h4>
+                  <h4 className="common-heading mb-0"> Account Approval Filter</h4>
                 </div>
                 <Card.Body className="box-padding">
                   <Form onSubmit={handleSubmit}>
                     <Row>
-                      <Col xl={3} lg={4} md={6}>
-                        <div className="mb-4">
+                      <Col>
+                        <div className="mb-3">
                           <Form.Group className="position-relative">
                             <Form.Label className="fs-16 fw-400 base-color">Select Role</Form.Label>
-                            <div className="form-select-catgory">
-                              <Dropdown className="form-control px-0 py-0 card-border">
-                                <Dropdown.Toggle
-                                  variant="none"
-                                  className="w-100 hight-50 text-start filter-box-dropdown base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
-                                  id="dropdown-basic"
-                                >
-                                  <span className="text-truncate pe-3">{selectedRole || 'Select Role'}</span>
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu className="w-100 card-border ">
-                                  <div className="px-2 mb-2">
-                                    <input
-                                      type="search"
-                                      placeholder="Search Role"
-                                      onChange={(e) => setSearchRole(e.target.value)}
-                                      className="form-control shadow-none card-border fs-14 hight-50"
-                                    />
-                                  </div>
-
-                                  {['Player', 'Coach']
-                                    .filter((role) => role.toLowerCase().includes(searchRole.toLowerCase()))
-                                    .map((role) => (
-                                      <Dropdown.Item
-                                        key={role}
-                                        className={`py-2 fs-14 base-color ${selectedRole === role ? 'active' : ''}`}
-                                        onClick={() => handleRoleSelect(role)}
-                                      >
-                                        {role}
-                                      </Dropdown.Item>
-                                    ))}
-                                </Dropdown.Menu>
-                              </Dropdown>
-                            </div>
-                            {formErrors.role && <p className="text-danger fs-14 error-message">{formErrors.role}</p>}
-                          </Form.Group>
-                        </div>
-                      </Col>
-                      <Col xl={3} lg={4} md={6}>
-                        <div className="mb-4">
-                          <Form.Group className="position-relative">
-                            <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="Enter Your Email Address"
-                              name="email"
-                              className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                              value={formValues.email}
-                              onChange={handleChange}
+                            <ReusableDropdown
+                              options={roleData}
+                              selectedValue={selectedRole.user_role || 'Select Role'}
+                              onSelect={setSelectedRole}
+                              placeholder="Role"
+                              displayKey="user_role"
+                              valueKey="id"
                             />
-                            {formErrors.email && <p className="text-danger fs-14 error-message">{formErrors.email}</p>}
                           </Form.Group>
                         </div>
                       </Col>
-                      <Col xl={3} lg={4} md={6}>
+
+                      <Col>
                         <div className="mb-4">
                           <Form.Group>
-                            <Form.Label className="fs-14 fw-500 base-color-2"> Filter Status</Form.Label>
+                            <Form.Label className="fs-16 fw-400 base-color"> Filter Status</Form.Label>
                             <div className="mt-2">
                               <Form.Label className="cursor-pointer user-select-none base-color-2" htmlFor="approved">
                                 <input
@@ -295,30 +256,39 @@ function AccountApproval() {
                                 />
                                 Pending
                               </Form.Label>
-                              <Form.Label className="cursor-pointer user-select-none base-color-2" htmlFor="reject">
+                              <Form.Label className="cursor-pointer user-select-none base-color-2" htmlFor="rejected">
                                 <input
                                   type="checkbox"
-                                  name="reject"
-                                  id="reject"
+                                  name="rejected"
+                                  id="rejected"
                                   className="me-2"
-                                  checked={selectedFilters.reject}
-                                  onChange={() => handleFilterChange('reject')}
+                                  checked={selectedFilters.rejected}
+                                  onChange={() => handleFilterChange('rejected')}
                                 />
-                                Reject
+                                rejected
                               </Form.Label>
                             </div>
                           </Form.Group>
                         </div>
                       </Col>
                       <Col xl={3} lg={4} md={6}>
-                        <div className="d-flex align-items-center  filters-dropdown-btn">
-                          <Button className="common-btn px-3 text-nowrap">
+                        <div className="d-flex align-items-center filters-dropdown-btn">
+                          <Button
+                            className="common-btn px-3 text-nowrap"
+                            type="Submit"
+                            disabled={!selectedRole && !checkedFilter}
+                          >
                             <span className="me-2">
                               <FontAwesomeIcon icon={faSearch} width={18} height={18} />
                             </span>
                             Search
                           </Button>
-                          <Button className="common-outline-btn px-4 ms-2" onClick={handleReset} type="reset">
+                          <Button
+                            className="common-outline-btn px-4 ms-2"
+                            onClick={handleReset}
+                            type="reset"
+                            disabled={!selectedRole && !checkedFilter}
+                          >
                             Reset
                           </Button>
                         </div>
@@ -332,15 +302,16 @@ function AccountApproval() {
                 <div className="card-head card-head-padding border-bottom">
                   <h4 className="common-heading mb-0">Account Approval</h4>
                 </div>
-                <Card.Body className='box-padding position-relative'>
+                <Card.Body className="box-padding position-relative">
                   <CustomDataTable
-                    rows={filteredData}
+                    rows={filterData}
                     columns={columns}
                     options={tableOptions}
                     showCheckboxes={true}
                     selectedIds={selectedIds}
-                    setShow={setShow}
                     setSelectedIds={setSelectedIds}
+                    setShow={setShow}
+                    checkBulk={checkBulk}
                   />
                 </Card.Body>
               </Card>

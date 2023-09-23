@@ -31,7 +31,7 @@ function AccountModal({ showModal, setShowModal, reviewId }) {
             <Row>
               <Col lg={6}>
                 <div className="d-flex align-items-start text-nowrap flex-column">
-                  <div className="">
+                  <div >
                     <div>
                       <span className="fs-16 fw-500 base-color-2 me-2">User Name:</span>
                       <span className="fs-16 fw-500 base-color-2">
