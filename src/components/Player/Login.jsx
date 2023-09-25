@@ -7,7 +7,9 @@ import { Toaster, toast } from 'react-hot-toast';
 import { maxLengthCheck, validMobile } from '@/_helper/regex';
 import { getLogin, getOtp, checkMobileNumber } from '@/_services/services_api';
 import Cookies from 'js-cookie';
-import VerifyOtp from './VerifyOtp';
+import dynamic from 'next/dynamic';
+
+const VerifyOtp = dynamic(import('./VerifyOtp'));
 
 function Login() {
   const router = useRouter();
@@ -20,9 +22,8 @@ function Login() {
   const [isMobileNumberRegistered, setIsMobileNumberRegistered] = useState(false);
   const [isTypingOtp, setIsTypingOtp] = useState(false);
   const [verifyStatus, setVerifyStatus] = useState(null);
-
   useEffect(() => {
-    if (showOtpPopup && verifyStatus === 'Approved') {
+    if (showOtpPopup && verifyStatus == 'Approved') {
       handleOtp();
     }
   }, [showOtpPopup, oneTimePassword]);
@@ -84,14 +85,15 @@ function Login() {
         contactno: formValues.mobile,
       };
       const res = await checkMobileNumber(params);
-      console.log(res);
       if (!res?.status) {
         setIsMobileNumberRegistered(true);
         toast.error(res?.message);
         return true;
       } else {
         setVerifyStatus(res.data?.verify_status);
-        toast.error('User is not approved ');
+        if (res.data?.verify_status !== 'Approved') {
+          toast.error('User is not approved ');
+        }
       }
     }
     return false;
@@ -156,7 +158,7 @@ function Login() {
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      {(verifyStatus === 'Approved' && showOtpPopup && (
+      {(verifyStatus == 'Approved' && showOtpPopup && (
         <VerifyOtp
           loading={loading}
           oneTimePassword={oneTimePassword}

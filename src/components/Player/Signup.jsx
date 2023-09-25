@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { maxLengthCheck, validEmail, validMobile, validName } from '@/_helper/regex';
-import VerifyOtp from './VerifyOtp';
 import Link from 'next/link';
 import {
   getMatchDetails,
@@ -13,9 +12,11 @@ import {
   checkUser,
 } from '@/_services/services_api';
 import { Toaster, toast } from 'react-hot-toast';
-import ReusableDropdown from './ReusableDropdown';
 import { useRouter } from 'next/router';
-import Cookies from 'js-cookie';
+import dynamic from 'next/dynamic';
+
+const ReusableDropdown = dynamic(import('./ReusableDropdown'));
+const VerifyOtp = dynamic(import('./VerifyOtp'));
 
 function Signup() {
   const initialFormValues = {
@@ -43,14 +44,32 @@ function Signup() {
   const router = useRouter();
 
   useEffect(() => {
-    handleRole();
-    handleSeries();
-    handleMatchPlayers();
-    handleMatch();
     if (showOtpPopup) {
       handleOtp();
     }
-  }, [showOtpPopup, oneTimePassword, selectedMatch.teamId, selectedPlayer.playerId, selectedSeries.tournamentId]);
+  }, [showOtpPopup, oneTimePassword]);
+
+  useEffect(() => {
+    handleRole();
+  }, []);
+
+  useEffect(() => {
+    if (selectedRole) {
+      handleSeries();
+    }
+  }, [selectedRole]);
+
+  useEffect(() => {
+    if (selectedSeries) {
+      handleMatch();
+    }
+  }, [selectedSeries]);
+
+  useEffect(() => {
+    if (selectedMatch.teamId) {
+      handleMatchPlayers();
+    }
+  }, [selectedMatch]);
 
   useEffect(() => {
     if (otpResendSeconds > 0) {

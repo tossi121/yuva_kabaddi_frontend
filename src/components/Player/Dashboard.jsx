@@ -7,9 +7,6 @@ import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, BarElement, T
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
-import WithdrawalsChart from './Chart/WithdrawalsChart';
-import EarningChart from './Chart/EarningChart';
-
 import {
   faFilter,
   faSearch,
@@ -19,10 +16,13 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { faMoneyBill1 } from '@fortawesome/free-regular-svg-icons';
-import UserEarnings from './UserEarnings';
 import { useAuth } from '@/_context/authContext';
 
 const DashboardBreadcrumbComponent = dynamic(import('../Layouts/DashboardBreadcrumbar'));
+const EarningChart = dynamic(import('./Chart/EarningChart'));
+const WithdrawalsChart = dynamic(import('./Chart/WithdrawalsChart'));
+const UserEarnings = dynamic(import('./UserEarnings'));
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 function Dashboard() {
@@ -34,7 +34,6 @@ function Dashboard() {
   const [filterChart, setFilterChart] = useState([]);
   const [chart, setChart] = useState(false);
   const { currentUser } = useAuth();
-  const [show, setShow] = useState(true);
   const [showAlert, setShowAlert] = useState(true);
 
   const requestTypes = [
@@ -45,27 +44,25 @@ function Dashboard() {
   ];
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [priceMoneyResponse, withdrawnRequestsResponse] = await Promise.all([
-          getPriceMoney(),
-          getWithdrawnRequests(),
-        ]);
+    handlePriceMoney();
+    handleWithdrawnRequests();
+  }, []);
 
-        if (priceMoneyResponse?.status) {
-          setEarningsData(priceMoneyResponse.data);
-        }
-
-        if (withdrawnRequestsResponse?.status) {
-          setWithdrawalsData(withdrawnRequestsResponse.data);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
+  async function handlePriceMoney() {
+    const res = await getPriceMoney();
+    if (res?.status) {
+      const data = res.data;
+      setEarningsData(data);
     }
+  }
 
-    fetchData();
-  }, [startDate, endDate, filterChart]);
+  async function handleWithdrawnRequests() {
+    const res = await getWithdrawnRequests();
+    if (res?.status) {
+      const data = res.data;
+      setWithdrawalsData(data);
+    }
+  }
 
   const handleChangeStartDate = (date) => {
     setStartDate(date);
@@ -77,7 +74,7 @@ function Dashboard() {
       return withdrawalsData.length;
     }
     const statusMapping = {
-      'Paid Withdrawals': 'Paid',
+      'Approved Withdrawals': 'Approved',
       'Pending Withdrawals': 'Pending',
       'Rejected Withdrawals': 'Reject',
     };
@@ -100,7 +97,10 @@ function Dashboard() {
     setStartDate(null);
     setEndDate(null);
     setChart(false);
+    setEarningsData(earningsData);
   };
+
+  console.log(earningsData, startDate, endDate);
 
   const filterEarningsData = (startDate, endDate) => {
     if (!startDate || !endDate) {
@@ -123,7 +123,6 @@ function Dashboard() {
 
     const filteredEarningsData = filterEarningsData(startDate, endDate);
     setEarningsData(filteredEarningsData);
-
     const filteredData = withdrawalsData.filter((request) => {
       const createdAt = new Date(request.createdAt);
       return startDate <= createdAt && createdAt < nextDay;
@@ -133,13 +132,13 @@ function Dashboard() {
       const { createdAt, status } = request;
       const date = new Date(createdAt).toISOString().split('T')[0];
       if (!counts[date]) {
-        counts[date] = { pending: 0, paid: 0, rejected: 0 };
+        counts[date] = { pending: 0, approved: 0, rejected: 0 };
       }
 
       if (status === 'Pending') {
         counts[date].pending++;
-      } else if (status === 'Paid') {
-        counts[date].paid++;
+      } else if (status === 'Approved') {
+        counts[date].approved++;
       } else if (status === 'Reject') {
         counts[date].rejected++;
       }

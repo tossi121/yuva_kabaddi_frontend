@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import CustomDataTable from '../DataTable/CustomDataTable';
 import { Badge, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import dynamic from 'next/dynamic';
 import moment from 'moment';
@@ -8,9 +7,10 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/router';
-import UserEarnings from './UserEarnings';
 import { getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
 
+const UserEarnings = dynamic(import('./UserEarnings'));
+const CustomDataTable = dynamic(import('../DataTable/CustomDataTable'));
 const WithdrawalModal = dynamic(import('./WithdrawalModal'));
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
@@ -107,7 +107,6 @@ function ViewPriceMoney() {
         setShowTable(false);
         setFilterData(withdrawalsData.filter((item) => item.status === 'Reject'));
       } else if (label === 'Total Withdrawals') {
-      
         setFilterData(withdrawalsData);
         setShowTable(false);
       }

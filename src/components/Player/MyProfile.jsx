@@ -173,7 +173,6 @@ function MyProfile() {
     }
   };
 
-
   const validate = () => {
     const errors = {};
 
@@ -367,7 +366,9 @@ function MyProfile() {
                           displayKey="name"
                           valueKey="id"
                         />
-                        {formErrors.selectedState && <p className="text-danger fs-14 error-message">{formErrors.selectedState}</p>}
+                        {formErrors.selectedState && (
+                          <p className="text-danger fs-14 error-message">{formErrors.selectedState}</p>
+                        )}
                       </Form.Group>
                     </Col>
                     <Col lg={6}>
@@ -383,7 +384,9 @@ function MyProfile() {
                             displayKey="city"
                             valueKey="id"
                           />
-                          {formErrors.selectedCity && <p className="text-danger fs-14 error-message">{formErrors.selectedCity}</p>}
+                          {formErrors.selectedCity && (
+                            <p className="text-danger fs-14 error-message">{formErrors.selectedCity}</p>
+                          )}
                         </Form.Group>
                       </div>
                     </Col>
@@ -578,7 +581,7 @@ function MyProfile() {
                     </Col>
                   </Row>
 
-                  <Button type='submit' className="common-btn py-2 px-3 mt-3 fs-14 d-flex align-items-center">
+                  <Button type="submit" className="common-btn py-2 px-3 mt-3 fs-14 d-flex align-items-center">
                     <Image
                       src="/images/team-roster/apply.svg"
                       alt="Save Change"

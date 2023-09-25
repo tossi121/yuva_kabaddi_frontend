@@ -46,7 +46,11 @@ function UserEarnings({ setShow, withdrawalShow }) {
                 </div>
                 {withdrawalShow === 1 && (
                   <div>
-                    <Button className="common-btn" onClick={() => setShow(true)}>
+                    <Button
+                      className="common-btn"
+                      onClick={() => setShow(true)}
+                      disabled={currentUser?.account_verify_status != 'Approved'}
+                    >
                       Withdraw Amount
                     </Button>
                   </div>

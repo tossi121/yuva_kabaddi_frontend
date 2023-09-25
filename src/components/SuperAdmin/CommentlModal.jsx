@@ -24,6 +24,7 @@ const CommentModal = (props) => {
   const [passImage, setPassImage] = useState(false);
   const router = useRouter();
   const path = router.pathname;
+
   useEffect(() => {
     if (!show) {
       setSelectedIds([]);
@@ -50,7 +51,7 @@ const CommentModal = (props) => {
   };
 
   useEffect(() => {
-    if (reviewId?.team_id) {
+    if (reviewId.team_id) {
       handleMatchPlayers();
     }
   }, []);
@@ -66,13 +67,11 @@ const CommentModal = (props) => {
   }, []);
 
   useEffect(() => {
-    if (playerData) {
-      const selectedPlayerData = playerData.find((i) => i.playerId === reviewId?.player_id);
-      if (selectedPlayerData) {
-        setSelectedPlayer(selectedPlayerData);
-      }
+    const selectedPlayer = playerData.find((player) => player.playerId === reviewId.player_id);
+    if (selectedPlayer) {
+      setSelectedPlayer(selectedPlayer);
     }
-  }, [playerData]);
+  }, [playerData, reviewId.player_id]);
 
   async function handleMatchPlayers() {
     if (path == '/super-admin/users') {
@@ -227,7 +226,7 @@ const CommentModal = (props) => {
               <Form onSubmit={handleSubmit} autoComplete="off">
                 {path == '/super-admin/users' && (
                   <>
-                    {selectedPlayer.fullName && !selectedIds.length > 0 && (
+                    {!selectedIds.length > 0 && (
                       <div className="mb-3">
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Select Player</Form.Label>
