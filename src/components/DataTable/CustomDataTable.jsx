@@ -36,9 +36,9 @@ function CustomDataTable(props) {
   const [entity, setEntities] = useState(Object.assign({}, defaultProps, options));
   const [selectedRows, setSelectedRows] = useState({});
   const [selectAll, setSelectAll] = useState(false);
+  const { role } = useAuth();
   const router = useRouter();
   const path = router.pathname;
-  const { role } = useAuth();
 
   const cellClasses = {
     left: 'text-start',
@@ -185,8 +185,6 @@ function CustomDataTable(props) {
   function handleSelectAll() {
     const newSelectAll = !selectAll;
     setSelectAll(newSelectAll);
-
-    // Update the selectedRows state for all rows.
     const newSelectedRows = {};
     const newSelectedIds = [];
 
@@ -200,19 +198,18 @@ function CustomDataTable(props) {
         }
       }
     });
-    // Set the selected state and selectedIds
     setSelectedRows(newSelectedRows);
     setSelectedIds(newSelectedIds);
-    // If unchecking all, also clear the selected state
     if (!newSelectAll) {
       setSelectedRows({});
       setSelectedIds([]);
     }
   }
+
   function handleRowSelection(rowIndex) {
     const updatedSelectedRows = { ...selectedRows };
     updatedSelectedRows[rowIndex] = !updatedSelectedRows[rowIndex];
-    const row = rows[rowIndex];
+    const row = currentData[rowIndex];
     const isApproved =
       path === '/super-admin/users' ? row.verify_status === 'Approved' : row.account_verify_status === 'Approved';
     if (!isApproved) {
@@ -220,7 +217,7 @@ function CustomDataTable(props) {
 
       const updatedSelectedIds = Object.keys(updatedSelectedRows)
         .filter((key) => updatedSelectedRows[key])
-        .map((key) => rows[parseInt(key, 10)]);
+        .map((key) => currentData[parseInt(key, 10)]);
 
       setSelectedIds(updatedSelectedIds);
     }

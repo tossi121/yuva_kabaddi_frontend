@@ -69,11 +69,13 @@ function Topbar(props) {
                               <span className="pe-3">{userRole || 'Super Admin'}</span>
                             </Dropdown.Toggle>
                             <Dropdown.Menu className="w-100 rounded-4">
-                              <Dropdown.Item className="py-2 fs-14 base-color-3">
-                                <Link href={'/dashboard/profile'}>
-                                  <span className="base-color-3 d-block">Profile</span>
-                                </Link>
-                              </Dropdown.Item>
+                              {!userRole == 'Super_Admin' && (
+                                <Dropdown.Item className="py-2 fs-14 base-color-3">
+                                  <Link href={'/dashboard/profile'}>
+                                    <span className="base-color-3 d-block">Profile</span>
+                                  </Link>
+                                </Dropdown.Item>
+                              )}
                               <Dropdown.Item className="py-2 fs-14 base-color-3" onClick={logout}>
                                 Logout
                               </Dropdown.Item>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Col, Container, Dropdown, Form, Row, Spinner } from 'react-bootstrap';
+import { Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { maxLengthCheck, validEmail, validMobile, validName } from '@/_helper/regex';
 import VerifyOtp from './VerifyOtp';
 import Link from 'next/link';
@@ -50,7 +50,7 @@ function Signup() {
     if (showOtpPopup) {
       handleOtp();
     }
-  }, [showOtpPopup, oneTimePassword, selectedMatch.match_id, selectedPlayer.player_id, selectedSeries.id]);
+  }, [showOtpPopup, oneTimePassword, selectedMatch.teamId, selectedPlayer.playerId, selectedSeries.tournamentId]);
 
   useEffect(() => {
     if (otpResendSeconds > 0) {
@@ -80,8 +80,8 @@ function Signup() {
   }
 
   async function handleMatch() {
-    if (selectedSeries.id) {
-      const res = await getMatchDetails(selectedSeries.id);
+    if (selectedSeries.tournamentId) {
+      const res = await getMatchDetails(selectedSeries.tournamentId);
       if (res?.status) {
         const data = res.data;
         setMatchData(data);
@@ -90,8 +90,8 @@ function Signup() {
   }
 
   async function handleMatchPlayers() {
-    if (selectedMatch.match_id) {
-      const res = await getMatchPlayers(selectedMatch.match_id);
+    if (selectedMatch.teamId) {
+      const res = await getMatchPlayers(selectedMatch.teamId);
       if (res?.status) {
         const data = res.data;
         setPlayerData(data);
@@ -110,20 +110,16 @@ function Signup() {
       email: formValues.email,
       user_name: formValues.user,
       user_role: selectedRole.user_role,
-      player_id: selectedPlayer.player_id,
-      match_id: selectedMatch.match_id,
-      series_id: selectedSeries.series_id,
+      player_id: selectedPlayer.playerId,
+      team_id: selectedMatch.teamId,
+      series_id: selectedSeries.tournamentId,
       otp: oneTimePassword,
     };
     const isMobileAlreadyRegistered = await handleCheckUser();
-
     if (!isMobileAlreadyRegistered && oneTimePassword !== null) {
       const res = await getSignup(params);
       if (res?.status) {
-        const token = res.data;
-        Cookies.set('yuva_kabaddi_token', token.access_token, { expires: 30, path: '/' });
-        Cookies.set('yuva_kabaddi_role', token.user_role, { expires: 30, path: '/' });
-        router.push('/');
+        router.push('/login');
         toast.success(res.message);
       } else {
         toast.error(res?.message);
@@ -197,14 +193,14 @@ function Signup() {
     if (!selectedRole.user_role) {
       errors.user_role = 'Please select a role';
     }
-    if (!selectedSeries.series_name) {
-      errors.series_name = 'Please select a series';
+    if (!selectedSeries.tournamentName) {
+      errors.tournamentName = 'Please select a series';
     }
-    if (!selectedMatch.match_number) {
-      errors.match_number = 'Please select a match';
+    if (!selectedMatch.teamName) {
+      errors.teamName = 'Please select a match';
     }
-    if (!selectedPlayer.player_name) {
-      errors.player_name = 'Please select a player';
+    if (!selectedPlayer.fullName) {
+      errors.fullName = 'Please select a player';
     }
 
     return errors;
@@ -214,7 +210,7 @@ function Signup() {
       const params = {
         contactno: formValues.mobile,
         email: formValues.email,
-        player_id: selectedPlayer.player_id,
+        player_id: selectedPlayer.playerId,
       };
       const res = await checkUser(params);
       if (!res?.status) {
@@ -297,31 +293,31 @@ function Signup() {
 
                               <ReusableDropdown
                                 options={seriesData}
-                                selectedValue={selectedSeries?.series_name || 'Select Series'}
+                                selectedValue={selectedSeries?.tournamentName || 'Select Series'}
                                 onSelect={setSelectedSeries}
                                 placeholder="Series"
-                                displayKey="series_name"
+                                displayKey="tournamentName"
                                 valueKey="id"
                               />
-                              {formErrors.series_name && (
-                                <p className="text-danger fs-14 error-message">{formErrors.series_name}</p>
+                              {formErrors.tournamentName && (
+                                <p className="text-danger fs-14 error-message">{formErrors.tournamentName}</p>
                               )}
                             </Form.Group>
                           </Col>
 
                           <Col lg={6}>
                             <Form.Group className="position-relative">
-                              <Form.Label className="fs-16 fw-400 base-color">Select Match</Form.Label>
+                              <Form.Label className="fs-16 fw-400 base-color">Select Team</Form.Label>
                               <ReusableDropdown
                                 options={matchData}
-                                selectedValue={selectedMatch?.match_number || 'Select Match'}
+                                selectedValue={selectedMatch?.teamName || 'Select Team'}
                                 onSelect={setSelectedMatch}
-                                placeholder="Match"
-                                displayKey="match_number"
-                                valueKey="match_id"
+                                placeholder="Team"
+                                displayKey="teamName"
+                                valueKey="teamId"
                               />
-                              {formErrors.match_number && (
-                                <p className="text-danger fs-14 error-message">{formErrors.match_number}</p>
+                              {formErrors.teamName && (
+                                <p className="text-danger fs-14 error-message">{formErrors.teamName}</p>
                               )}
                             </Form.Group>
                           </Col>
@@ -332,14 +328,14 @@ function Signup() {
                                 <Form.Label className="fs-16 fw-400 base-color">Select Player</Form.Label>
                                 <ReusableDropdown
                                   options={playerData}
-                                  selectedValue={selectedPlayer?.player_name || 'Select Player'}
+                                  selectedValue={selectedPlayer?.fullName || 'Select Player'}
                                   onSelect={setSelectedPlayer}
                                   placeholder="Player"
-                                  displayKey="player_name"
-                                  valueKey="player_id"
+                                  displayKey="fullName"
+                                  valueKey="playerId"
                                 />
-                                {formErrors.player_name && (
-                                  <p className="text-danger fs-14 error-message">{formErrors.player_name}</p>
+                                {formErrors.fullName && (
+                                  <p className="text-danger fs-14 error-message">{formErrors.fullName}</p>
                                 )}
                               </Form.Group>
                             </div>

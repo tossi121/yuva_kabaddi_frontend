@@ -19,9 +19,10 @@ function Login() {
   const [otpResendSeconds, setOtpResendSeconds] = useState(0);
   const [isMobileNumberRegistered, setIsMobileNumberRegistered] = useState(false);
   const [isTypingOtp, setIsTypingOtp] = useState(false);
+  const [verifyStatus, setVerifyStatus] = useState(null);
 
   useEffect(() => {
-    if (showOtpPopup) {
+    if (showOtpPopup && verifyStatus === 'Approved') {
       handleOtp();
     }
   }, [showOtpPopup, oneTimePassword]);
@@ -83,10 +84,14 @@ function Login() {
         contactno: formValues.mobile,
       };
       const res = await checkMobileNumber(params);
+      console.log(res);
       if (!res?.status) {
         setIsMobileNumberRegistered(true);
         toast.error(res?.message);
         return true;
+      } else {
+        setVerifyStatus(res.data?.verify_status);
+        toast.error('User is not approved ');
       }
     }
     return false;
@@ -147,10 +152,11 @@ function Login() {
       }
     }
   };
+
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      {showOtpPopup ? (
+      {(verifyStatus === 'Approved' && showOtpPopup && (
         <VerifyOtp
           loading={loading}
           oneTimePassword={oneTimePassword}
@@ -163,7 +169,7 @@ function Login() {
           setIsTypingOtp={setIsTypingOtp}
           setOneTimePassword={setOneTimePassword}
         />
-      ) : (
+      )) || (
         <section className="login-page min-vh-100 d-flex align-items-center justify-content-center">
           <Container>
             <Row className="justify-content-center">

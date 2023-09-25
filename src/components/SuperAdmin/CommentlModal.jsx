@@ -24,7 +24,6 @@ const CommentModal = (props) => {
   const [passImage, setPassImage] = useState(false);
   const router = useRouter();
   const path = router.pathname;
-
   useEffect(() => {
     if (!show) {
       setSelectedIds([]);
@@ -51,7 +50,7 @@ const CommentModal = (props) => {
   };
 
   useEffect(() => {
-    if (reviewId?.match_id) {
+    if (reviewId?.team_id) {
       handleMatchPlayers();
     }
   }, []);
@@ -67,16 +66,18 @@ const CommentModal = (props) => {
   }, []);
 
   useEffect(() => {
-    const selectedPlayerData = playerData.find((i) => i.player_id === reviewId.player_id);
-    if (selectedPlayerData) {
-      setSelectedPlayer(selectedPlayerData);
+    if (playerData) {
+      const selectedPlayerData = playerData.find((i) => i.playerId === reviewId?.player_id);
+      if (selectedPlayerData) {
+        setSelectedPlayer(selectedPlayerData);
+      }
     }
   }, [playerData]);
 
   async function handleMatchPlayers() {
     if (path == '/super-admin/users') {
-      if (reviewId.match_id) {
-        const res = await getMatchPlayers(reviewId.match_id);
+      if (reviewId.team_id) {
+        const res = await getMatchPlayers(reviewId.team_id);
         if (res?.status) {
           const data = res.data;
           setPlayerData(data);
@@ -84,7 +85,6 @@ const CommentModal = (props) => {
       }
     }
   }
-
   const filteredData = selectedIds.map((user) => {
     return {
       id: user.id,
@@ -125,7 +125,7 @@ const CommentModal = (props) => {
               {
                 id: reviewId.id,
                 status: formValues.status,
-                playerId: selectedPlayer.player_id,
+                playerId: selectedPlayer.playerId,
                 comment: formValues.comment,
               },
             ],
@@ -144,7 +144,7 @@ const CommentModal = (props) => {
               {
                 id: reviewId.id,
                 status: formValues.account_verify_status,
-                playerId: selectedPlayer.player_id,
+                playerId: selectedPlayer.playerId,
                 comment: formValues.comment,
               },
             ],
@@ -215,29 +215,30 @@ const CommentModal = (props) => {
       <ImagePreview {...{ panImage, setPanImage, passImage, setPassImage, reviewId }} />
       <Modal show={show} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
-          <h4 className="base-color mb-0">{modalText} </h4>
+          <h4 className="base-color mb-0">{modalText}</h4>
         </Modal.Header>
         <Modal.Body>
           <Row>
             <Col lg={12}>
+              <div className="d-flex">
+                <h6 className="fs-16 fw-500 base-color me-2">User Name:-</h6>
+                <h6 className="fs-16 fw-500 base-color">{reviewId?.user_name}</h6>
+              </div>
               <Form onSubmit={handleSubmit} autoComplete="off">
                 {path == '/super-admin/users' && (
                   <>
-                    {!selectedIds.length > 0 && (
+                    {selectedPlayer.fullName && !selectedIds.length > 0 && (
                       <div className="mb-3">
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Select Player</Form.Label>
                           <ReusableDropdown
                             options={playerData}
-                            selectedValue={selectedPlayer.player_name || 'Select Player'}
+                            selectedValue={selectedPlayer.fullName || 'Select Player'}
                             onSelect={setSelectedPlayer}
                             placeholder="Player"
-                            displayKey="player_name"
-                            valueKey="player_id"
+                            displayKey="fullName"
+                            valueKey="playerId"
                           />
-                          {formErrors.player_name && (
-                            <p className="text-danger fs-14 error-message">{formErrors.player_name}</p>
-                          )}
                         </Form.Group>
                       </div>
                     )}

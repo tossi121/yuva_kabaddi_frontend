@@ -171,13 +171,6 @@ function Dashboard() {
               <span>{currentUser?.account_verify_comment}</span>
             </Alert>
           ))}
-
-        {/* {currentUser?.comment == '' ||
-          (currentUser?.comment != null && (
-            <Alert variant="danger" onClose={() => setShow(false)} dismissible>
-              <span>{currentUser?.comment}</span>
-            </Alert>
-          ))} */}
         <Row className="mt-4">
           <Col lg={12}>
             <div className="d-flex justify-content-between">

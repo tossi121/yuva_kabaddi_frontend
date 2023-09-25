@@ -97,6 +97,16 @@
   }
 }
 
+.user-bar {
+  .dropdown-menu {
+    width: 125px !important;
+    transform: translate(-25px, -70px) !important;
+    &:after {
+      right: 36% !important;
+    }
+  }
+}
+
 .withdrawal-action-bar {
   .dropdown-menu {
     &:after {

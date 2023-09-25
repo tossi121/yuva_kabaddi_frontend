@@ -85,7 +85,7 @@ function Users() {
 
     return (
       <>
-        <Dropdown className="action-bar">
+        <Dropdown className={(row.verify_status != 'Approved' && 'user-bar action-bar') || 'action-bar'}>
           <Dropdown.Toggle variant="" className="border-0 p-0" id="dropdown-basic">
             <FontAwesomeIcon width={15} height={15} icon={faEllipsisH} />
           </Dropdown.Toggle>
