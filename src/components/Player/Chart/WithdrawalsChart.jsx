@@ -1,8 +1,10 @@
 import React from 'react';
-import { Card, Col } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import { Bar } from 'react-chartjs-2';
 
-function WithdrawalsChart({ withdrawalsData, filterChart, chart }) {
+function WithdrawalsChart(props) {
+  const { withdrawalsData, filterChart, chart } = props;
+
   const chartOptions = {
     scales: {
       x: {

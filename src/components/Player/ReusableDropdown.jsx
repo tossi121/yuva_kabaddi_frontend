@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dropdown } from 'react-bootstrap';
 
 function ReusableDropdown(props) {
   const { options, selectedValue, onSelect, placeholder, displayKey, valueKey } = props;
-
   const [searchValue, setSearchValue] = useState('');
+  const [selectOptions, setSelectOptions] = useState(false);
 
   const handleOptionSelect = (option) => {
     onSelect(option);
+    setSelectOptions(true);
   };
 
   const handleSearchChange = (e) => {
@@ -18,6 +19,12 @@ function ReusableDropdown(props) {
   const filteredOptions = options.filter((option) =>
     option[displayKey].toLowerCase().includes(searchValue.toLowerCase())
   );
+
+  useEffect(() => {
+    if (selectOptions) {
+      setSearchValue('');
+    }
+  }, [selectOptions]);
 
   return (
     <Dropdown className="form-control px-0 py-0 card-border">
@@ -38,13 +45,12 @@ function ReusableDropdown(props) {
             value={searchValue}
           />
         </div>
-
         {filteredOptions.map((option) => (
           <Dropdown.Item
             key={option[valueKey]}
             className={`py-2 fs-14 base-color ${selectedValue === option[displayKey] ? 'active' : ''}`}
             onClick={() => handleOptionSelect(option)}
-            >
+          >
             {option[displayKey]}
           </Dropdown.Item>
         ))}

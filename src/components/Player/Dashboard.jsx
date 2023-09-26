@@ -32,6 +32,7 @@ function Dashboard() {
   const [earningsData, setEarningsData] = useState([]);
   const [withdrawalsData, setWithdrawalsData] = useState([]);
   const [filterChart, setFilterChart] = useState([]);
+  const [filterEarnings, setFilterEarnings] = useState([]);
   const [chart, setChart] = useState(false);
   const { currentUser } = useAuth();
   const [showAlert, setShowAlert] = useState(true);
@@ -53,6 +54,7 @@ function Dashboard() {
     if (res?.status) {
       const data = res.data;
       setEarningsData(data);
+      setFilterEarnings(data);
     }
   }
 
@@ -97,10 +99,8 @@ function Dashboard() {
     setStartDate(null);
     setEndDate(null);
     setChart(false);
-    setEarningsData(earningsData);
+    setFilterEarnings(earningsData);
   };
-
-  console.log(earningsData, startDate, endDate);
 
   const filterEarningsData = (startDate, endDate) => {
     if (!startDate || !endDate) {
@@ -122,7 +122,7 @@ function Dashboard() {
     nextDay.setDate(nextDay.getDate() + 1);
 
     const filteredEarningsData = filterEarningsData(startDate, endDate);
-    setEarningsData(filteredEarningsData);
+    setFilterEarnings(filteredEarningsData);
     const filteredData = withdrawalsData.filter((request) => {
       const createdAt = new Date(request.createdAt);
       return startDate <= createdAt && createdAt < nextDay;
@@ -170,6 +170,7 @@ function Dashboard() {
               <span>{currentUser?.account_verify_comment}</span>
             </Alert>
           ))}
+
         <Row className="mt-4">
           <Col lg={12}>
             <div className="d-flex justify-content-between">
@@ -269,12 +270,10 @@ function Dashboard() {
         </Row>
         <Row>
           <Col lg={earningsData.length > 0 ? 6 : 12}>
-            {withdrawalsData.length > 0 && (
-              <WithdrawalsChart withdrawalsData={withdrawalsData} filterChart={filterChart} chart={chart} />
-            )}
+            {withdrawalsData.length > 0 && <WithdrawalsChart {...{ withdrawalsData, filterChart, chart }} />}
           </Col>
           <Col lg={withdrawalsData.length > 0 ? 6 : 12}>
-            {earningsData.length > 0 && <EarningChart earningsData={earningsData} />}
+            {earningsData.length > 0 && <EarningChart {...{ filterEarnings }} />}
           </Col>
         </Row>
       </Container>
@@ -289,7 +288,7 @@ function DashboardCard({ icon, label, count }) {
         <Link href={`/dashboard/view-price-money?label=${label}`}>
           <div className="d-flex align-items-center">
             <div className="booking-image">
-              <FontAwesomeIcon icon={icon} width={50} height={50} className="base-link-color" />
+              <FontAwesomeIcon icon={icon} width={50} height={50} className="base-link-color fs-1" />
             </div>
             <div className="booking-count-box ms-4">
               <h3 className="home-card-heading fw-700 mb-1 base-color">{count}</h3>

@@ -1,10 +1,8 @@
 import React from 'react';
-import { Card, Col } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import { Bar } from 'react-chartjs-2';
 
-function EarningChart(props) {
-  const { earningsData } = props;
-
+function EarningChart({ filterEarnings }) {
   const colorsEarnings = ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50'];
   const chartOptions = {
     scales: {
@@ -18,8 +16,8 @@ function EarningChart(props) {
       },
     },
   };
-  const generateChartData = (earningsData) => {
-    const chartData = earningsData.reduce(
+  const generateChartData = (filterEarnings) => {
+    const chartData = filterEarnings.reduce(
       (data, entry) => {
         const { Date, priceFor, priceAmount } = entry;
 
@@ -69,7 +67,7 @@ function EarningChart(props) {
     };
   };
 
-  const chartDataFinal = generateChartData(earningsData);
+  const chartDataFinal = generateChartData(filterEarnings);
 
   return (
     <Card className="common-card-box common-card-shadow transition w-100">

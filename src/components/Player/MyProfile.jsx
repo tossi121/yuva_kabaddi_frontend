@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUpload } from '@fortawesome/free-solid-svg-icons';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/_context/authContext';
-import ReusableDropdown from './ReusableDropdown';
 import {
   maxLengthCheck,
   validAccountNumber,
@@ -19,9 +18,9 @@ import {
 import { cityListData, stateListData, updateUserDetails } from '@/_services/services_api';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
+const ReusableDropdown = dynamic(import('./ReusableDropdown'));
 
 function MyProfile() {
-  // Initial form values
   const initialFormValues = {
     user_name: '',
     email: '',
@@ -85,18 +84,24 @@ function MyProfile() {
   }, []);
 
   useEffect(() => {
-    const selectedStateId = stateData.find((item) => item.id === currentUser?.state_id);
-    setSelectedState(selectedStateId);
+    if (stateData && currentUser) {
+      const selectedStateId = stateData.find((item) => item.id === currentUser.state_id);
+      setSelectedState(selectedStateId);
+    }
   }, [stateData, currentUser]);
 
   useEffect(() => {
-    if (selectedState) {
-      handleCity(selectedState.id);
+    if (selectedState.id) {
+      handleCity();
+    }
+  }, [selectedState.id]);
 
-      const selectedCityId = cityData.find((item) => item.id === currentUser?.city_id);
+  useEffect(() => {
+    if (cityData && currentUser) {
+      const selectedCityId = cityData.find((item) => item.id === currentUser.city_id);
       setSelectedCity(selectedCityId);
     }
-  }, [selectedState, currentUser?.city_id, JSON.stringify(cityData)]);
+  }, [cityData, currentUser]);
 
   async function handleState() {
     try {
@@ -109,14 +114,11 @@ function MyProfile() {
     }
   }
 
-  async function handleCity(stateId) {
-    try {
-      const res = await cityListData(stateId);
-      if (res?.status) {
-        setCityData(res.data);
-      }
-    } catch (error) {
-      console.error('Error fetching city data:', error);
+  async function handleCity() {
+    const res = await cityListData(selectedState.id);
+    if (res?.status) {
+      const data = res.data;
+      setCityData(data);
     }
   }
 
@@ -566,12 +568,13 @@ function MyProfile() {
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Enter Account Number</Form.Label>
                           <Form.Control
-                            type="text"
+                            type="number"
                             placeholder="Enter Account Number"
                             name="acNumber"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                             value={formValues.acNumber}
                             onChange={handleChange}
+                            onKeyPress={handleKeyPress}
                           />
                           {formErrors.acNumber && (
                             <p className="text-danger fs-14 error-message">{formErrors.acNumber}</p>

@@ -23,7 +23,7 @@ function ViewPriceMoney() {
   const [withdrawalsData, setWithdrawalsData] = useState([]);
   const [showTable, setShowTable] = useState(true);
   const [filterData, setFilterData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+  const [filterEarnings, setFilterEarnings] = useState([]);
   const [checkedFilter, setCheckedFilter] = useState(false);
   const tableRef = useRef(null);
   const router = useRouter();
@@ -44,6 +44,8 @@ function ViewPriceMoney() {
 
   const columns = [
     { heading: 'Pricing Category', field: 'priceType' },
+    { heading: 'Series Name', field: 'seriesname' },
+    { heading: 'Price For', field: 'priceFor' },
     { heading: 'Match Number', field: 'match_no' },
     { heading: 'Winning Date', field: 'Date' },
     { heading: 'Amount', field: 'priceAmount' },
@@ -75,14 +77,14 @@ function ViewPriceMoney() {
   useEffect(() => {
     handlePriceMoney();
     handleWithdrawnRequests();
-    setFilteredData(earningsData);
-  }, [JSON.stringify(earningsData)]);
+  }, []);
 
   async function handlePriceMoney() {
     const res = await getPriceMoney();
     if (res?.status) {
       const data = res.data;
       setEarningsData(data);
+      setFilterEarnings(data);
     }
   }
 
@@ -197,7 +199,7 @@ function ViewPriceMoney() {
   const handleReset = () => {
     setStartDate(null);
     setEndDate(null);
-    setFilteredData(earningsData);
+    setFilterEarnings(earningsData);
     setFilterData(withdrawalsData);
     setCheckedFilter(false);
     setSelectedFilters({
@@ -275,7 +277,7 @@ function ViewPriceMoney() {
       return isWithinDateRange && isSelectedStatus;
     });
 
-    setFilteredData(filteredEarnings);
+    setFilterEarnings(filteredEarnings);
     setFilterData(filteredWithdrawals);
     setCheckedFilter(false);
   };
@@ -287,13 +289,15 @@ function ViewPriceMoney() {
 
   return (
     <>
-      <WithdrawalModal
-        {...{
-          show,
-          setShow,
-          handleWithdrawnRequests,
-        }}
-      />
+      {show && (
+        <WithdrawalModal
+          {...{
+            show,
+            setShow,
+            handleWithdrawnRequests,
+          }}
+        />
+      )}
       <section className="dashboard-section">
         <Container fluid>
           <Row className="mt-4">
@@ -467,13 +471,17 @@ function ViewPriceMoney() {
               <Card className="bg-white common-card-box">
                 <div className="card-head card-head-padding border-bottom d-flex justify-content-between">
                   <h4 className="common-heading mb-0">View Price Money</h4>
-                  <Button className="common-btn p-1 px-2" onClick={handleDownload}>
-                    <FontAwesomeIcon icon={faDownload} className="text-white" width={15} />
+                  <Button
+                    className="common-btn p-1 px-2"
+                    disabled={(showTable && filterEarnings.length <= 0) || (!showTable && filterData.length <= 0)}
+                    onClick={handleDownload}
+                  >
+                    <FontAwesomeIcon icon={faDownload} title="Download File" className="text-white" width={15} />
                   </Button>
                 </div>
                 <Card.Body className="box-padding" ref={tableRef} id="myTable">
                   {earningsData.length > 0 && showTable && (
-                    <CustomDataTable rows={filteredData} columns={columns} options={tableOptions} />
+                    <CustomDataTable rows={filterEarnings} columns={columns} options={tableOptions} />
                   )}
 
                   {!showTable && (

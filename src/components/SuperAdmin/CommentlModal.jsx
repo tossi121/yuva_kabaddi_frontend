@@ -220,7 +220,7 @@ const CommentModal = (props) => {
           <Row>
             <Col lg={12}>
               <div className="d-flex">
-                <h6 className="fs-16 fw-500 base-color me-2">User Name:-</h6>
+                <h6 className="fs-16 fw-500 base-color me-2">Name:-</h6>
                 <h6 className="fs-16 fw-500 base-color">{reviewId?.user_name}</h6>
               </div>
               <Form onSubmit={handleSubmit} autoComplete="off">
