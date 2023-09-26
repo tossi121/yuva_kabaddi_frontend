@@ -40,6 +40,7 @@ const nextConfig = {
     ADMIN_GET_TDS_CONFIG_DATA: 'admin/gettdsconfig',
     ADMIN_PLAYER_WITHDRAW_REQUESTS_LIST_DATA: 'admin/getplayerwithdrawnrequestslist',
     ADMIN_UPDATE_PLAYER_TRANSACTION_STATUS: 'admin/updateplayertransactionstatus',
+    ADMIN_ADD_USER: 'admin/addnewuser',
   },
 };
 

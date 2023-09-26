@@ -309,7 +309,6 @@ function Signup() {
                           <Col lg={6}>
                             <Form.Group className="position-relative">
                               <Form.Label className="fs-16 fw-400 base-color">Select Series</Form.Label>
-
                               <ReusableDropdown
                                 options={seriesData}
                                 selectedValue={selectedSeries?.tournamentName || 'Select Series'}

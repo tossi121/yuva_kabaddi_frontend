@@ -94,7 +94,7 @@ function MyProfile() {
     if (selectedState.id) {
       handleCity();
     }
-  }, [selectedState.id]);
+  }, [selectedState?.id]);
 
   useEffect(() => {
     if (cityData && currentUser) {

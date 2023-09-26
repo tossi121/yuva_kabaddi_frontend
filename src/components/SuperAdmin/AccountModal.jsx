@@ -21,7 +21,7 @@ function AccountModal({ showModal, setShowModal, reviewId }) {
   }
 
   return (
-    <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+    <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
       <Modal.Header closeButton>
         <h4 className="base-color mb-0">Account Details </h4>
       </Modal.Header>
@@ -30,8 +30,8 @@ function AccountModal({ showModal, setShowModal, reviewId }) {
           <Col>
             <Row>
               <Col lg={6}>
-                <div className="d-flex align-items-start text-nowrap flex-column">
-                  <div >
+                <div className="d-flex align-items-start text-truncate flex-column">
+                  <div>
                     <div>
                       <span className="fs-16 fw-500 base-color-2 me-2">User Name:</span>
                       <span className="fs-16 fw-500 base-color-2">
@@ -63,30 +63,24 @@ function AccountModal({ showModal, setShowModal, reviewId }) {
                 </div>
               </Col>
               <Col lg={6}>
-                <div className="d-flex align-items-start text-nowrap flex-column">
+                <div className="d-flex align-items-start text-truncate flex-column">
                   <div>
                     <div>
-                      <span className="fs-16 fw-500 base-color-2 me-2">Passbook Verify:</span>
+                      <span className="fs-16 fw-500 base-color-2 me-2">Bank Account  Verify:</span>
 
-                      {(userData?.passbook_image_verify == null && (
-                        <Badge pill bg={'danger'} className="fs-12">
-                          Not Verified
-                        </Badge>
-                      )) || (
-                        <Badge pill bg={'info'} className="fs-12">
-                          {userData?.passbook_image_verify}
+                      {userData?.account_verify_status == 'Pending' && (
+                        <Badge pill bg={'warning'} className="fs-12">
+                        Pending
                         </Badge>
                       )}
-                    </div>
-                    <div>
-                      <span className="fs-16 fw-500 base-color-2 me-2">Pan Verify:</span>
-                      {(userData?.pan_image_verify == null && (
+                      {userData?.account_verify_status == 'Rejected' && (
                         <Badge pill bg={'danger'} className="fs-12">
-                          Not Verified
+                        Rejected
                         </Badge>
-                      )) || (
-                        <Badge pill bg={'info'} className="fs-12">
-                          {userData?.pan_image_verify}
+                      )}
+                      {userData?.account_verify_status == 'Approved' && (
+                        <Badge pill bg={'success'} className="fs-12">
+                         Approved
                         </Badge>
                       )}
                     </div>
@@ -104,12 +98,21 @@ function AccountModal({ showModal, setShowModal, reviewId }) {
                         {(userData?.branch_name == null && 'N/A') || userData?.branch_name}
                       </span>
                     </div>
+                    <div>
+                      <span className="fs-16 fw-500 base-color-2 me-2">PAN Number:</span>
+                      <span className="fs-16 fw-500 base-color-2">
+                        {(userData?.pan_no == null && 'N/A') || userData?.pan_no}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </Col>
             </Row>
-            <Link href={'/super-admin/account-approval'}>
-              <Button className="common-btn py-2 px-3 mt-3 fs-14 m-auto">More Details</Button>
+            <Link
+              href={'/super-admin/account-approval'}
+              className="common-btn px-3 py-1 text-center mb-2 mt-3 w-25 m-auto"
+            >
+              More Details
             </Link>
           </Col>
         </Row>

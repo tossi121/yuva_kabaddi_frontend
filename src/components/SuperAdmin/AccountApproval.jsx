@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCommentAlt, faEllipsisH, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faCommentAlt, faEllipsisH, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
-import 'react-datepicker/dist/react-datepicker.css';
-import CustomDataTable from '../DataTable/CustomDataTable';
 import dynamic from 'next/dynamic';
-import CommentModal from './CommentlModal';
-import ReusableDropdown from '../Player/ReusableDropdown';
 import { getRole, getUsersList } from '@/_services/services_api';
-import moment from 'moment';
-import ReactDatePicker from 'react-datepicker';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
+const CustomDataTable = dynamic(import('../DataTable/CustomDataTable'));
+const ReusableDropdown = dynamic(import('../Player/ReusableDropdown'));
+const CommentModal = dynamic(import('./CommentlModal'));
 
 function AccountApproval() {
   const [expanded, setExpanded] = useState(false);
@@ -44,10 +41,14 @@ function AccountApproval() {
   ];
 
   useEffect(() => {
-    handleRole();
-    handleWithdrawals();
-    setFilterData(tableData);
-  }, [JSON.stringify(tableData)]);
+    if (expanded) {
+      handleRole();
+    }
+  }, [expanded]);
+
+  useEffect(() => {
+    handleUsers();
+  }, []);
 
   async function handleRole() {
     const res = await getRole();
@@ -57,11 +58,12 @@ function AccountApproval() {
     }
   }
 
-  async function handleWithdrawals() {
+  async function handleUsers() {
     const res = await getUsersList();
     if (res?.status) {
       const data = res.data;
       setTableData(data);
+      setFilterData(data);
     }
   }
 
@@ -82,17 +84,27 @@ function AccountApproval() {
 
     return (
       <Dropdown className="withdrawal-action-bar action-bar">
-        <Dropdown.Toggle variant="" className="border-0 p-0" id="dropdown-basic">
-          <FontAwesomeIcon width={15} height={15} icon={faEllipsisH} />
-        </Dropdown.Toggle>
+        {(row.account_verify_status !== 'Approved' && (
+          <Dropdown.Toggle variant="" className="border-0 p-0" id="dropdown-basic">
+            <FontAwesomeIcon width={15} height={15} icon={faEllipsisH} />
+          </Dropdown.Toggle>
+        )) || (
+          <FontAwesomeIcon
+            width={22}
+            height={22}
+            title="Account Approved"
+            className="text-success"
+            icon={faCheckCircle}
+          />
+        )}
         <Dropdown.Menu>
           <div className="d-flex justify-content-around">
-            {row.verify_status != 'Approved' && (
+            {row.account_verify_status != 'Approved' && (
               <Dropdown.Item
                 className="text-white m-0 p-0 rounded-circle d-flex align-items-center justify-content-center"
                 onClick={handleClick}
               >
-                <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} title="Account  Withdrawal" />
+                <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} title="Account Withdrawal" />
               </Dropdown.Item>
             )}
           </div>
@@ -178,7 +190,7 @@ function AccountApproval() {
           modalText={'Account Approval'}
           reviewId={reviewId}
           selectedIds={selectedIds}
-          handleData={handleWithdrawals}
+          handleData={handleUsers}
           setCheckBulk={setCheckBulk}
         />
       )}
@@ -201,9 +213,7 @@ function AccountApproval() {
                 </div>
               </div>
 
-              <Card
-                className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
-              >
+              <Card className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box mb-4 ' : ''}`}>
                 <div className="card-head card-head-padding border-bottom">
                   <h4 className="common-heading mb-0"> Account Approval Filter</h4>
                 </div>
@@ -265,7 +275,7 @@ function AccountApproval() {
                                   checked={selectedFilters.rejected}
                                   onChange={() => handleFilterChange('rejected')}
                                 />
-                                rejected
+                                Rejected
                               </Form.Label>
                             </div>
                           </Form.Group>

@@ -19,8 +19,8 @@ const sidebarLinks = {
     { href: '/super-admin/dashboard', label: 'Dashboard', iconSrc: faUsersGear },
     { href: '/super-admin/configuration', label: 'Configuration', iconSrc: faGear },
     { href: '/super-admin/users', label: 'Users Approval', iconSrc: faUserCheck },
-    { href: '/super-admin/withdrawal-approval', label: 'Withdrawal Approval', iconSrc: faBank },
     { href: '/super-admin/account-approval', label: 'Account Approval', iconSrc: faUserCog },
+    { href: '/super-admin/withdrawal-approval', label: 'Withdrawal Approval', iconSrc: faBank },
   ],
   COACH: [...commonLinks],
 };

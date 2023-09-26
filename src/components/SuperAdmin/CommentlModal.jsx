@@ -5,15 +5,17 @@ import toast from 'react-hot-toast';
 import ReusableDropdown from '../Player/ReusableDropdown';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import ImagePreview from './ImagePreview';
+import dynamic from 'next/dynamic';
+
+const ImagePreview = dynamic(import('./ImagePreview'));
 
 const CommentModal = (props) => {
   const { modalText, setShow, show, reviewId, handleData, selectedIds, setCheckBulk, setSelectedIds } = props;
   const [formValues, setFormValues] = useState({
-    comment: '',
-    account_verify_comment: '',
-    status: '',
-    account_verify_status: '',
+    comment: reviewId?.comment || '',
+    account_verify_comment: reviewId?.account_verify_comment || '',
+    status: 'Approved',
+    account_verify_status: 'Approved',
     squad: '',
   });
   const [formErrors, setFormErrors] = useState({});
@@ -57,16 +59,6 @@ const CommentModal = (props) => {
   }, []);
 
   useEffect(() => {
-    const value = {
-      comment: reviewId?.comment,
-      account_verify_comment: reviewId?.account_verify_comment,
-      status: 'Approved',
-      account_verify_status: 'Approved',
-    };
-    setFormValues(value);
-  }, []);
-
-  useEffect(() => {
     const selectedPlayer = playerData.find((player) => player.playerId === reviewId.player_id);
     if (selectedPlayer) {
       setSelectedPlayer(selectedPlayer);
@@ -97,35 +89,35 @@ const CommentModal = (props) => {
     };
   });
 
-  const bulkData = filteredData.map((user) => ({
+  const usersApprovalBulk = filteredData.map((user) => ({
     ...user,
     status: formValues.status,
-    comment: (formValues.status == 'Approved' && '') || formValues.comment,
+    comment: (formValues.status == 'Rejected' && formValues.comment) || '',
   }));
 
-  const bulk = filteredData.map((user) => ({
+  const accountApprovalBulk = filteredData.map((user) => ({
     ...user,
     status: formValues.account_verify_status,
-    comment: (formValues.account_verify_status == 'Approved' && '') || formValues.comment,
+    comment: (formValues.account_verify_status == 'Rejected' && formValues.account_verify_comment) || '',
   }));
 
   const bulkFilteredData = filtered.map((user) => ({
     ...user,
     status: formValues.status,
-    comment: (formValues.status == 'Approved' && '') || formValues.comment,
+    comment: formValues.comment,
   }));
 
   async function handleVerifyUser() {
     const params = {
       users:
-        bulkData.length > 0
-          ? bulkData
+        usersApprovalBulk.length > 0
+          ? usersApprovalBulk
           : [
               {
                 id: reviewId.id,
                 status: formValues.status,
                 playerId: selectedPlayer.playerId,
-                comment: formValues.comment,
+                comment: (formValues.status == 'Rejected' && formValues.comment) || '',
               },
             ],
     };
@@ -137,14 +129,14 @@ const CommentModal = (props) => {
   async function handleVerifyAccount() {
     const params = {
       users:
-        bulk.length > 0
-          ? bulk
+        accountApprovalBulk.length > 0
+          ? accountApprovalBulk
           : [
               {
                 id: reviewId.id,
                 status: formValues.account_verify_status,
                 playerId: selectedPlayer.playerId,
-                comment: formValues.comment,
+                comment: (formValues.account_verify_status == 'Rejected' && formValues.account_verify_comment) || '',
               },
             ],
     };
@@ -314,9 +306,7 @@ const CommentModal = (props) => {
                           disabled={formValues.account_verify_status !== 'Rejected'}
                         />
                       </Form.Group>
-                      {formErrors.account_verify_comment && formValues.account_verify_comment === 'Rejected' && (
-                        <p className="text-danger fs-14 error-message">{formErrors.account_verify_comment}</p>
-                      )}
+                      {formErrors.comment && <p className="text-danger fs-14 error-message">{formErrors.comment}</p>}
                     </div>
                   </>
                 )) || (

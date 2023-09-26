@@ -249,3 +249,12 @@ export async function updatePlayerTransactionStatus(params) {
     return null;
   }
 }
+
+export async function addUser(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_ADD_USER, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}

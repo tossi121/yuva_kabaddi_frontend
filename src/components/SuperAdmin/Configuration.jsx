@@ -21,6 +21,9 @@ function Configuration() {
 
   useEffect(() => {
     handleTdsData();
+  }, []);
+
+  useEffect(() => {
     if (tdsData) {
       const value = {
         minimum_amount_for_withdrawal: tdsData.minimum_amount_for_withdrawal,
@@ -30,7 +33,7 @@ function Configuration() {
 
       setFormValues(value);
     }
-  }, [JSON.stringify(tdsData)]);
+  }, [tdsData]);
 
   async function handleTdsData() {
     const res = await getTdsData();

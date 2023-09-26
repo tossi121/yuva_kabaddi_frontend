@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
+import { Alert, Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -22,8 +22,10 @@ function Login() {
   const [isMobileNumberRegistered, setIsMobileNumberRegistered] = useState(false);
   const [isTypingOtp, setIsTypingOtp] = useState(false);
   const [verifyStatus, setVerifyStatus] = useState(null);
+  const [showAlert, setShowAlert] = useState(true);
+
   useEffect(() => {
-    if (showOtpPopup && verifyStatus == 'Approved') {
+    if (showOtpPopup && verifyStatus?.verify_status == 'Approved') {
       handleOtp();
     }
   }, [showOtpPopup, oneTimePassword]);
@@ -90,7 +92,7 @@ function Login() {
         toast.error(res?.message);
         return true;
       } else {
-        setVerifyStatus(res.data?.verify_status);
+        setVerifyStatus(res.data);
         if (res.data?.verify_status !== 'Approved') {
           toast.error('User is not approved ');
         }
@@ -158,7 +160,7 @@ function Login() {
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      {(verifyStatus == 'Approved' && showOtpPopup && (
+      {(verifyStatus?.verify_status == 'Approved' && showOtpPopup && (
         <VerifyOtp
           loading={loading}
           oneTimePassword={oneTimePassword}
@@ -176,6 +178,12 @@ function Login() {
           <Container>
             <Row className="justify-content-center">
               <Col xl={9}>
+                {verifyStatus?.comment == '' ||
+                  (verifyStatus?.comment != null && (
+                    <Alert variant="danger" onClose={() => setShowAlert(false)} dismissible>
+                      <span>{verifyStatus?.comment}</span>
+                    </Alert>
+                  ))}
                 <Card className="border-0">
                   <Card.Body className="p-0">
                     <div className="d-flex justify-content-center align-items-center">

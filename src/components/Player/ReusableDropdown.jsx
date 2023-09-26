@@ -27,10 +27,10 @@ function ReusableDropdown(props) {
   }, [selectOptions]);
 
   return (
-    <Dropdown className="form-control px-0 py-0 card-border">
+    <Dropdown className="form-control px-0 py-0 filter-box-dropdown card-border">
       <Dropdown.Toggle
         variant="none"
-        className="w-100 hight-50 text-start filter-box-dropdown base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
+        className="w-100 hight-50 text-start  base-color-3 bg-white py-2 border-0 d-flex align-items-center fs-14"
         id="dropdown-basic"
       >
         <span className="text-truncate pe-3">{selectedValue}</span>

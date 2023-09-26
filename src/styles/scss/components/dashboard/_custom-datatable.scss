@@ -100,9 +100,19 @@
 .user-bar {
   .dropdown-menu {
     width: 125px !important;
-    transform: translate(-25px, -70px) !important;
+    transform: translate(-65px, -70px) !important;
     &:after {
-      right: 36% !important;
+      right: 20% !important;
+    }
+  }
+}
+
+.approval-bar {
+  .dropdown-menu {
+    width: 90px !important;
+    transform: translate(-37px, -70px) !important;
+    &:after {
+      right: 20% !important;
     }
   }
 }

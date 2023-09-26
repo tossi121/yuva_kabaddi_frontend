@@ -231,7 +231,7 @@ function Dashboard() {
             </div>
 
             <Card
-              className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
+              className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box mb-4 ' : ''}`}
             >
               <div className="card-head card-head-padding border-bottom">
                 <h4 className="common-heading mb-0">Filter</h4>

@@ -81,10 +81,14 @@ function Withdrawals() {
   }, [label, tableData]);
 
   useEffect(() => {
-    handleRole();
+    if (expanded) {
+      handleRole();
+    }
+  }, [expanded]);
+
+  useEffect(() => {
     handleWithdrawals();
-    setFilterData(tableData);
-  }, [JSON.stringify(tableData)]);
+  }, []);
 
   async function handleRole() {
     const res = await getRole();
@@ -99,6 +103,7 @@ function Withdrawals() {
     if (res?.status) {
       const data = res.data;
       setTableData(data);
+      setFilterData(data);
     }
   }
 
@@ -142,7 +147,7 @@ function Withdrawals() {
               <FontAwesomeIcon icon={faUserGear} width={15} height={15} title="Account Details" />
             </Dropdown.Item>
 
-            {row.verify_status != 'Approved' && (
+            {row.status != 'Approved' && (
               <Dropdown.Item
                 className="text-white m-0 p-0 rounded-circle d-flex align-items-center justify-content-center"
                 onClick={handleClick}
@@ -278,7 +283,7 @@ function Withdrawals() {
               </div>
 
               <Card
-                className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
+                className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
                   <h4 className="common-heading mb-0"> Withdrawal Approval Filter</h4>
@@ -343,7 +348,7 @@ function Withdrawals() {
                       </Col>
 
                       <Col>
-                        <div className="mb-4">
+                        <div className="mb-4 text-nowrap">
                           <Form.Group>
                             <Form.Label className="fs-16 fw-400 base-color"> Filter Status</Form.Label>
                             <div className="mt-2">
@@ -381,13 +386,13 @@ function Withdrawals() {
                                   checked={selectedFilters.rejected}
                                   onChange={() => handleFilterChange('rejected')}
                                 />
-                                rejected
+                                Rejected
                               </Form.Label>
                             </div>
                           </Form.Group>
                         </div>
                       </Col>
-                      <Col xl={3} lg={4} md={6}>
+                      <Col>
                         <div className="d-flex align-items-center filters-dropdown-btn">
                           <Button
                             className="common-btn px-3 text-nowrap"

@@ -216,7 +216,6 @@ function ViewPriceMoney() {
     let excelData =
       '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Excel Sheet</title></head><body><table>';
 
-    // Add table headings
     const headerRow = table.querySelector('thead tr');
     if (headerRow) {
       excelData += '<tr>';
@@ -227,7 +226,6 @@ function ViewPriceMoney() {
       excelData += '</tr>';
     }
 
-    // Add table data
     for (let i = 0; i < rows.length; i++) {
       const cols = rows[i].getElementsByTagName('td');
       excelData += '<tr>';
@@ -315,7 +313,7 @@ function ViewPriceMoney() {
               </div>
 
               <Card
-                className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
+                className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
                   <h4 className="common-heading mb-0">Price Money Filter</h4>

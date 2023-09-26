@@ -65,19 +65,13 @@
   transition: all 0.3s;
   opacity: 0;
 }
-.expand-box {
+.expand-box-user {
   transition: all 0.3s;
   height: 320px;
   opacity: 1;
 }
 
-.expand-box-match {
-  transition: all 0.3s;
-  height: 220px;
-  opacity: 1;
-}
-
-.expand-box-commen {
+.expand-box {
   transition: all 0.3s;
   height: 220px;
   opacity: 1;
@@ -111,12 +105,12 @@
 }
 
 .pan-card-upload {
-  border: 2px dashed var(--base-color-2) ;
+  border: 2px dashed var(--base-color-2);
   height: 250px;
 }
 
 @media (max-width: 1200px) {
-  .expand-box-commen {
+  .expand-box {
     transition: all 0.3s;
     height: 270px;
     background: red;
@@ -148,7 +142,7 @@
     height: 270px;
     opacity: 1;
   }
-  .expand-box-commen {
+  .expand-box {
     transition: all 0.3s;
     height: 300px;
     opacity: 1;
@@ -171,7 +165,7 @@
     height: 370px;
     opacity: 1;
   }
-  .expand-box-commen {
+  .expand-box {
     transition: all 0.3s;
     height: 470px;
     opacity: 1;
