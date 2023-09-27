@@ -203,10 +203,15 @@ a {
   flex-grow: 1;
 }
 
-.dropdown-height {
-  max-height: 300px;
-}
 
+.filter-box-dropdown{
+  .dropdown-height {
+    max-height: 300px;
+  }
+  .dropdown-item{
+    white-space: break-spaces !important;
+  }
+}
 ::-webkit-scrollbar {
   width: 5px;
   height: 4px;

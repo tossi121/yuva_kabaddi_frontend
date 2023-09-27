@@ -206,7 +206,14 @@ export async function verifyUser(params) {
     return null;
   }
 }
-
+export async function verifyAccount(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_VERIFY_ACCOUNT_DATA, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
 export async function getTdsData(params) {
   try {
     const response = await fetcher('GET', process.env.ADMIN_GET_TDS_CONFIG_DATA, params);
@@ -237,6 +244,15 @@ export async function playerWithdrawRequestsList(params) {
 export async function updatePlayerTransactionStatus(params) {
   try {
     const response = await fetcher('POST', process.env.ADMIN_UPDATE_PLAYER_TRANSACTION_STATUS, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function addUser(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_ADD_USER, params);
     return response;
   } catch (err) {
     return null;

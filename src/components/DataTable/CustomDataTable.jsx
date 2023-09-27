@@ -6,6 +6,7 @@ import moment from 'moment';
 import { Button, Form } from 'react-bootstrap';
 import TableLoader from './TableLoader';
 import { useAuth } from '@/_context/authContext';
+import { useRouter } from 'next/router';
 
 const CustomPagination = dynamic(import('./CustomPagination'));
 
@@ -35,8 +36,9 @@ function CustomDataTable(props) {
   const [entity, setEntities] = useState(Object.assign({}, defaultProps, options));
   const [selectedRows, setSelectedRows] = useState({});
   const [selectAll, setSelectAll] = useState(false);
-
   const { role } = useAuth();
+  const router = useRouter();
+  const path = router.pathname;
 
   const cellClasses = {
     left: 'text-start',
@@ -183,44 +185,39 @@ function CustomDataTable(props) {
   function handleSelectAll() {
     const newSelectAll = !selectAll;
     setSelectAll(newSelectAll);
-
-    // Update the selectedRows state for all rows.
     const newSelectedRows = {};
     const newSelectedIds = [];
 
     currentData.forEach((row, rowIndex) => {
-      const isApproved = row.verify_status === 'Approved';
-
+      const isApproved =
+        path === '/super-admin/users' ? row.verify_status === 'Approved' : row.account_verify_status === 'Approved';
       if (!isApproved || newSelectAll) {
         newSelectedRows[rowIndex] = newSelectAll;
-
         if (!isApproved) {
           newSelectedIds.push(row);
         }
       }
     });
-
-    // Set the selected state and selectedIds
     setSelectedRows(newSelectedRows);
     setSelectedIds(newSelectedIds);
-
-    // If unchecking all, also clear the selected state
     if (!newSelectAll) {
       setSelectedRows({});
       setSelectedIds([]);
     }
   }
+
   function handleRowSelection(rowIndex) {
     const updatedSelectedRows = { ...selectedRows };
     updatedSelectedRows[rowIndex] = !updatedSelectedRows[rowIndex];
-    const row = rows[rowIndex];
-    const isApproved = row.verify_status === 'Approved';
+    const row = currentData[rowIndex];
+    const isApproved =
+      path === '/super-admin/users' ? row.verify_status === 'Approved' : row.account_verify_status === 'Approved';
     if (!isApproved) {
       setSelectedRows(updatedSelectedRows);
 
       const updatedSelectedIds = Object.keys(updatedSelectedRows)
         .filter((key) => updatedSelectedRows[key])
-        .map((key) => rows[parseInt(key, 10)]);
+        .map((key) => currentData[parseInt(key, 10)]);
 
       setSelectedIds(updatedSelectedIds);
     }
@@ -281,7 +278,12 @@ function CustomDataTable(props) {
           const isSelected = selectedRows[key];
           return (
             <tr key={key}>
-              {(row.verify_status != 'Approved' && row.status != 'Approved' && showCheckboxes && (
+              {(((row.status != 'Approved' && path === '/super-admin/withdrawal-approval') ||
+                (row.verify_status !== 'Approved' && path === '/super-admin/users') ||
+                (row.account_verify_status !== 'Approved' &&
+                  path === '/super-admin/account-approval' &&
+                  row.status !== 'Approved' &&
+                  showCheckboxes)) && (
                 <td className="text-center">
                   <input type="checkbox" checked={isSelected} onChange={() => handleRowSelection(key)} />
                 </td>
@@ -297,23 +299,28 @@ function CustomDataTable(props) {
 
               {cols &&
                 cols.map((col, index) => {
-                  const colMethod = eval(entity?.columns?.render?.[col['field']]);
+                  // Extract the field from the column
+                  const field = col['field'];
+
+                  // Use optional chaining to get the render function
+                  const colRender = entity?.columns?.render?.[field];
+
+                  // Use a default align value if it's not specified in the column
+                  const alignClass = col?.align ? cellClasses[col.align] : 'text-left';
+
+                  // Get the value from the row
+                  const fieldValue = row[field];
+
+                  // Check if the fieldValue is null, undefined, or an empty string and display 'N/A' in those cases
+                  const displayValue =
+                    fieldValue == null || fieldValue === undefined || fieldValue === '' ? 'N/A' : fieldValue;
+
+                  // Call the render function if it exists, otherwise use the fieldValue
+                  const finalValue = colRender ? colRender(fieldValue, row, field) : displayValue;
+
                   return (
-                    <td
-                      key={index}
-                      className={`
-                        ${(col?.align && cellClasses[col.align]) || 'text-left'}
-                      `}
-                    >
-                      {col['field'] == 'net_value' ? (
-                        <span className={`${row[col['field']] > 0 ? 'percent-green' : 'percent-red'}`}>
-                          {(colMethod && colMethod(row[col['field']], row, col['field'])) || row[col['field']]}
-                        </span>
-                      ) : (
-                        <span>
-                          {(colMethod && colMethod(row[col['field']], row, col['field'])) || row[col['field']]}
-                        </span>
-                      )}
+                    <td key={index} className={alignClass}>
+                      {finalValue}
                     </td>
                   );
                 })}

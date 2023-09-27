@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Card, Col, Row } from 'react-bootstrap';
 import { useAuth } from '@/_context/authContext';
+import toast from 'react-hot-toast';
 
 function UserEarnings({ setShow, withdrawalShow }) {
   const { currentUser } = useAuth();
@@ -22,6 +23,14 @@ function UserEarnings({ setShow, withdrawalShow }) {
         <h6 className="section-subtitle">Total Amount Left:</h6>
       </div>
     );
+  }
+
+  function handleUser() {
+    if (currentUser?.account_verify_status == 'Approved') {
+      setShow(true);
+    } else {
+      toast.error('Account not Approved');
+    }
   }
 
   return (
@@ -46,7 +55,7 @@ function UserEarnings({ setShow, withdrawalShow }) {
                 </div>
                 {withdrawalShow === 1 && (
                   <div>
-                    <Button className="common-btn" onClick={() => setShow(true)}>
+                    <Button className="common-btn" onClick={handleUser}>
                       Withdraw Amount
                     </Button>
                   </div>

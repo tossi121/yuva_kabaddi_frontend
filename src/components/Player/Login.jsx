@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
+import { Alert, Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -7,7 +7,9 @@ import { Toaster, toast } from 'react-hot-toast';
 import { maxLengthCheck, validMobile } from '@/_helper/regex';
 import { getLogin, getOtp, checkMobileNumber } from '@/_services/services_api';
 import Cookies from 'js-cookie';
-import VerifyOtp from './VerifyOtp';
+import dynamic from 'next/dynamic';
+
+const VerifyOtp = dynamic(import('./VerifyOtp'));
 
 function Login() {
   const router = useRouter();
@@ -19,9 +21,11 @@ function Login() {
   const [otpResendSeconds, setOtpResendSeconds] = useState(0);
   const [isMobileNumberRegistered, setIsMobileNumberRegistered] = useState(false);
   const [isTypingOtp, setIsTypingOtp] = useState(false);
+  const [verifyStatus, setVerifyStatus] = useState(null);
+  const [showAlert, setShowAlert] = useState(true);
 
   useEffect(() => {
-    if (showOtpPopup) {
+    if (showOtpPopup && verifyStatus?.verify_status == 'Approved') {
       handleOtp();
     }
   }, [showOtpPopup, oneTimePassword]);
@@ -87,6 +91,11 @@ function Login() {
         setIsMobileNumberRegistered(true);
         toast.error(res?.message);
         return true;
+      } else {
+        setVerifyStatus(res.data);
+        if (res.data?.verify_status !== 'Approved') {
+          toast.error('User is not approved ');
+        }
       }
     }
     return false;
@@ -147,10 +156,11 @@ function Login() {
       }
     }
   };
+
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      {showOtpPopup ? (
+      {(verifyStatus?.verify_status == 'Approved' && showOtpPopup && (
         <VerifyOtp
           loading={loading}
           oneTimePassword={oneTimePassword}
@@ -163,11 +173,17 @@ function Login() {
           setIsTypingOtp={setIsTypingOtp}
           setOneTimePassword={setOneTimePassword}
         />
-      ) : (
+      )) || (
         <section className="login-page min-vh-100 d-flex align-items-center justify-content-center">
           <Container>
             <Row className="justify-content-center">
               <Col xl={9}>
+                {verifyStatus?.comment == '' ||
+                  (verifyStatus?.comment != null && (
+                    <Alert variant="danger" onClose={() => setShowAlert(false)} dismissible>
+                      <span>{verifyStatus?.comment}</span>
+                    </Alert>
+                  ))}
                 <Card className="border-0">
                   <Card.Body className="p-0">
                     <div className="d-flex justify-content-center align-items-center">

@@ -1,8 +1,10 @@
 import React from 'react';
-import { Card, Col } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import { Bar } from 'react-chartjs-2';
 
-function WithdrawalsChart({ withdrawalsData, filterChart, chart }) {
+function WithdrawalsChart(props) {
+  const { withdrawalsData, filterChart, chart } = props;
+
   const chartOptions = {
     scales: {
       x: {
@@ -24,13 +26,13 @@ function WithdrawalsChart({ withdrawalsData, filterChart, chart }) {
       const { createdAt, status } = request;
       const date = new Date(createdAt).toISOString().split('T')[0];
       if (!counts[date]) {
-        counts[date] = { pending: 0, paid: 0, rejected: 0 };
+        counts[date] = { pending: 0, approved: 0, rejected: 0 };
       }
 
       if (status === 'Pending') {
         counts[date].pending++;
-      } else if (status === 'Paid') {
-        counts[date].paid++;
+      } else if (status === 'Approved') {
+        counts[date].approved++;
       } else if (status === 'Reject') {
         counts[date].rejected++;
       }
@@ -42,7 +44,7 @@ function WithdrawalsChart({ withdrawalsData, filterChart, chart }) {
   const colorsWithdrawals = ['#508AA8', '#56BFE9', '#7DDFE2', '#FAA69A'];
 
   const requestTypes = [
-    { label: 'Paid Withdrawals' },
+    { label: 'Approved Withdrawals' },
     { label: 'Pending Withdrawals' },
     { label: 'Rejected Withdrawals' },
   ];

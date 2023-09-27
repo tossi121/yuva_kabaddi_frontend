@@ -1,26 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faEdit,
-  faEllipsisV,
-  faFilter,
-  faMessage,
-  faSearch,
-  faTrash,
-  faTrashAlt,
-} from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisH, faFilter, faSearch, faTrashAlt, faUserEdit } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
 import Link from 'next/link';
-import CustomDataTable from '../DataTable/CustomDataTable';
 import dynamic from 'next/dynamic';
-import CommentModal from './CommentlModal';
-import DeleteModal from './DeleteModal';
-import ReusableDropdown from '../Player/ReusableDropdown';
-import { deleteUser, getRole, getUsersList } from '@/_services/services_api';
+import { deleteUser, getMatchDetails, getRole, getSeries, getUsersList } from '@/_services/services_api';
 import toast from 'react-hot-toast';
 import { faCommentAlt } from '@fortawesome/free-regular-svg-icons';
 
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
+const ReusableDropdown = dynamic(import('../Player/ReusableDropdown'));
+const DeleteModal = dynamic(import('./DeleteModal'));
+const CommentModal = dynamic(import('./CommentlModal'));
+const CustomDataTable = dynamic(import('../DataTable/CustomDataTable'));
 
 function Users() {
   const [expanded, setExpanded] = useState(false);
@@ -34,8 +26,11 @@ function Users() {
   const [filterData, setFilterData] = useState([]);
   const [reviewId, setReviewId] = useState(null);
   const [checkBulk, setCheckBulk] = useState(false);
+  const [seriesData, setSeriesData] = useState([]);
+  const [matchData, setMatchData] = useState([]);
+  const [selectedMatch, setSelectedMatch] = useState('');
+  const [selectedSeries, setSelectedSeries] = useState('');
   const [checkedFilter, setCheckedFilter] = useState(false);
-  const [dropdownShow, setDropdownShow] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     approved: true,
     pending: true,
@@ -47,15 +42,46 @@ function Users() {
     { heading: 'Email Address', field: 'email' },
     { heading: 'Mobile Number', field: 'contactno' },
     { heading: 'User Type', field: 'user_role' },
+    { heading: 'Series Name', field: 'series_name' },
+    { heading: 'Team Name', field: 'team_name' },
     { heading: 'Status', field: 'verify_status' },
     { heading: 'Action', field: 'action', align: 'center' },
   ];
 
   useEffect(() => {
-    handleRole();
+    if (expanded) {
+      handleRole();
+      handleSeries();
+    }
+  }, [expanded]);
+
+  useEffect(() => {
+    if (selectedSeries.tournamentId) {
+      handleMatch();
+    }
+  }, [selectedSeries.tournamentId]);
+
+  useEffect(() => {
     handleUser();
-    setFilterData(tableData);
-  }, [JSON.stringify(tableData)]);
+  }, []);
+
+  async function handleSeries() {
+    const res = await getSeries();
+    if (res?.status) {
+      const data = res.data;
+      setSeriesData(data);
+    }
+  }
+
+  async function handleMatch() {
+    if (selectedSeries.tournamentId) {
+      const res = await getMatchDetails(selectedSeries.tournamentId);
+      if (res?.status) {
+        const data = res.data;
+        setMatchData(data);
+      }
+    }
+  }
 
   async function handleRole() {
     const res = await getRole();
@@ -70,17 +96,28 @@ function Users() {
     if (res?.status) {
       const data = res.data;
       setTableData(data);
+      setFilterData(data);
     }
   }
 
   const tableOptions = {
     columns: {
       render: {
+        team_name: renderTeamName,
+        series_name: renderSeriesName,
         action: renderWithdrawalModal,
         verify_status: renderSatus,
       },
     },
   };
+
+  function renderTeamName(value, row) {
+    return <>{row.teamDetails.teamName}</>;
+  }
+
+  function renderSeriesName(value, row) {
+    return <>{row.seriesDetails.tournamentName}</>;
+  }
 
   function renderWithdrawalModal(value, row) {
     const handleClick = () => {
@@ -92,39 +129,35 @@ function Users() {
       setShowModal(true);
     };
 
-    const handleDropdown = () => {
-      setDropdownShow(true);
-      console.log("first")
-    };
-
-    console.log("dropdownShow", dropdownShow);
     return (
       <>
-        <Dropdown className="action-bar position-relative">
+        <Dropdown className={(row.verify_status != 'Approved' && 'user-bar action-bar') || 'action-bar approval-bar'}>
           <Dropdown.Toggle variant="" className="border-0 p-0" id="dropdown-basic">
-            <FontAwesomeIcon width={15} height={15} icon={faEllipsisV} />
+            <FontAwesomeIcon width={15} height={15} icon={faEllipsisH} />
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            <Link href={`users/${row.id}`} className="base-color">
-              <div className="px-2 py-1 d-flex align-items-center cursor-pointer base-color fs-14">
-                <FontAwesomeIcon icon={faEdit} width={15} height={15} className="me-2" title="Edit User" />
-                Edit
-              </div>
-            </Link>
-            <div className="px-2 py-1 d-flex align-items-center cursor-pointer base-color fs-14" onClick={handleDelete}>
-              <FontAwesomeIcon icon={faTrashAlt} width={15} height={15} className="me-2" title="Delete User" />
-              Delete
-            </div>
-            {row.verify_status != 'Approved' && (
-              <div
-                className="px-2 py-1 d-flex align-items-center cursor-pointer base-color fs-14"
-                onClick={handleClick}
+            <div className="d-flex justify-content-around">
+              <Dropdown.Item className="text-white m-0 p-0 rounded-circle d-flex align-items-center justify-content-center">
+                <Link href={`users/${row.id}`} className="text-white">
+                  <FontAwesomeIcon icon={faUserEdit} width={15} height={15} title="Edit User" />
+                </Link>
+              </Dropdown.Item>
+              <Dropdown.Item
+                className="text-white m-0 p-0 rounded-circle d-flex align-items-center justify-content-center"
+                onClick={handleDelete}
               >
-                <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} className="me-2" title="Delete User" />
-                Review
-              </div>
-            )}
+                <FontAwesomeIcon icon={faTrashAlt} width={15} height={15} title="Delete User" />
+              </Dropdown.Item>
+              {row.verify_status != 'Approved' && (
+                <Dropdown.Item
+                  className="text-white m-0 p-0 rounded-circle d-flex align-items-center justify-content-center"
+                  onClick={handleClick}
+                >
+                  <FontAwesomeIcon icon={faCommentAlt} width={15} height={15} title="Review User" />
+                </Dropdown.Item>
+              )}
+            </div>
           </Dropdown.Menu>
         </Dropdown>
       </>
@@ -147,18 +180,36 @@ function Users() {
     );
   }
 
-  // Toggle the filter box
   const toggleFilterBox = () => {
     setExpanded(!expanded);
   };
-
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     const filteredData = tableData.filter((user) => {
       if (selectedRole && user.user_role.toLowerCase() !== selectedRole.user_role.toLowerCase()) {
         return false;
       }
+
+      if (selectedSeries) {
+        if (
+          user.seriesDetails &&
+          user.seriesDetails.tournamentName &&
+          user.seriesDetails.tournamentName.toLowerCase() !== selectedSeries.tournamentName.toLowerCase()
+        ) {
+          return false;
+        }
+      }
+
+      if (selectedMatch) {
+        if (
+          user.teamDetails &&
+          user.teamDetails.teamName &&
+          user.teamDetails.teamName.toLowerCase() !== selectedMatch.teamName.toLowerCase()
+        ) {
+          return false;
+        }
+      }
+
       if (
         (selectedFilters.approved && user.verify_status === 'Approved') ||
         (selectedFilters.pending && user.verify_status === 'Pending') ||
@@ -170,10 +221,13 @@ function Users() {
       return false;
     });
     setFilterData(filteredData);
+    console.log(filteredData, 'filteredData');
   };
 
   const handleReset = () => {
     setSelectedRole('');
+    setSelectedMatch('');
+    setSelectedSeries('');
     setSelectedFilters({
       approved: true,
       pending: true,
@@ -224,6 +278,7 @@ function Users() {
           reviewId={reviewId}
           selectedIds={selectedIds}
           handleData={handleUser}
+          setSelectedIds={setSelectedIds}
           setCheckBulk={setCheckBulk}
         />
       )}
@@ -239,7 +294,7 @@ function Users() {
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <DashboardBreadcrumb breadcrumbTitle="Users Approval" data={'Dashboard'} />
                 <div className="d-sm-flex justify-content-between align-items-center ">
-                  <div className="add-filter d-flex mt-sm-0 mt-2">
+                  <div className="d-flex mt-sm-0 mt-2">
                     <Button
                       className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
                       onClick={toggleFilterBox}
@@ -251,7 +306,7 @@ function Users() {
               </div>
 
               <Card
-                className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
+                className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-user mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
                   <h4 className="common-heading mb-0"> Users Approval Filter</h4>
@@ -259,7 +314,7 @@ function Users() {
                 <Card.Body className="box-padding">
                   <Form onSubmit={handleSubmit}>
                     <Row>
-                      <Col lg={4}>
+                      <Col lg={4} md={6}>
                         <div className="mb-3">
                           <Form.Group className="position-relative">
                             <Form.Label className="fs-16 fw-400 base-color">Select Role</Form.Label>
@@ -274,9 +329,30 @@ function Users() {
                           </Form.Group>
                         </div>
                       </Col>
-
-                      <Col>
-                        <div className="mb-4">
+                      <Col lg={4} md={6}>
+                        <Form.Label className="fs-16 fw-400 base-color">Select Series</Form.Label>
+                        <ReusableDropdown
+                          options={seriesData}
+                          selectedValue={selectedSeries?.tournamentName || 'Select Series'}
+                          onSelect={setSelectedSeries}
+                          placeholder="Series"
+                          displayKey="tournamentName"
+                          valueKey="id"
+                        />
+                      </Col>
+                      <Col lg={4} md={6}>
+                        <Form.Label className="fs-16 fw-400 base-color">Select Team</Form.Label>
+                        <ReusableDropdown
+                          options={matchData}
+                          selectedValue={selectedMatch?.teamName || 'Select Team'}
+                          onSelect={setSelectedMatch}
+                          placeholder="Team"
+                          displayKey="teamName"
+                          valueKey="teamId"
+                        />
+                      </Col>
+                      <Col lg={4} md={6}>
+                        <div className="mb-4 text-truncate">
                           <Form.Group>
                             <Form.Label className="fs-16 fw-400 base-color"> Filter Status</Form.Label>
                             <div className="mt-2">
@@ -320,12 +396,12 @@ function Users() {
                           </Form.Group>
                         </div>
                       </Col>
-                      <Col xl={3} lg={4} md={6}>
+                      <Col lg={4} md={6}>
                         <div className="d-flex align-items-center filters-dropdown-btn">
                           <Button
                             className="common-btn px-3 text-nowrap"
                             type="Submit"
-                            disabled={!selectedRole && !checkedFilter}
+                            disabled={!selectedRole && !selectedMatch && !selectedSeries && !checkedFilter}
                           >
                             <span className="me-2">
                               <FontAwesomeIcon icon={faSearch} width={18} height={18} />
@@ -336,7 +412,7 @@ function Users() {
                             className="common-outline-btn px-4 ms-2"
                             onClick={handleReset}
                             type="reset"
-                            disabled={!selectedRole && !checkedFilter}
+                            disabled={!selectedRole && !selectedMatch && !selectedSeries && !checkedFilter}
                           >
                             Reset
                           </Button>

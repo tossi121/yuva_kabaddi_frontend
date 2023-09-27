@@ -1,24 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { maxLengthCheck, validEmail, validMobile, validName } from '@/_helper/regex';
-import Link from 'next/link';
-import {
-  getMatchDetails,
-  getOtp,
-  getRole,
-  getSignup,
-  getSeries,
-  getMatchPlayers,
-  checkUser,
-} from '@/_services/services_api';
+import { getMatchDetails, getRole, getSeries, getMatchPlayers, checkUser, addUser } from '@/_services/services_api';
 import { Toaster, toast } from 'react-hot-toast';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 
-const ReusableDropdown = dynamic(import('./ReusableDropdown'));
-const VerifyOtp = dynamic(import('./VerifyOtp'));
+const ReusableDropdown = dynamic(import('../Player/ReusableDropdown'));
+const DashboardBreadcrumb = dynamic(() => import('../Layouts/DashboardBreadcrumbar'));
 
-function Signup() {
+function AddUser() {
   const initialFormValues = {
     user: '',
     email: '',
@@ -28,8 +20,7 @@ function Signup() {
   const [formValues, setFormValues] = useState(initialFormValues);
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [oneTimePassword, setOneTimePassword] = useState(null);
-  const [showOtpPopup, setShowOtpPopup] = useState(false);
+  const [isMobileNumberRegistered, setIsMobileNumberRegistered] = useState(false);
   const [roleData, setRoleData] = useState([]);
   const [selectedRole, setSelectedRole] = useState('');
   const [seriesData, setSeriesData] = useState([]);
@@ -38,16 +29,7 @@ function Signup() {
   const [selectedMatch, setSelectedMatch] = useState('');
   const [playerData, setPlayerData] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState('');
-  const [otpResendSeconds, setOtpResendSeconds] = useState(0);
-  const [isTypingOtp, setIsTypingOtp] = useState(false);
-  const [isMobileNumberRegistered, setIsMobileNumberRegistered] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    if (showOtpPopup) {
-      handleOtp();
-    }
-  }, [showOtpPopup, oneTimePassword]);
 
   useEffect(() => {
     handleRole();
@@ -70,17 +52,6 @@ function Signup() {
       handleMatchPlayers();
     }
   }, [selectedMatch]);
-
-  useEffect(() => {
-    if (otpResendSeconds > 0) {
-      const timer = setInterval(() => {
-        setOtpResendSeconds((prevSeconds) => prevSeconds - 1);
-      }, 1000);
-      return () => {
-        clearInterval(timer);
-      };
-    }
-  }, [otpResendSeconds]);
 
   async function handleRole() {
     const res = await getRole();
@@ -132,14 +103,13 @@ function Signup() {
       player_id: selectedPlayer.playerId,
       team_id: selectedMatch.teamId,
       series_id: selectedSeries.tournamentId,
-      otp: oneTimePassword,
     };
     const isMobileAlreadyRegistered = await handleCheckUser();
-    if (!isMobileAlreadyRegistered && oneTimePassword !== null) {
-      const res = await getSignup(params);
+    if (!isMobileAlreadyRegistered) {
+      const res = await addUser(params);
       if (res?.status) {
-        router.push('/login');
         toast.success(res.message);
+        router.push('/super-admin/users');
       } else {
         toast.error(res?.message);
       }
@@ -157,7 +127,6 @@ function Signup() {
     e.preventDefault();
     const errors = validate();
     setFormErrors(errors);
-
     if (Object.keys(errors).length === 0) {
       try {
         setLoading(true);
@@ -167,26 +136,6 @@ function Signup() {
       } finally {
         setLoading(false);
       }
-    }
-  };
-
-  const handleOtp = async () => {
-    if (formValues.mobile && !oneTimePassword && !isTypingOtp) {
-      if (!isMobileNumberRegistered) {
-        const params = {
-          contactno: formValues.mobile,
-        };
-        const res = await getOtp(params);
-        if (res?.status) {
-          toast.success(res?.message);
-        } else {
-          toast.error(res?.message);
-        }
-      } else {
-        toast.error('Mobile number is already registered.');
-      }
-    } else if (!formValues.mobile) {
-      toast.error('Please enter a mobile number');
     }
   };
 
@@ -224,6 +173,7 @@ function Signup() {
 
     return errors;
   };
+
   const handleCheckUser = async () => {
     if (formValues.mobile) {
       const params = {
@@ -243,49 +193,24 @@ function Signup() {
     return false;
   };
 
-  const handleRegistration = async (e) => {
-    e.preventDefault();
-    const errors = validate(formValues);
-    setFormErrors(errors);
-    if (Object.keys(errors).length === 0) {
-      const isMobileAlreadyRegistered = await handleCheckUser();
-      if (!isMobileAlreadyRegistered) {
-        setShowOtpPopup(true);
-        setOtpResendSeconds(30);
-      } else {
-        router.push('/signup');
-      }
-    }
-  };
-
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      {(showOtpPopup && (
-        <VerifyOtp
-          oneTimePassword={oneTimePassword}
-          handleSubmit={handleSubmit}
-          otpResendSeconds={otpResendSeconds}
-          setShowOtpPopup={setShowOtpPopup}
-          setOtpResendSeconds={setOtpResendSeconds}
-          formValues={formValues}
-          handleOtp={handleOtp}
-          setIsTypingOtp={setIsTypingOtp}
-          setOneTimePassword={setOneTimePassword}
-        />
-      )) || (
-        <>
-          <section className="login-page min-vh-100 d-flex align-items-center justify-content-center">
-            <Container>
-              <Row className="justify-content-center">
-                <Col md={8}>
-                  <Card>
-                    <Card.Body className="p-4">
-                      <div className="text-center">
-                        <h2 className="base-color fw-700">Welcome!</h2>
-                        <h6 className="fs-14 fw-500 base-color-2">Create your account</h6>
-                      </div>
-                      <Form autoComplete="off" onSubmit={handleRegistration}>
+      <section className="dashboard-section">
+        <Container fluid>
+          <div className="d-flex justify-content-between align-items-center">
+            <DashboardBreadcrumb breadcrumbTitle="Add User" data={'Dashboard'} />
+          </div>
+          <Row className="py-4 ">
+            <Col lg={12}>
+              <Card className="bg-white common-card-box">
+                <div className="card-head card-head-padding border-bottom">
+                  <h4 className="common-heading mb-0">Add User</h4>
+                </div>
+                <Card.Body className="box-padding">
+                  <Row className="align-items-center">
+                    <Col md={7}>
+                      <Form autoComplete="off" onSubmit={handleSubmit}>
                         <Row>
                           <Col lg={6}>
                             <div className="mb-3">
@@ -420,34 +345,41 @@ function Signup() {
                             </div>
                           </Col>
                         </Row>
-                        <div className="text-center">
-                          <Button
-                            variant="white"
-                            type="submit"
-                            className="my-3 mt-4 w-50 mx-auto fw-400 fs-18 text-white common-btn shadow-none py-2"
-                            disabled={loading}
-                          >
-                            Signup
-                            {loading && (
-                              <Spinner animation="border" size="sm" variant="white" className="ms-1 spinner" />
-                            )}
-                          </Button>
-                          <span className="base-color-2 me-2">Already have an account?</span>
-                          <Link href={'/login'} className="base-link-color">
-                            Login Here
-                          </Link>
-                        </div>
+                        <Button
+                          className="common-btn py-2 px-3 mt-4 fs-14 d-flex align-items-center"
+                          type="submit"
+                          disabled={loading}
+                        >
+                          <Image
+                            src="/images/team-roster/apply.svg"
+                            alt="Add User"
+                            width={18}
+                            height={18}
+                            className="me-1 img-fluid"
+                          />
+                          Add User
+                          {loading && <Spinner animation="border" size="sm" variant="white" className="ms-1 spinner" />}
+                        </Button>
                       </Form>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              </Row>
-            </Container>
-          </section>
-        </>
-      )}
+                    </Col>
+                    <Col md={4} className="text-end d-md-block d-none">
+                      <div className="img-wrapper text-end h-100 d-flex align-items-end w-100 justify-content-end">
+                        <img
+                          src="/images/dashboard-images/facuilty-manager.webp"
+                          alt="add-user"
+                          className="img-fluid"
+                        />
+                      </div>
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
+      </section>
     </>
   );
 }
 
-export default Signup;
+export default AddUser;

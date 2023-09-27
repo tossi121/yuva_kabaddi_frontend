@@ -7,9 +7,6 @@ import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, BarElement, T
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
-import WithdrawalsChart from './Chart/WithdrawalsChart';
-import EarningChart from './Chart/EarningChart';
-
 import {
   faFilter,
   faSearch,
@@ -19,10 +16,13 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { faMoneyBill1 } from '@fortawesome/free-regular-svg-icons';
-import UserEarnings from './UserEarnings';
 import { useAuth } from '@/_context/authContext';
 
 const DashboardBreadcrumbComponent = dynamic(import('../Layouts/DashboardBreadcrumbar'));
+const EarningChart = dynamic(import('./Chart/EarningChart'));
+const WithdrawalsChart = dynamic(import('./Chart/WithdrawalsChart'));
+const UserEarnings = dynamic(import('./UserEarnings'));
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 function Dashboard() {
@@ -32,39 +32,39 @@ function Dashboard() {
   const [earningsData, setEarningsData] = useState([]);
   const [withdrawalsData, setWithdrawalsData] = useState([]);
   const [filterChart, setFilterChart] = useState([]);
+  const [filterEarnings, setFilterEarnings] = useState([]);
   const [chart, setChart] = useState(false);
   const { currentUser } = useAuth();
-  const [show, setShow] = useState(true);
+  const [showAlert, setShowAlert] = useState(true);
 
   const requestTypes = [
-    { label: 'Paid Withdrawals', icon: faMoneyBills },
+    { label: 'Approved Withdrawals', icon: faMoneyBills },
     { label: 'Pending Withdrawals', icon: faMoneyBillAlt },
     { label: 'Rejected Withdrawals', icon: faMoneyBill1 },
     { label: 'Total Withdrawals', icon: faMoneyBillTransfer },
   ];
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [priceMoneyResponse, withdrawnRequestsResponse] = await Promise.all([
-          getPriceMoney(),
-          getWithdrawnRequests(),
-        ]);
+    handlePriceMoney();
+    handleWithdrawnRequests();
+  }, []);
 
-        if (priceMoneyResponse?.status) {
-          setEarningsData(priceMoneyResponse.data);
-        }
-
-        if (withdrawnRequestsResponse?.status) {
-          setWithdrawalsData(withdrawnRequestsResponse.data);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
+  async function handlePriceMoney() {
+    const res = await getPriceMoney();
+    if (res?.status) {
+      const data = res.data;
+      setEarningsData(data);
+      setFilterEarnings(data);
     }
+  }
 
-    fetchData();
-  }, [startDate, endDate, filterChart]);
+  async function handleWithdrawnRequests() {
+    const res = await getWithdrawnRequests();
+    if (res?.status) {
+      const data = res.data;
+      setWithdrawalsData(data);
+    }
+  }
 
   const handleChangeStartDate = (date) => {
     setStartDate(date);
@@ -76,7 +76,7 @@ function Dashboard() {
       return withdrawalsData.length;
     }
     const statusMapping = {
-      'Paid Withdrawals': 'Paid',
+      'Approved Withdrawals': 'Approved',
       'Pending Withdrawals': 'Pending',
       'Rejected Withdrawals': 'Reject',
     };
@@ -99,6 +99,7 @@ function Dashboard() {
     setStartDate(null);
     setEndDate(null);
     setChart(false);
+    setFilterEarnings(earningsData);
   };
 
   const filterEarningsData = (startDate, endDate) => {
@@ -121,8 +122,7 @@ function Dashboard() {
     nextDay.setDate(nextDay.getDate() + 1);
 
     const filteredEarningsData = filterEarningsData(startDate, endDate);
-    setEarningsData(filteredEarningsData);
-
+    setFilterEarnings(filteredEarningsData);
     const filteredData = withdrawalsData.filter((request) => {
       const createdAt = new Date(request.createdAt);
       return startDate <= createdAt && createdAt < nextDay;
@@ -132,13 +132,13 @@ function Dashboard() {
       const { createdAt, status } = request;
       const date = new Date(createdAt).toISOString().split('T')[0];
       if (!counts[date]) {
-        counts[date] = { pending: 0, paid: 0, rejected: 0 };
+        counts[date] = { pending: 0, approved: 0, rejected: 0 };
       }
 
       if (status === 'Pending') {
         counts[date].pending++;
-      } else if (status === 'Paid') {
-        counts[date].paid++;
+      } else if (status === 'Approved') {
+        counts[date].approved++;
       } else if (status === 'Reject') {
         counts[date].rejected++;
       }
@@ -164,12 +164,13 @@ function Dashboard() {
   return (
     <div className="dashboard-section">
       <Container fluid>
-        {currentUser?.comment == '' ||
-          (currentUser?.comment != null && (
-            <Alert variant="danger" onClose={() => setShow(false)} dismissible>
-              <span>{currentUser?.comment}</span>
+        {currentUser?.account_verify_comment == '' ||
+          (currentUser?.account_verify_comment != null && (
+            <Alert variant="danger" onClose={() => setShowAlert(false)} dismissible>
+              <span>{currentUser?.account_verify_comment}</span>
             </Alert>
           ))}
+
         <Row className="mt-4">
           <Col lg={12}>
             <div className="d-flex justify-content-between">
@@ -184,9 +185,7 @@ function Dashboard() {
               </Button>
             </div>
 
-            <Card
-              className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
-            >
+            <Card className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box mb-4 ' : ''}`}>
               <div className="card-head card-head-padding border-bottom">
                 <h4 className="common-heading mb-0">Filter</h4>
               </div>
@@ -269,12 +268,10 @@ function Dashboard() {
         </Row>
         <Row>
           <Col lg={earningsData.length > 0 ? 6 : 12}>
-            {withdrawalsData.length > 0 && (
-              <WithdrawalsChart withdrawalsData={withdrawalsData} filterChart={filterChart} chart={chart} />
-            )}
+            {withdrawalsData.length > 0 && <WithdrawalsChart {...{ withdrawalsData, filterChart, chart }} />}
           </Col>
           <Col lg={withdrawalsData.length > 0 ? 6 : 12}>
-            {earningsData.length > 0 && <EarningChart earningsData={earningsData} />}
+            {earningsData.length > 0 && <EarningChart {...{ filterEarnings }} />}
           </Col>
         </Row>
       </Container>
@@ -289,7 +286,7 @@ function DashboardCard({ icon, label, count }) {
         <Link href={`/dashboard/view-price-money?label=${label}`}>
           <div className="d-flex align-items-center">
             <div className="booking-image">
-              <FontAwesomeIcon icon={icon} width={50} height={50} className="base-link-color" />
+              <FontAwesomeIcon icon={icon} width={50} height={50} className="base-link-color fs-1" />
             </div>
             <div className="booking-count-box ms-4">
               <h3 className="home-card-heading fw-700 mb-1 base-color">{count}</h3>

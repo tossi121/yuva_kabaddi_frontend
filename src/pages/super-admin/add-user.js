@@ -1,14 +1,10 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
 
-const Withdrawal = dynamic(import('@/components/SuperAdmin/Withdrawals'));
+const AddUser = dynamic(import('@/components/SuperAdmin/AddUser'));
 
 function DefaultPage() {
-  return (
-    <>
-      <Withdrawal />
-    </>
-  );
+  return <AddUser />;
 }
 DefaultPage.layout = 'DashboardLayout';
 export default DefaultPage;

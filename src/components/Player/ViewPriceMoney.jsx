@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import CustomDataTable from '../DataTable/CustomDataTable';
 import { Badge, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import dynamic from 'next/dynamic';
 import moment from 'moment';
@@ -8,9 +7,10 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/router';
-import UserEarnings from './UserEarnings';
 import { getPriceMoney, getWithdrawnRequests } from '@/_services/services_api';
 
+const UserEarnings = dynamic(import('./UserEarnings'));
+const CustomDataTable = dynamic(import('../DataTable/CustomDataTable'));
 const WithdrawalModal = dynamic(import('./WithdrawalModal'));
 const DashboardBreadcrumb = dynamic(import('../Layouts/DashboardBreadcrumbar'));
 
@@ -23,7 +23,7 @@ function ViewPriceMoney() {
   const [withdrawalsData, setWithdrawalsData] = useState([]);
   const [showTable, setShowTable] = useState(true);
   const [filterData, setFilterData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+  const [filterEarnings, setFilterEarnings] = useState([]);
   const [checkedFilter, setCheckedFilter] = useState(false);
   const tableRef = useRef(null);
   const router = useRouter();
@@ -44,11 +44,12 @@ function ViewPriceMoney() {
 
   const columns = [
     { heading: 'Pricing Category', field: 'priceType' },
+    { heading: 'Series Name', field: 'seriesname' },
+    { heading: 'Price For', field: 'priceFor' },
     { heading: 'Match Number', field: 'match_no' },
     { heading: 'Winning Date', field: 'Date' },
     { heading: 'Amount', field: 'priceAmount' },
   ];
-
 
   const setSelectedFiltersByLabel = (newLabel) => {
     const updatedFilters = {
@@ -76,14 +77,14 @@ function ViewPriceMoney() {
   useEffect(() => {
     handlePriceMoney();
     handleWithdrawnRequests();
-    setFilteredData(earningsData);
-  }, [JSON.stringify(earningsData)]);
+  }, []);
 
   async function handlePriceMoney() {
     const res = await getPriceMoney();
     if (res?.status) {
       const data = res.data;
       setEarningsData(data);
+      setFilterEarnings(data);
     }
   }
 
@@ -107,9 +108,9 @@ function ViewPriceMoney() {
       } else if (label === 'Rejected Withdrawals') {
         setShowTable(false);
         setFilterData(withdrawalsData.filter((item) => item.status === 'Reject'));
-      } else {
+      } else if (label === 'Total Withdrawals') {
         setFilterData(withdrawalsData);
-        setShowTable(true);
+        setShowTable(false);
       }
     }
     if (label === undefined) {
@@ -198,7 +199,7 @@ function ViewPriceMoney() {
   const handleReset = () => {
     setStartDate(null);
     setEndDate(null);
-    setFilteredData(earningsData);
+    setFilterEarnings(earningsData);
     setFilterData(withdrawalsData);
     setCheckedFilter(false);
     setSelectedFilters({
@@ -215,7 +216,6 @@ function ViewPriceMoney() {
     let excelData =
       '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Excel Sheet</title></head><body><table>';
 
-    // Add table headings
     const headerRow = table.querySelector('thead tr');
     if (headerRow) {
       excelData += '<tr>';
@@ -226,7 +226,6 @@ function ViewPriceMoney() {
       excelData += '</tr>';
     }
 
-    // Add table data
     for (let i = 0; i < rows.length; i++) {
       const cols = rows[i].getElementsByTagName('td');
       excelData += '<tr>';
@@ -276,7 +275,7 @@ function ViewPriceMoney() {
       return isWithinDateRange && isSelectedStatus;
     });
 
-    setFilteredData(filteredEarnings);
+    setFilterEarnings(filteredEarnings);
     setFilterData(filteredWithdrawals);
     setCheckedFilter(false);
   };
@@ -288,13 +287,15 @@ function ViewPriceMoney() {
 
   return (
     <>
-      <WithdrawalModal
-        {...{
-          show,
-          setShow,
-          handleWithdrawnRequests,
-        }}
-      />
+      {show && (
+        <WithdrawalModal
+          {...{
+            show,
+            setShow,
+            handleWithdrawnRequests,
+          }}
+        />
+      )}
       <section className="dashboard-section">
         <Container fluid>
           <Row className="mt-4">
@@ -312,7 +313,7 @@ function ViewPriceMoney() {
               </div>
 
               <Card
-                className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box-commen mb-4 ' : ''}`}
+                className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box mb-4 ' : ''}`}
               >
                 <div className="card-head card-head-padding border-bottom">
                   <h4 className="common-heading mb-0">Price Money Filter</h4>
@@ -468,13 +469,17 @@ function ViewPriceMoney() {
               <Card className="bg-white common-card-box">
                 <div className="card-head card-head-padding border-bottom d-flex justify-content-between">
                   <h4 className="common-heading mb-0">View Price Money</h4>
-                  <Button className="common-btn p-1 px-2" onClick={handleDownload}>
-                    <FontAwesomeIcon icon={faDownload} className="text-white" width={15} />
+                  <Button
+                    className="common-btn p-1 px-2"
+                    disabled={(showTable && filterEarnings.length <= 0) || (!showTable && filterData.length <= 0)}
+                    onClick={handleDownload}
+                  >
+                    <FontAwesomeIcon icon={faDownload} title="Download File" className="text-white" width={15} />
                   </Button>
                 </div>
                 <Card.Body className="box-padding" ref={tableRef} id="myTable">
                   {earningsData.length > 0 && showTable && (
-                    <CustomDataTable rows={filteredData} columns={columns} options={tableOptions} />
+                    <CustomDataTable rows={filterEarnings} columns={columns} options={tableOptions} />
                   )}
 
                   {!showTable && (
