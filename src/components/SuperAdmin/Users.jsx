@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsisH, faFilter, faPlus, faSearch, faTrashAlt, faUserEdit } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisH, faFilter, faSearch, faTrashAlt, faUserEdit } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button, Card, Col, Container, Dropdown, Form, Row } from 'react-bootstrap';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -301,13 +301,6 @@ function Users() {
                     >
                       <FontAwesomeIcon icon={faFilter} width={20} height={20} />
                     </Button>
-
-                    <Link
-                      href={'/super-admin/users/add-user'}
-                      className="common-btn rounded-circle add-filter-btn d-flex align-items-center justify-content-center me-2"
-                    >
-                      <FontAwesomeIcon icon={faPlus} width={20} height={20} />
-                    </Link>
                   </div>
                 </div>
               </div>

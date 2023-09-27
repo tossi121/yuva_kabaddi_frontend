@@ -1,10 +1,23 @@
 import React from 'react';
 import { Card, Col, Row } from 'react-bootstrap';
-import { Bar, Doughnut } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 
-function WithdrawalsChart(props) {
-  const { withdrawalsChartData, chartOptions, } = props;
-
+function WithdrawalsChart({ withdrawalsChartData }) {
+  const chartOptions = {
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+        },
+      },
+    },
+  };
   return (
     <>
       <Row className="align-items-baseline">

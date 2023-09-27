@@ -131,19 +131,6 @@ function Dashboard() {
 
   const filteredRequestTypes = requestTypes.filter((type) => type.label !== 'Total Withdrawals');
 
-  const chartOptions = {
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-      },
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
-
   const toggleFilterBox = () => {
     setExpanded(!expanded);
   };
@@ -230,9 +217,7 @@ function Dashboard() {
               </Button>
             </div>
 
-            <Card
-              className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box mb-4 ' : ''}`}
-            >
+            <Card className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box mb-4 ' : ''}`}>
               <div className="card-head card-head-padding border-bottom">
                 <h4 className="common-heading mb-0">Filter</h4>
               </div>
@@ -327,17 +312,11 @@ function Dashboard() {
           {requestTypes.map((type, index) => (
             <Col key={type.label}>
               <DashboardCard icon={type.icon} label={type.label} count={getRequest(type.label)} />
-
             </Col>
           ))}
         </Row>
 
-        <WithdrawalsChart
-          withdrawalsChartData={withdrawalsChartData || filteredChartData}
-          chartOptions={chartOptions}
-          getRequest={getRequest}
-          colorsWithdrawals={colorsWithdrawals}
-        />
+        <WithdrawalsChart withdrawalsChartData={withdrawalsChartData || filteredChartData} />
       </Container>
     </div>
   );

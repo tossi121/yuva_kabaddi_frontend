@@ -8,6 +8,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+
   env: {
     BASE_API_URL: 'http://localhost:7011/',
     // BASE_API_URL: 'http://hello-my-yoga.digitaltyari.com/',
@@ -34,7 +35,7 @@ const nextConfig = {
     ADMIN_USER_DELETE_DATA: 'admin/deleteUser',
     ADMIN_CURRENT_USER_DATA: 'admin/getcurrentuserdetailsbyid',
     ADMIN_UPDATE_USER_DATA: 'admin/updateuserdetailsadmin',
-    ADMIN_VERIFY_ACCOUNT_DATA:'admin/verifyaccount',
+    ADMIN_VERIFY_ACCOUNT_DATA: 'admin/verifyaccount',
     ADMIN_VERIFY_USER_DATA: 'admin/verifyuser',
     ADMIN_TDS_CONFIG_DATA: 'admin/tdsconfig',
     ADMIN_GET_TDS_CONFIG_DATA: 'admin/gettdsconfig',

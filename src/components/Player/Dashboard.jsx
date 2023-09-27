@@ -38,7 +38,7 @@ function Dashboard() {
   const [showAlert, setShowAlert] = useState(true);
 
   const requestTypes = [
-    { label: 'Paid Withdrawals', icon: faMoneyBills },
+    { label: 'Approved Withdrawals', icon: faMoneyBills },
     { label: 'Pending Withdrawals', icon: faMoneyBillAlt },
     { label: 'Rejected Withdrawals', icon: faMoneyBill1 },
     { label: 'Total Withdrawals', icon: faMoneyBillTransfer },
@@ -185,9 +185,7 @@ function Dashboard() {
               </Button>
             </div>
 
-            <Card
-              className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box mb-4 ' : ''}`}
-            >
+            <Card className={`bg-white rounded-4 filter-wrapper card-border ${expanded ? 'expand-box mb-4 ' : ''}`}>
               <div className="card-head card-head-padding border-bottom">
                 <h4 className="common-heading mb-0">Filter</h4>
               </div>
