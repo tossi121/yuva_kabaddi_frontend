@@ -4,11 +4,11 @@ import { maxLengthCheck, validEmail, validMobile, validName } from '@/_helper/re
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { getCurrentUsers, getRole, updateUser } from '@/_services/services_api';
-import ReusableDropdown from '../Player/ReusableDropdown';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/router';
 
 const DashboardBreadcrumb = dynamic(() => import('../Layouts/DashboardBreadcrumbar'));
+const ReusableDropdown = dynamic(import('../Player/ReusableDropdown'));
 
 function EditUser({ id }) {
   const userId = id;
