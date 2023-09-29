@@ -8,7 +8,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-
   env: {
     // BASE_API_URL: 'http://localhost:7011/',
     BASE_API_URL: 'http://hello-my-yoga.digitaltyari.com/',

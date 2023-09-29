@@ -186,11 +186,11 @@ function Login() {
                   ))}
                 <Card className="border-0">
                   <Card.Body className="p-0">
-                    <div className="d-flex justify-content-center align-items-center">
+                    <div className="d-sm-flex justify-content-center align-items-center">
                       <Image
                         src="/images/dashboard-images/port-kabaddi.webp"
                         alt="login"
-                        className="rounded-start-3"
+                        className="rounded-start-3 d-none d-sm-block"
                         width={435}
                         height={415}
                       />
@@ -209,7 +209,7 @@ function Login() {
                                 name="mobile"
                                 className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                                 id="mobile"
-                                value={formValues.mobile}
+                                value={formValues.mobile.replace(/\s+/g, '')}
                                 onChange={handleChange}
                                 maxLength="10"
                                 onKeyPress={handleKeyPress}

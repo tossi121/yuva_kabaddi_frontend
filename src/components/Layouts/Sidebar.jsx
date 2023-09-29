@@ -36,7 +36,13 @@ const sidebarLinks = {
 
 function SidebarLink({ href, label, iconSrc }) {
   const router = useRouter();
-  const isActive = router.asPath === href ? 'active' : '';
+  let isActive = '';
+
+  if (href === '/dashboard') {
+    isActive = router.asPath === href ? 'active' : '';
+  } else {
+    isActive = router.asPath.startsWith(href) ? 'active' : '';
+  }
 
   return (
     <li className="nav-item position-relative">

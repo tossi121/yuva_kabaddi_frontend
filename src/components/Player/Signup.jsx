@@ -277,7 +277,7 @@ function Signup() {
         <>
           <section className="login-page min-vh-100 d-flex align-items-center justify-content-center">
             <Container>
-              <Row className="justify-content-center">
+              <Row className="justify-content-center my-3 my-sm-0">
                 <Col md={8}>
                   <Card>
                     <Card.Body className="p-4">
@@ -368,7 +368,7 @@ function Signup() {
                                   placeholder="Enter Your Full Name"
                                   name="user"
                                   className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                                  value={formValues.user}
+                                  value={formValues.user.trimStart().replace(/  +/g, ' ')}
                                   onChange={handleChange}
                                 />
                                 {formErrors.user && (
@@ -387,7 +387,7 @@ function Signup() {
                                   placeholder="Enter Your Email Address"
                                   name="email"
                                   className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                                  value={formValues.email}
+                                  value={formValues.email.replace(/\s+/g, '')}
                                   onChange={handleChange}
                                 />
                                 {formErrors.email && (
@@ -402,12 +402,12 @@ function Signup() {
                               <Form.Group className="position-relative">
                                 <Form.Label className="fs-16 fw-400 base-color">Enter Mobile Number</Form.Label>
                                 <Form.Control
-                                  type="text"
+                                  type="number"
                                   placeholder="Enter Your Mobile Number"
                                   name="mobile"
                                   className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                                   id="mobile"
-                                  value={formValues.mobile}
+                                  value={formValues.mobile.replace(/\s+/g, '')}
                                   onChange={handleChange}
                                   maxLength="10"
                                   onKeyPress={handleKeyPress}

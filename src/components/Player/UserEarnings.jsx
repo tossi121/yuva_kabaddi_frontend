@@ -39,7 +39,7 @@ function UserEarnings({ setShow, withdrawalShow }) {
         <Col>
           <Card className="bg-white rounded-4 card-border">
             <Card.Body className="box-padding">
-              <div className="d-flex justify-content-between">
+              <div className="d-sm-flex justify-content-between">
                 <div>
                   <h5 className="common-heading text-capitalize">{user_name}</h5>
                   <div className="d-flex align-items-center">

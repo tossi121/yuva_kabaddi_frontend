@@ -91,7 +91,7 @@ function MyProfile() {
   }, [stateData, currentUser]);
 
   useEffect(() => {
-    if (selectedState.id) {
+    if (selectedState?.id) {
       handleCity();
     }
   }, [selectedState?.id]);
@@ -271,15 +271,15 @@ function MyProfile() {
         <div className="d-flex justify-content-between align-items-center">
           <DashboardBreadcrumb breadcrumbTitle="My Profile" data={'Dashboard'} />
         </div>
-        <Row className="py-4 ">
+        <Row className="py-">
           <Col lg={12}>
             <Card className="card-border rounded-4 mb-4">
               <div className="card-head card-head-padding border-bottom">
                 <h4 className="common-heading mb-0">My profile</h4>
               </div>
               <Card.Body>
-                <Form>
-                  <div className="box-profile-image mb-4 d-flex align-items-center circular-image-container">
+                <Form autoComplete="off">
+                  <div className="box-profile-image mb-3 d-flex align-items-center circular-image-container">
                     <Image
                       src={profileImagePreview || '/images/user.png'}
                       alt="image"
@@ -303,7 +303,7 @@ function MyProfile() {
 
                   <Row>
                     <Col lg={6}>
-                      <div className="mb-4">
+                      <div className="mb-3">
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Enter Full Name</Form.Label>
                           <Form.Control
@@ -311,7 +311,7 @@ function MyProfile() {
                             placeholder="Enter Your Full Name"
                             name="user_name"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                            value={formValues.user_name}
+                            value={formValues.user_name.trimStart().replace(/  +/g, ' ')}
                             onChange={handleChange}
                           />
                           {formErrors.user_name && (
@@ -321,7 +321,7 @@ function MyProfile() {
                       </div>
                     </Col>
                     <Col lg={6}>
-                      <div className="mb-4">
+                      <div className="mb-3">
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Enter Email Address</Form.Label>
                           <Form.Control
@@ -329,7 +329,7 @@ function MyProfile() {
                             placeholder="Enter Your Email Address"
                             name="email"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
-                            value={formValues.email}
+                            value={formValues.email.replace(/\s+/g, '')}
                             onChange={handleChange}
                           />
                           {formErrors.email && <p className="text-danger fs-14 error-message">{formErrors.email}</p>}
@@ -337,16 +337,16 @@ function MyProfile() {
                       </div>
                     </Col>
                     <Col lg={6}>
-                      <div className="mb-4">
+                      <div className="mb-3">
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Enter Mobile Number</Form.Label>
                           <Form.Control
-                            type="text"
+                            type="number"
                             placeholder="Enter Your Mobile Number"
                             name="mobile"
                             className="shadow-none fs-14 fw-400 base-color-2 comon-form-input py-2 px-2 px-md-3"
                             id="mobile"
-                            value={formValues.mobile || '12345677890'}
+                            value={formValues.mobile.replace(/\s+/g, '')}
                             onChange={handleChange}
                             maxLength="10"
                             onKeyPress={handleKeyPress}
@@ -358,20 +358,22 @@ function MyProfile() {
                       </div>
                     </Col>
                     <Col lg={6}>
-                      <Form.Group className="position-relative">
-                        <Form.Label className="fs-16 fw-400 base-color">State</Form.Label>
-                        <ReusableDropdown
-                          options={stateData}
-                          selectedValue={selectedState?.name || 'Select State'}
-                          onSelect={setSelectedState}
-                          placeholder="State"
-                          displayKey="name"
-                          valueKey="id"
-                        />
-                        {formErrors.selectedState && (
-                          <p className="text-danger fs-14 error-message">{formErrors.selectedState}</p>
-                        )}
-                      </Form.Group>
+                      <div className="mb-3">
+                        <Form.Group className="position-relative">
+                          <Form.Label className="fs-16 fw-400 base-color">State</Form.Label>
+                          <ReusableDropdown
+                            options={stateData}
+                            selectedValue={selectedState?.name || 'Select State'}
+                            onSelect={setSelectedState}
+                            placeholder="State"
+                            displayKey="name"
+                            valueKey="id"
+                          />
+                          {formErrors.selectedState && (
+                            <p className="text-danger fs-14 error-message">{formErrors.selectedState}</p>
+                          )}
+                        </Form.Group>
+                      </div>
                     </Col>
                     <Col lg={6}>
                       <div className="mb-3">
@@ -394,7 +396,7 @@ function MyProfile() {
                     </Col>
 
                     <Col lg={6}>
-                      <div className="mb-4">
+                      <div className="mb-3">
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-14 fw-400 base-color">Add Address</Form.Label>
                           <Form.Control
@@ -419,10 +421,10 @@ function MyProfile() {
                 <h4 className="common-heading mb-0">Bank Details</h4>
               </div>
               <Card.Body className="box-padding">
-                <Form onSubmit={handleSubmit}>
+                <Form autoComplete="off" onSubmit={handleSubmit}>
                   <Row>
                     <Col lg={6}>
-                      <div className="box-profile-image mb-4">
+                      <div className="box-profile-image mb-3">
                         <div className="img-profile me-3"></div>
                         <div className="info-profile pan-card-upload p-3 d-flex justify-content-center flex-column align-items-center">
                           {panImagePreview && (
@@ -455,7 +457,7 @@ function MyProfile() {
                       </div>
                     </Col>
                     <Col lg={6}>
-                      <div className="box-profile-image mb-4">
+                      <div className="box-profile-image mb-3">
                         <div className="img-profile me-3"></div>
                         <div className="info-profile pan-card-upload p-3 d-flex justify-content-center flex-column align-items-center">
                           {passbookImagePreview && (
@@ -488,7 +490,7 @@ function MyProfile() {
                       </div>
                     </Col>
                     <Col lg={6}>
-                      <div className="mb-4">
+                      <div className="mb-3">
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Enter PAN Card No.</Form.Label>
                           <Form.Control
@@ -507,7 +509,7 @@ function MyProfile() {
                     </Col>
 
                     <Col lg={6}>
-                      <div className="mb-4">
+                      <div className="mb-3">
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Enter Bank IFSC Code</Form.Label>
                           <Form.Control
@@ -526,7 +528,7 @@ function MyProfile() {
                     </Col>
 
                     <Col lg={6}>
-                      <div className="mb-4">
+                      <div className="mb-3">
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Enter Bank Name</Form.Label>
                           <Form.Control
@@ -545,7 +547,7 @@ function MyProfile() {
                     </Col>
 
                     <Col lg={6}>
-                      <div className="mb-4">
+                      <div className="mb-3">
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Enter Bank Branch Name</Form.Label>
                           <Form.Control
@@ -564,7 +566,7 @@ function MyProfile() {
                     </Col>
 
                     <Col lg={6}>
-                      <div className="mb-4">
+                      <div className="mb-3">
                         <Form.Group className="position-relative">
                           <Form.Label className="fs-16 fw-400 base-color">Enter Account Number</Form.Label>
                           <Form.Control
