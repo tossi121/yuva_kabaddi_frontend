@@ -271,7 +271,7 @@ function MyProfile() {
         <div className="d-flex justify-content-between align-items-center">
           <DashboardBreadcrumb breadcrumbTitle="My Profile" data={'Dashboard'} />
         </div>
-        <Row className="py-">
+        <Row className="mt-4">
           <Col lg={12}>
             <Card className="card-border rounded-4 mb-4">
               <div className="card-head card-head-padding border-bottom">

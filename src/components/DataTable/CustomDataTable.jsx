@@ -278,21 +278,25 @@ function CustomDataTable(props) {
           const isSelected = selectedRows[key];
           return (
             <tr key={key}>
-              {(((row.status != 'Approved' && path === '/super-admin/withdrawal-approval') ||
-                (row.verify_status !== 'Approved' && path === '/super-admin/users') ||
-                (row.account_verify_status !== 'Approved' &&
-                  path === '/super-admin/account-approval' &&
-                  row.status !== 'Approved' &&
-                  showCheckboxes)) && (
-                <td className="text-center">
-                  <input type="checkbox" checked={isSelected} onChange={() => handleRowSelection(key)} />
-                </td>
-              )) || (
+              {path !== '/super-admin/price-master' && (
                 <>
-                  {role == 'SUPER_ADMIN' && (
+                  {(((row.status != 'Approved' && path === '/super-admin/withdrawal-approval') ||
+                    (row.verify_status !== 'Approved' && path === '/super-admin/users') ||
+                    (row.account_verify_status !== 'Approved' &&
+                      path === '/super-admin/account-approval' &&
+                      row.status !== 'Approved' &&
+                      showCheckboxes)) && (
                     <td className="text-center">
-                      <input type="checkbox" disabled />
+                      <input type="checkbox" checked={isSelected} onChange={() => handleRowSelection(key)} />
                     </td>
+                  )) || (
+                    <>
+                      {role == 'SUPER_ADMIN' && (
+                        <td className="text-center">
+                          <input type="checkbox" disabled />
+                        </td>
+                      )}
+                    </>
                   )}
                 </>
               )}

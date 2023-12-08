@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBank,
   faGear,
+  faIndianRupeeSign,
   faUserCheck,
   faUserCog,
   faUserEdit,
@@ -30,6 +31,7 @@ const sidebarLinks = {
     { href: '/super-admin/users', label: 'Users Approval', iconSrc: faUserCheck },
     { href: '/super-admin/account-approval', label: 'Account Approval', iconSrc: faUserCog },
     { href: '/super-admin/withdrawal-approval', label: 'Withdrawal Approval', iconSrc: faBank },
+    { href: '/super-admin/price-master', label: 'Price Master', iconSrc: faIndianRupeeSign },
   ],
   COACH: [...commonLinks],
 };

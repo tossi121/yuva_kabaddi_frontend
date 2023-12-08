@@ -258,3 +258,31 @@ export async function addUser(params) {
     return null;
   }
 }
+
+export async function getPriceMasterList(params) {
+  try {
+    const response = await fetcher('GET', process.env.ADMIN_PRICES, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function getMatchGroup(id) {
+  try {
+    const url = `${process.env.ADMIN_MATCH_GROUP}/${id}`;
+    const response = await fetcher('GET', url);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+export async function priceMasterUpdate(params) {
+  try {
+    const response = await fetcher('POST', process.env.ADMIN_PRICE_GROUP, params);
+    return response;
+  } catch (err) {
+    return null;
+  }
+}

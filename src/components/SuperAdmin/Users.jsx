@@ -221,7 +221,6 @@ function Users() {
       return false;
     });
     setFilterData(filteredData);
-    console.log(filteredData, 'filteredData');
   };
 
   const handleReset = () => {

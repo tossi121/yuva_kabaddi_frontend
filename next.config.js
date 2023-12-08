@@ -9,8 +9,8 @@ const nextConfig = {
     unoptimized: true,
   },
   env: {
-    // BASE_API_URL: 'http://localhost:7011/',
-    BASE_API_URL: 'http://hello-my-yoga.digitaltyari.com/',
+    BASE_API_URL: 'http://localhost:7011/',
+    // BASE_API_URL: 'http://hello-my-yoga.digitaltyari.com/',
     SIGNUP_DATA: 'signup',
     LOGIN_DATA: 'login',
     OTP_DATA: 'sendotpbysms',
@@ -41,6 +41,9 @@ const nextConfig = {
     ADMIN_PLAYER_WITHDRAW_REQUESTS_LIST_DATA: 'admin/getplayerwithdrawnrequestslist',
     ADMIN_UPDATE_PLAYER_TRANSACTION_STATUS: 'admin/updateplayertransactionstatus',
     ADMIN_ADD_USER: 'admin/addnewuser',
+    ADMIN_PRICES: 'admin/prices',
+    ADMIN_MATCH_GROUP: 'admin/matchgroup',
+    ADMIN_PRICE_GROUP: 'admin/pricewithjson',
   },
 };
 
